@@ -1,0 +1,174 @@
+﻿<Window x:Class="My_money.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:My_money"
+        xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
+        mc:Ignorable="d"
+        Title="My Money" Height="740" Width="1220" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="NoResize" Background="Transparent" AllowsTransparency="True" >
+
+    <!--#region Style -->
+    <Window.Resources>
+        <Style x:Key="IconText">
+            <Setter Property="Control.Foreground" Value="White"/>
+            <Setter Property="Control.FontFamily" Value="ISOCpeur"/>
+            <Setter Property="Control.FontSize" Value="30"/>
+            <Setter Property="Control.Margin" Value="10,0,0,0"/>
+        </Style>
+        <Style x:Key="IconBox">
+            <Setter Property="Control.Background">
+                <Setter.Value>
+                    <LinearGradientBrush>
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="#7F7CF1" Offset="0" />
+                            <GradientStop Color="#D3B7FF" Offset="1"/>
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <!--#endregion-->
+
+    <!-- back grid -->
+    <Grid>
+        <!--#region Background -->
+        <Border Background="#1C1D31" CornerRadius="20">
+            <!--#endregion-->
+
+            <!--#region Main-->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="0.02*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Gradient -->
+                <Border Grid.Row="1" CornerRadius="0,0,20,20">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
+                            <GradientStop Color="#FB539B" Offset="0"/>
+                            <GradientStop Color="#6D2FFF" Offset="0.9"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+                <!--#region menu - usefull -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.25*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!--#region Menu -->
+                    <Border CornerRadius="20,0,0,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
+                                <GradientStop Color="#77529E" Offset="0"/>
+                                <GradientStop Color="#5547A2" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0.5*"/>
+                                <RowDefinition Height="0.5*"/>
+                                <RowDefinition Height="0.5*"/>
+                                <RowDefinition Height="0.5*"/>
+                                <RowDefinition Height="0.5*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!--#region ICON-->
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                                <Border Style="{StaticResource IconBox}" Height="65" Width="65" CornerRadius="20,20,20,20">
+                                    <fa:IconImage Icon="UserAstronaut" Height="50" Width="50" Foreground="White"/>
+                                    <!-- Icon -->
+                                </Border>
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="MY MONEY" Grid.Row="0" Style="{StaticResource IconText}"/>
+                                    <TextBlock Text="v1.0.1" Grid.Row="0" Margin="10,0,0,0"/>
+                                    <!-- Version -->
+                                </StackPanel>
+                            </StackPanel>
+                            <!--#endregion-->
+
+                            <Separator Grid.Row="1" Height="1" Margin="20 0" VerticalAlignment="Top" Background="White"/>
+
+                        </Grid>
+                    </Border>
+                    <!--#endregion-->
+
+                    <!--#region Main Usefull -->
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="0.35*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!--#region Up menu-->
+                        <Grid Grid.Row="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0.4*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!--#region List of categories-->
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                            </Grid>
+                            <!--#endregion-->
+                        </Grid>
+                        <!--#endregion-->
+
+                        <!--#region Down menu-->
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="0.5*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!--#region Pie chart-->
+                            <!--#endregion-->
+
+                            <!--#region Left space-->
+                            <Grid Grid.Column="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="0.3*"/>
+                                    <RowDefinition Height="0.25*"/>
+                                </Grid.RowDefinitions>
+
+                                <!--#region Last Transactions-->
+
+                                <!--#endregion-->
+
+                                <!--#region Time period-->
+                                <Grid Grid.Row="1">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                </Grid>
+                                <!--#endregion-->
+
+                                <!--#region Add -->
+
+                                <!--#endregion-->
+
+                            </Grid>
+                            <!--#endregion-->
+                        </Grid>
+                        <!--#endregion-->
+                    </Grid>
+                    <!--#endregion-->
+                </Grid>
+                <!--#endregion-->
+            </Grid>
+            <!--#endregion-->
+        </Border>
+    </Grid>
+</Window>
