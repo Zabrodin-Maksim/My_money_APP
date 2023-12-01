@@ -28,6 +28,79 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="ButtonsMenu" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <!--background-->
+            <Setter Property="Margin" Value="20"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="FontSize" Value="20"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderThickness="0 0 0 0"  BorderBrush="#8A23C5">
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="20,0,0,0"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
+                                <GradientStop Color="#1C1D31" Offset="0"/>
+                                <GradientStop Color="#6441a5" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" BorderThickness="0 0 0 0"  BorderBrush="#FB539B" CornerRadius="20">
+                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="30,0,0,0"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="UpState" TargetType="Border">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
+                        <GradientStop Color="#1C1D31" Offset="0"/>
+                        <GradientStop Color="#33DCC3" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="CornerRadius" Value="10"/>
+        </Style>
+
+        <Style x:Key="TotalSpend" TargetType="Border">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
+                        <GradientStop Color="#3270DB" Offset="0.1"/>
+                        <GradientStop Color="#6132DB" Offset="1.1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Margin" Value="50, 10, 20, 10"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Clip">
+                <Setter.Value>
+                    <RectangleGeometry RadiusX="15" RadiusY="15" Rect="0,0, 255.3, 114.3"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     <!--#endregion-->
 
@@ -94,6 +167,39 @@
 
                             <Separator Grid.Row="1" Height="1" Margin="20 0" VerticalAlignment="Top" Background="White"/>
 
+                            <!--#region Buttons-->
+                            <!-- Dashboard -->
+                            <Button Grid.Row="1" Style="{StaticResource ButtonsMenu}">
+                                <StackPanel Orientation="Horizontal">
+                                    <fa:IconImage Icon="ChartPie" Height="40" Width="43" Foreground="White"/>
+                                    <TextBlock Text="Dashboard" Margin="10, 10, 10, 10"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- moneybox  -->
+                            <Button Grid.Row="2" Style="{StaticResource ButtonsMenu}">
+                                <StackPanel Orientation="Horizontal">
+                                    <fa:IconImage Icon="PiggyBank" Height="40" Width="40" Foreground="White"/>
+                                    <TextBlock Text="Moneybox " Margin="10, 15, 10, 10"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Dashboard -->
+                            <Button Grid.Row="3" Style="{StaticResource ButtonsMenu}">
+                                <StackPanel Orientation="Horizontal">
+                                    <fa:IconImage Icon="ScaleBalanced" Height="40" Width="40" Foreground="White"/>
+                                    <TextBlock Text="Plan" Margin="10, 15, 10, 10"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Dashboard -->
+                            <Button Grid.Row="4" Style="{StaticResource ButtonsMenu}">
+                                <StackPanel Orientation="Horizontal">
+                                    <fa:IconImage Icon="ClockRotateLeft" Height="35" Width="40" Foreground="White"/>
+                                    <TextBlock Text="History" Margin="10, 13, 10, 10"/>
+                                </StackPanel>
+                            </Button>
+                            <!--#endregion-->
                         </Grid>
                     </Border>
                     <!--#endregion-->
@@ -111,7 +217,17 @@
                                 <RowDefinition Height="0.4*"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
+                            <!--#region Up-->
+                            <StackPanel Orientation="Horizontal">
+                                <fa:IconImage Icon="MoneyBill1" Width="40" Foreground="White" Margin=" 40, 0, 20, 0" />
+                                <TextBlock Text="Dashboard" FontSize="25" Foreground="White" VerticalAlignment="Center"/>
 
+                                <Border Margin="40, 10, 0, 10" Width="170" Style="{StaticResource UpState}">
+                                    <TextBlock x:Name="StateUpText" Text="Normal" FontSize="20" Foreground="White" Margin="20,2,0,0"/>
+                                </Border>
+                            </StackPanel>
+                            <!--#endregion-->
+                            
                             <!--#region List of categories-->
                             <Grid Grid.Row="1">
                                 <Grid.ColumnDefinitions>
@@ -119,8 +235,49 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
+                                
+                                
+                                <Border Style="{StaticResource TotalSpend}" Grid.Column="0" >
+                                    <Grid>
+                                        <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12"/>
+
+                                        <fa:IconImage Icon="MoneyBill1" Width="60" Height="60" Foreground="White" Margin="182,7,13,47"/>
+
+                                        <StackPanel VerticalAlignment="Bottom" Margin="10,0">
+                                            <TextBlock Text="Total Spending:" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
+                                            <TextBlock Text="19.500 Kč" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+
+                                <Border Style="{StaticResource TotalSpend}" Grid.Column="1">
+                                    <Grid>
+                                        <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12"/>
+
+                                        <fa:IconImage Icon="CreditCard" Width="60" Height="60" Foreground="White" Margin="182,7,13,47"/>
+
+                                        <StackPanel VerticalAlignment="Bottom" Margin="10,0">
+                                            <TextBlock Text="Balance:" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
+                                            <TextBlock Text="3.500 Kč" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+
+                                <Border Style="{StaticResource TotalSpend}" Grid.Column="2">
+                                    <Grid>
+                                        <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12"/>
+
+                                        <fa:IconImage Icon="MoneyBillTrendUp" Width="55" Height="55" Foreground="White" Margin="182,7,13,47"/>
+
+                                        <StackPanel VerticalAlignment="Bottom" Margin="10,0">
+                                            <TextBlock Text="Bank:" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
+                                            <TextBlock Text="5.000 Kč" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
                             </Grid>
                             <!--#endregion-->
+                            
                         </Grid>
                         <!--#endregion-->
 
@@ -152,6 +309,8 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
+
+                                    <DatePicker Grid.Row="1" Width="200" BorderBrush="Transparent"/>      <!-- DATE PICKER-->
                                 </Grid>
                                 <!--#endregion-->
 
