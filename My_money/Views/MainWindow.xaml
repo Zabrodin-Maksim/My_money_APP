@@ -6,10 +6,13 @@
         xmlns:local="clr-namespace:My_money"
         xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
         mc:Ignorable="d"
+        
         Title="My Money" Height="740" Width="1220" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="NoResize" Background="Transparent" AllowsTransparency="True" >
-
+        
     <!--#region Style -->
     <Window.Resources>
+        
+        
         <Style x:Key="IconText">
             <Setter Property="Control.Foreground" Value="White"/>
             <Setter Property="Control.FontFamily" Value="ISOCpeur"/>
@@ -100,6 +103,96 @@
                     <RectangleGeometry RadiusX="15" RadiusY="15" Rect="0,0, 255.3, 114.3"/>
                 </Setter.Value>
             </Setter>
+        </Style>
+        
+        
+        <!--#region  Date Picker-->
+
+        <Style TargetType="DatePickerTextBox">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Text" Value="Choose a date"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+
+        <Style x:Key="DatePicker" TargetType="DatePicker">
+            <Setter Property="Margin" Value="15,20,0,0"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="TextBlock.Foreground" Value="White"/>
+            <Setter Property="CalendarStyle">
+                <Setter.Value>
+                    <Style TargetType="Calendar">
+                        <Setter Property="Background" Value="#5547A2"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        
+        <!--#endregion-->
+        
+        <Style x:Key="SliderSt" TargetType="Slider">
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="Minimum" Value="0"/>
+            <Setter Property="Value" Value="1"/>
+            <Setter Property="Maximum" Value="2"/>
+            <Setter Property="IsSnapToTickEnabled" Value="True"/>
+            <Setter Property="TickPlacement" Value="BottomRight"/>
+            <Setter Property="TickFrequency" Value="1"/>
+            <Setter Property="Foreground" Value="#FB539B"/>
+            
+        </Style>
+        
+        <!--#region Day/Mounth/Year-->
+        <Style x:Key="TextDMY" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FB539B"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+        <!--#endregion-->
+
+        <Style x:Key="ADDButton" TargetType="Button">
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+
+            <Setter Property="Margin" Value="20"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderThickness="4 4 4 4"  BorderBrush="#C03F77">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
+                                <GradientStop Color="#FB539B" Offset="0"/>
+                                <GradientStop Color="#C03F77" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}"  CornerRadius="20">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
     <!--#endregion-->
@@ -309,13 +402,40 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
+                                    
+                                    <!--#region DD/MM/YY-->
+                                    <Grid Grid.Row="0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
 
-                                    <DatePicker Grid.Row="1" Width="200" BorderBrush="Transparent"/>      <!-- DATE PICKER-->
+                                        <Slider Style="{StaticResource SliderSt}" />
+                                        
+                                        <Grid Grid.Row="1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="0.4*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="1.5*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="0.4*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Text="Day" Grid.Column="1" Style="{StaticResource TextDMY}"/>
+                                            <TextBlock Text="Mounth" Grid.Column="2" Style="{StaticResource TextDMY}"/>
+                                            <TextBlock Text="Year" Grid.Column="3" Style="{StaticResource TextDMY}"/>
+                                        </Grid>
+                                    </Grid>
+                                    <!--#endregion-->
+                                        
+                                    <DatePicker Style="{StaticResource DatePicker}" Grid.Row="1" Width="150"  />    <!-- DATE PICKER-->
                                 </Grid>
                                 <!--#endregion-->
 
                                 <!--#region Add -->
-
+                                <Button Grid.Row="2" Style="{StaticResource ADDButton}">
+                                    <TextBlock Text="ADD"/>
+                                </Button>
                                 <!--#endregion-->
 
                             </Grid>

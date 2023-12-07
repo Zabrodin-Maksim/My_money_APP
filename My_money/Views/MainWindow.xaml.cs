@@ -24,5 +24,9 @@ namespace My_money
         {
             InitializeComponent();
         }
+
+        
+
+        
     }
 }
