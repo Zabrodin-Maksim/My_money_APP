@@ -23,10 +23,7 @@ namespace My_money
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = new My_money.ViewModel.MainViewModel();
         }
-
-        
-
-        
     }
 }
