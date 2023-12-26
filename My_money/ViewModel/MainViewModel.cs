@@ -15,7 +15,18 @@ namespace My_money.ViewModel
     [Serializable]
     public class MainViewModel
     {
-        public MainViewModel() {
+
+        private int banksum;
+        public int Banksum { get { return banksum; } }
+        
+        private int totalCost;
+        public int TotalCost { get { return totalCost; } }
+
+        public ObservableCollection<Record> Records { get; set; }
+
+
+        public MainViewModel()
+        {
 
             LoadRecords();
 
@@ -27,49 +38,6 @@ namespace My_money.ViewModel
             }
         }
 
-        private int banksum;
-        public int Banksum { get { return banksum; } }
-        
-        private int totalCost;
-        public int TotalCost { get { return totalCost; } }
-
-        public ObservableCollection<Record> Records { get; set; }
-        
-    
-        private void LoadRecords()
-        {
-            // Loading data from an XML file
-            string fileName = "data.xml";
-
-            if (File.Exists(fileName))
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<Record>));
-
-                using (Stream stream = new FileStream(fileName, FileMode.Open))
-                {
-                    MainViewModel? loadedViewMpdel = serializer.Deserialize(stream) as MainViewModel;
-                    
-                    Records = loadedViewMpdel.Records;
-
-                }
-            }
-
-
-            else
-            {
-                // If the file does not exist, create a new list of data
-                ObservableCollection<Record> records = new ObservableCollection<Record>();
-
-                records.Add(new Record { Cost = 100 });
-                records.Add(new Record { Cost = 200 });
-                records.Add(new Record { Cost = 2000 });
-                records.Add(new Record { Cost = 2000 });
-
-                Records = records;
-            }
-
-            CalculateCost();
-        }
 
 
         private void CalculateCost()
@@ -84,13 +52,59 @@ namespace My_money.ViewModel
 
         private void SaveToXml(string fileName)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(ObservableCollection<Record>));
+            XmlSerializer serializer = new XmlSerializer(typeof(ContainerAppData));
             
             using (Stream stream = new FileStream(fileName, FileMode.Create))
             {
-                serializer.Serialize(stream, this);
+                ContainerAppData appData = new ContainerAppData
+                {
+                    Records = Records,
+                    Banksum = Banksum,
+                };
+
+                serializer.Serialize(stream, appData);
             }
         }
+        private void LoadRecords()
+        {
+            // Loading data from an XML file
+            string fileName = "data.xml";
+
+            if (File.Exists(fileName))
+            {
+                using (Stream stream = new FileStream(fileName, FileMode.Open))
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(ContainerAppData));
+                    ContainerAppData? appData = serializer.Deserialize(stream) as ContainerAppData;
+
+                    if(appData != null)
+                    {
+                        Records = appData.Records;
+                        banksum = appData.Banksum;
+                    }
+
+                }
+            }
+            else
+            {
+                // If the file does not exist, create a new list of data for demo
+                ObservableCollection<Record> records = new ObservableCollection<Record>();
+
+                banksum = 5000;
+
+                records.Add(new Record { Cost = 100 });
+                records.Add(new Record { Cost = 200 });
+                records.Add(new Record { Cost = 2000 });
+                records.Add(new Record { Cost = 2000 });
+
+                Records = records;
+
+            }
+
+            CalculateCost();
+        }
+
+
 
         private void MainWindowClosing(object? sender, CancelEventArgs e)
         {
