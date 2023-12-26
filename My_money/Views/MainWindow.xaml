@@ -338,7 +338,7 @@
 
                                         <StackPanel VerticalAlignment="Bottom" Margin="10,0">
                                             <TextBlock Text="Total Spending:" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
-                                            <TextBlock Text="{Binding Path= TotalCost}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
+                                            <TextBlock Text="{Binding Path= TotalCost,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -364,7 +364,7 @@
 
                                         <StackPanel VerticalAlignment="Bottom" Margin="10,0">
                                             <TextBlock Text="Bank:" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
-                                            <TextBlock Text="{Binding Path= Banksum}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
+                                            <TextBlock Text="{Binding Path= Banksum, StringFormat={}{0:c1}, ConverterCulture=cs-CZ}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
