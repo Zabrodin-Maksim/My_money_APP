@@ -8,11 +8,11 @@
         mc:Ignorable="d"
         
         Title="My Money" Height="740" Width="1220" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="NoResize" Background="Transparent" AllowsTransparency="True" >
-        
+
     <!--#region Style -->
     <Window.Resources>
-        
-        
+
+
         <Style x:Key="IconText">
             <Setter Property="Control.Foreground" Value="White"/>
             <Setter Property="Control.FontFamily" Value="ISOCpeur"/>
@@ -75,7 +75,7 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="UpState" TargetType="Border">
+        <!--<Style x:Key="UpState" TargetType="Border">
             <Setter Property="Background">
                 <Setter.Value>
                     <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
@@ -85,9 +85,9 @@
                 </Setter.Value>
             </Setter>
             <Setter Property="CornerRadius" Value="10"/>
-        </Style>
+        </Style>-->
 
-        <Style x:Key="TotalSpend" TargetType="Border">
+        <!--<Style x:Key="TotalSpend" TargetType="Border">
             <Setter Property="Background">
                 <Setter.Value>
                     <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
@@ -103,10 +103,10 @@
                     <RectangleGeometry RadiusX="15" RadiusY="15" Rect="0,0, 255.3, 114.3"/>
                 </Setter.Value>
             </Setter>
-        </Style>
-        
-        
-        <!--#region  Date Picker-->
+        </Style>-->
+
+
+        <!--#region  Date Picker--><!--
 
         <Style TargetType="DatePickerTextBox">
             <Setter Property="Background" Value="Transparent" />
@@ -126,11 +126,11 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
-        
-        <!--#endregion-->
-        
-        <Style x:Key="SliderSt" TargetType="Slider">
+
+
+        --><!--#endregion-->
+
+        <!--<Style x:Key="SliderSt" TargetType="Slider">
             <Setter Property="Width" Value="200"/>
             <Setter Property="Minimum" Value="0"/>
             <Setter Property="Value" Value="1"/>
@@ -139,18 +139,18 @@
             <Setter Property="TickPlacement" Value="BottomRight"/>
             <Setter Property="TickFrequency" Value="1"/>
             <Setter Property="Foreground" Value="#FB539B"/>
-            
-        </Style>
-        
-        <!--#region Day/Mounth/Year-->
+
+        </Style>-->
+
+        <!--#region Day/Mounth/Year--><!--
         <Style x:Key="TextDMY" TargetType="TextBlock">
             <Setter Property="Foreground" Value="#FB539B"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="TextAlignment" Value="Center"/>
         </Style>
-        <!--#endregion-->
+        --><!--#endregion-->
 
-        <Style x:Key="ADDButton" TargetType="Button">
+        <!--<Style x:Key="ADDButton" TargetType="Button">
             <Setter Property="Width" Value="200"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="White"/>
@@ -193,7 +193,7 @@
 
                 </Trigger>
             </Style.Triggers>
-        </Style>
+        </Style>-->
     </Window.Resources>
     <!--#endregion-->
 
@@ -262,7 +262,7 @@
 
                             <!--#region Buttons-->
                             <!-- Dashboard -->
-                            <Button Grid.Row="1" Style="{StaticResource ButtonsMenu}">
+                            <Button Command="{Binding NavCommand}" CommandParameter="Dashboard" Grid.Row="1" Style="{StaticResource ButtonsMenu}">
                                 <StackPanel Orientation="Horizontal">
                                     <fa:IconImage Icon="ChartPie" Height="40" Width="43" Foreground="White"/>
                                     <TextBlock Text="Dashboard" Margin="10, 10, 10, 10"/>
@@ -299,18 +299,19 @@
 
                     <!--#region Main Usefull -->
                     <Grid Grid.Column="1">
+                        <!--#region main content --><!--
                         <Grid.RowDefinitions>
                             <RowDefinition Height="0.35*"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <!--#region Up menu-->
+                        --><!--#region Up menu--><!--
                         <Grid Grid.Row="0">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="0.4*"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <!--#region Up-->
+                            --><!--#region Up--><!--
                             <StackPanel Orientation="Horizontal">
                                 <fa:IconImage Icon="MoneyBill1" Width="40" Foreground="White" Margin=" 40, 0, 20, 0" />
                                 <TextBlock Text="Dashboard" FontSize="25" Foreground="White" VerticalAlignment="Center"/>
@@ -319,17 +320,17 @@
                                     <TextBlock x:Name="StateUpText" Text="Normal" FontSize="20" Foreground="White" Margin="20,2,0,0"/>
                                 </Border>
                             </StackPanel>
-                            <!--#endregion-->
-                            
-                            <!--#region List of categories-->
+                            --><!--#endregion-->
+
+                            <!--#region List of categories--><!--
                             <Grid Grid.Row="1">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                
-                                
+
+
                                 <Border Style="{StaticResource TotalSpend}" Grid.Column="0" >
                                     <Grid>
                                         <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12"/>
@@ -369,22 +370,22 @@
                                     </Grid>
                                 </Border>
                             </Grid>
-                            <!--#endregion-->
-                            
-                        </Grid>
-                        <!--#endregion-->
+                            --><!--#endregion--><!--
 
-                        <!--#region Down menu-->
+                        </Grid>
+                        --><!--#endregion-->
+
+                        <!--#region Down menu--><!--
                         <Grid Grid.Row="1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="0.5*"/>
                             </Grid.ColumnDefinitions>
 
-                            <!--#region Pie chart-->
+                            --><!--#region Pie chart-->
                             <!--#endregion-->
 
-                            <!--#region Left space-->
+                            <!--#region Left space--><!--
                             <Grid Grid.Column="1">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -392,18 +393,18 @@
                                     <RowDefinition Height="0.25*"/>
                                 </Grid.RowDefinitions>
 
-                                <!--#region Last Transactions-->
+                                --><!--#region Last Transactions-->
 
                                 <!--#endregion-->
 
-                                <!--#region Time period-->
+                                <!--#region Time period--><!--
                                 <Grid Grid.Row="1">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
-                                    
-                                    <!--#region DD/MM/YY-->
+
+                                    --><!--#region DD/MM/YY--><!--
                                     <Grid Grid.Row="0">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*"/>
@@ -411,7 +412,7 @@
                                         </Grid.RowDefinitions>
 
                                         <Slider Style="{StaticResource SliderSt}" />
-                                        
+
                                         <Grid Grid.Row="1">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="0.4*"/>
@@ -426,22 +427,25 @@
                                             <TextBlock Text="Year" Grid.Column="3" Style="{StaticResource TextDMY}"/>
                                         </Grid>
                                     </Grid>
-                                    <!--#endregion-->
-                                        
-                                    <DatePicker Style="{StaticResource DatePicker}" Grid.Row="1" Width="150"  />    <!-- DATE PICKER-->
-                                </Grid>
-                                <!--#endregion-->
+                                    --><!--#endregion--><!--
 
-                                <!--#region Add -->
+                                    <DatePicker Style="{StaticResource DatePicker}" Grid.Row="1" Width="150"  />
+                                    --><!-- DATE PICKER--><!--
+                                </Grid>
+                                --><!--#endregion-->
+
+                                <!--#region Add --><!--
                                 <Button Grid.Row="2" Style="{StaticResource ADDButton}">
                                     <TextBlock Text="ADD"/>
                                 </Button>
-                                <!--#endregion-->
+                                --><!--#endregion--><!--
 
                             </Grid>
-                            <!--#endregion-->
+                            --><!--#endregion--><!--
                         </Grid>
+                        --><!--#endregion-->
                         <!--#endregion-->
+                        <ContentControl Content="{Binding CurrentView}"/>
                     </Grid>
                     <!--#endregion-->
                 </Grid>

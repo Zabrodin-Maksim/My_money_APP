@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 namespace My_money.Model
 {
     [Serializable]
-    public class Record : INotifyPropertyChanged
+    public class Record 
+        //: INotifyPropertyChanged
     {
 
         private int cost;
@@ -19,14 +20,14 @@ namespace My_money.Model
         public int Cost { get { return cost; }
             set { 
                 cost = value;
-                RaisePropertyChanged("Cost");
+               // RaisePropertyChanged("Cost");
             }
         }
 
         public TypsRecord Typ {  get { return typ; } 
             set { 
                 typ = value;
-                RaisePropertyChanged("Typ");
+               // RaisePropertyChanged("Typ");
             } 
         }
 
@@ -36,18 +37,18 @@ namespace My_money.Model
             set
             {
                 dateTimeOccurred = value;
-                RaisePropertyChanged("DateTimeOccurred");
+                //RaisePropertyChanged("DateTimeOccurred");
             }
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        //public event PropertyChangedEventHandler? PropertyChanged;
 
-        private void RaisePropertyChanged(string property)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(property));
-            }
-        }
+        //private void RaisePropertyChanged(string property)
+        //{
+        //    if (PropertyChanged != null)
+        //    {
+        //        PropertyChanged(this, new PropertyChangedEventArgs(property));
+        //    }
+        //}
     }
 }

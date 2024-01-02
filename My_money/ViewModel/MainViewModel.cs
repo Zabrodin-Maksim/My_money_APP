@@ -7,18 +7,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Xml.Serialization;
 using My_money.Model;
+using My_money.Views;
 
 namespace My_money.ViewModel
 {
-    [Serializable]
-    public class MainViewModel
+    public class MainViewModel : ViewModelBase
     {
 
         private int banksum;
         public int Banksum { get { return banksum; } }
-        
+
         private int totalCost;
         public int TotalCost { get { return totalCost; } }
 
@@ -27,8 +28,9 @@ namespace My_money.ViewModel
 
         public MainViewModel()
         {
-
             LoadRecords();
+
+            NavCommand = new MyICommand<string>(OnNav);
 
             Window mainWindow = Application.Current.MainWindow;
 
@@ -40,7 +42,7 @@ namespace My_money.ViewModel
 
 
 
-        private void CalculateCost()
+        private void CalculateTotalSpending()
         {
             for (int i = 0; Records.Count > i; i++)
             {
@@ -53,7 +55,7 @@ namespace My_money.ViewModel
         private void SaveToXml(string fileName)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(ContainerAppData));
-            
+
             using (Stream stream = new FileStream(fileName, FileMode.Create))
             {
                 ContainerAppData appData = new ContainerAppData
@@ -77,12 +79,11 @@ namespace My_money.ViewModel
                     XmlSerializer serializer = new XmlSerializer(typeof(ContainerAppData));
                     ContainerAppData? appData = serializer.Deserialize(stream) as ContainerAppData;
 
-                    if(appData != null)
+                    if (appData != null)
                     {
                         Records = appData.Records;
                         banksum = appData.Banksum;
                     }
-
                 }
             }
             else
@@ -101,15 +102,40 @@ namespace My_money.ViewModel
 
             }
 
-            CalculateCost();
+            CalculateTotalSpending();
         }
-
-
 
         private void MainWindowClosing(object? sender, CancelEventArgs e)
         {
             SaveToXml("data.xml");
         }
 
+        // NAVIGATION
+        #region NAVIGATION
+
+        private DashboardView dashboardView = new DashboardView();
+
+        private UserControl currentView;
+        public UserControl CurrentView
+        {
+            get { return currentView; }
+            set { SetProperty(ref currentView, value); }
+        }
+
+        public MyICommand<string> NavCommand { get; private set; }
+        private void OnNav(string destination)
+        {
+            switch (destination)
+            {
+                case "Dashboard":
+                    CurrentView = dashboardView;
+                    break;
+                //case "History":
+                //default:
+                //    CurrentView = dashboardView;
+                //    break;
+            }
+        }
+        #endregion
     }
 }
