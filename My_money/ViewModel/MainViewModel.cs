@@ -28,9 +28,12 @@ namespace My_money.ViewModel
 
         public MainViewModel()
         {
+            Records = new ObservableCollection<Record>();
+
             LoadRecords();
 
             NavCommand = new MyICommand<string>(OnNav);
+            AddCommand = new MyICommand<object>(OnAdd);
 
             Window mainWindow = Application.Current.MainWindow;
 
@@ -41,15 +44,17 @@ namespace My_money.ViewModel
         }
 
 
-
         private void CalculateTotalSpending()
         {
-            for (int i = 0; Records.Count > i; i++)
-            {
-                totalCost += Records[i].Cost;
-            }
-        }
+            totalCost = 0;
 
+            foreach (var record in Records)
+            {
+                totalCost += record.Cost;
+            }
+
+            OnPropertyChanged(nameof(TotalCost));
+        }
 
 
         private void SaveToXml(string fileName)
@@ -67,6 +72,7 @@ namespace My_money.ViewModel
                 serializer.Serialize(stream, appData);
             }
         }
+
         private void LoadRecords()
         {
             // Loading data from an XML file
@@ -89,21 +95,18 @@ namespace My_money.ViewModel
             else
             {
                 // If the file does not exist, create a new list of data for demo
-                ObservableCollection<Record> records = new ObservableCollection<Record>();
-
                 banksum = 5000;
 
-                records.Add(new Record { Cost = 100 });
-                records.Add(new Record { Cost = 200 });
-                records.Add(new Record { Cost = 2000 });
-                records.Add(new Record { Cost = 2000 });
-
-                Records = records;
+                Records.Add(new Record { Cost = 100 });
+                Records.Add(new Record { Cost = 200 });
+                Records.Add(new Record { Cost = 2000 });
+                Records.Add(new Record { Cost = 2000 });
 
             }
 
             CalculateTotalSpending();
         }
+
 
         private void MainWindowClosing(object? sender, CancelEventArgs e)
         {
@@ -135,6 +138,15 @@ namespace My_money.ViewModel
                 //    CurrentView = dashboardView;
                 //    break;
             }
+        }
+        #endregion
+
+        #region ADDbt
+        public MyICommand<object> AddCommand {  get; private set; }
+        private void OnAdd(object parametr)
+        {
+            Records.Add(new Record { Cost = 1 });
+            CalculateTotalSpending();
         }
         #endregion
     }

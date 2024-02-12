@@ -24,7 +24,5 @@ namespace My_money.Views
         {
             InitializeComponent();
         }
-
-        
     }
 }
