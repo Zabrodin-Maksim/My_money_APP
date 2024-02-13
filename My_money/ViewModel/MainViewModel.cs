@@ -16,7 +16,7 @@ namespace My_money.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-
+        # region Fields and Properties
         private int banksum;
         public int Banksum { get { return banksum; } }
 
@@ -24,7 +24,12 @@ namespace My_money.ViewModel
         public int TotalCost { get { return totalCost; } }
 
         public ObservableCollection<Record> Records { get; set; }
+        #endregion
 
+        #region Command
+        public MyICommand<string> NavCommand { get; private set; }
+        public MyICommand<object> AddCommand { get; private set; }
+        #endregion
 
         public MainViewModel()
         {
@@ -43,7 +48,6 @@ namespace My_money.ViewModel
             }
         }
 
-
         private void CalculateTotalSpending()
         {
             totalCost = 0;
@@ -56,7 +60,7 @@ namespace My_money.ViewModel
             OnPropertyChanged(nameof(TotalCost));
         }
 
-
+        #region Start and Save
         private void SaveToXml(string fileName)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(ContainerAppData));
@@ -106,14 +110,13 @@ namespace My_money.ViewModel
 
             CalculateTotalSpending();
         }
-
+        #endregion
 
         private void MainWindowClosing(object? sender, CancelEventArgs e)
         {
             SaveToXml("data.xml");
         }
 
-        // NAVIGATION
         #region NAVIGATION
 
         private DashboardView dashboardView = new DashboardView();
@@ -125,7 +128,6 @@ namespace My_money.ViewModel
             set { SetProperty(ref currentView, value); }
         }
 
-        public MyICommand<string> NavCommand { get; private set; }
         private void OnNav(string destination)
         {
             switch (destination)
@@ -142,7 +144,7 @@ namespace My_money.ViewModel
         #endregion
 
         #region ADDbt
-        public MyICommand<object> AddCommand {  get; private set; }
+        
         private void OnAdd(object parametr)
         {
             Records.Add(new Record { Cost = 1 });
