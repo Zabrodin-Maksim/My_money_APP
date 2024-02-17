@@ -10,15 +10,18 @@ namespace My_money.ViewModel
     public class AddViewModel : ViewModelBase
     {
         public event Action<Record> RecordAdded;
+        public event Action<string> BackM;
 
         public AddViewModel() {
             AddCommand = new MyICommand<object>(OnAdd);
+            BackCommand = new MyICommand<string>(OnBack);
         }
 
         #region Commands
         public MyICommand<object> AddCommand { get; private set; }
+        public MyICommand<string> BackCommand { get; private set; }
         #endregion
-
+        // TODO: Связать textBox и тд с логикой Add
         #region ADD
         private void OnAdd(object parametr)
         {
@@ -27,6 +30,11 @@ namespace My_money.ViewModel
             RecordAdded?.Invoke(newRecord);
         }
         #endregion
+
+        private void OnBack(string param)
+        {
+            BackM?.Invoke(param);
+        }
 
         #region Text Check
         private string costTextProperty;

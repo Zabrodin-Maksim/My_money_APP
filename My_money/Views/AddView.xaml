@@ -143,7 +143,7 @@
         
         <!--#region Column 3 (BT)-->
         <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal">
-            <Button Command="{Binding NavCommand}" CommandParameter="Dashboard" Style="{StaticResource ButtonBack}">
+            <Button Command="{Binding BackCommand}" CommandParameter="Dashboard" Style="{StaticResource ButtonBack}">
                 <TextBlock Text="Back"/>
             </Button>
 

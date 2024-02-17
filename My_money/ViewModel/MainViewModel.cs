@@ -25,7 +25,8 @@ namespace My_money.ViewModel
 
             NavCommand = new MyICommand<string>(OnNav);
 
-            
+            addViewModel.RecordAdded += OnRecordAdded;
+            addViewModel.BackM += OnNav;
 
             Window mainWindow = Application.Current.MainWindow;
 
@@ -153,7 +154,6 @@ namespace My_money.ViewModel
 
                 case "AddRecord":
                     CurrentView = addView;
-                    addViewModel.RecordAdded += OnRecordAdded;
                     addView.DataContext = addViewModel;
                     break;
             }
