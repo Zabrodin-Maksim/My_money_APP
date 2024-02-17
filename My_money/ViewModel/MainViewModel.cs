@@ -24,6 +24,7 @@ namespace My_money.ViewModel
             LoadRecords();
 
             NavCommand = new MyICommand<string>(OnNav);
+            ExitCommand = new MyICommand<object>(OnExit);
 
             addViewModel.RecordAdded += OnRecordAdded;
             addViewModel.BackM += OnNav;
@@ -58,9 +59,9 @@ namespace My_money.ViewModel
         public ObservableCollection<Record> Records { get; set; }
         #endregion
 
-
         #region Commands
         public MyICommand<string> NavCommand { get; private set; }
+        public MyICommand<object> ExitCommand { get; private set; }
         #endregion
 
 
@@ -170,5 +171,12 @@ namespace My_money.ViewModel
         }
         #endregion
 
+
+        #region Exit
+        private void OnExit(object param)
+        {
+            Application.Current.Shutdown();
+        }
+        #endregion
     }
 }
