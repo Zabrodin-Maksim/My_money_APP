@@ -13,17 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace My_money
+namespace My_money.Views
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Логика взаимодействия для AddView.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class AddView : UserControl
     {
-        public MainWindow()
+        public AddView()
         {
             InitializeComponent();
-            DataContext = new My_money.ViewModel.MainViewModel();
         }
     }
 }

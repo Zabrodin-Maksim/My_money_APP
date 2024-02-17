@@ -266,7 +266,7 @@
                 <!--#endregion-->
 
                 <!--#region Add -->
-                <Button Grid.Row="2" Command="{Binding AddCommand}" Style="{StaticResource ADDButton}">
+                <Button Grid.Row="2" Command="{Binding NavCommand}" CommandParameter="AddRecord" Style="{StaticResource ADDButton}">
                     <TextBlock Text="ADD"/>
                 </Button>
                 <!--#endregion-->

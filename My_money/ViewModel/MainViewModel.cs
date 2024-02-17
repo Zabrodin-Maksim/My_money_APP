@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Xml.Serialization;
 using My_money.Model;
 using My_money.Views;
@@ -16,21 +17,6 @@ namespace My_money.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-        # region Fields and Properties
-        private int banksum;
-        public int Banksum { get { return banksum; } }
-
-        private int totalCost;
-        public int TotalCost { get { return totalCost; } }
-
-        public ObservableCollection<Record> Records { get; set; }
-        #endregion
-
-        #region Command
-        public MyICommand<string> NavCommand { get; private set; }
-        public MyICommand<object> AddCommand { get; private set; }
-        #endregion
-
         public MainViewModel()
         {
             Records = new ObservableCollection<Record>();
@@ -38,7 +24,8 @@ namespace My_money.ViewModel
             LoadRecords();
 
             NavCommand = new MyICommand<string>(OnNav);
-            AddCommand = new MyICommand<object>(OnAdd);
+
+            
 
             Window mainWindow = Application.Current.MainWindow;
 
@@ -59,6 +46,22 @@ namespace My_money.ViewModel
 
             OnPropertyChanged(nameof(TotalCost));
         }
+
+        # region Fields and Properties
+        private int banksum;
+        public int Banksum { get { return banksum; } }
+
+        private int totalCost;
+        public int TotalCost { get { return totalCost; } }
+
+        public ObservableCollection<Record> Records { get; set; }
+        #endregion
+
+
+        #region Commands
+        public MyICommand<string> NavCommand { get; private set; }
+        #endregion
+
 
         #region Start and Save
         private void SaveToXml(string fileName)
@@ -110,16 +113,15 @@ namespace My_money.ViewModel
 
             CalculateTotalSpending();
         }
-        #endregion
 
         private void MainWindowClosing(object? sender, CancelEventArgs e)
         {
             SaveToXml("data.xml");
         }
+        #endregion
+
 
         #region NAVIGATION
-
-        private DashboardView dashboardView = new DashboardView();
 
         private UserControl currentView;
         public UserControl CurrentView
@@ -127,6 +129,15 @@ namespace My_money.ViewModel
             get { return currentView; }
             set { SetProperty(ref currentView, value); }
         }
+        
+        #region Views
+        private DashboardView dashboardView = new DashboardView();
+        private AddView addView = new AddView();
+        #endregion
+
+        #region ViewModel
+        AddViewModel addViewModel = new AddViewModel();
+        #endregion
 
         private void OnNav(string destination)
         {
@@ -139,17 +150,25 @@ namespace My_money.ViewModel
                 //default:
                 //    CurrentView = dashboardView;
                 //    break;
+
+                case "AddRecord":
+                    CurrentView = addView;
+                    addViewModel.RecordAdded += OnRecordAdded;
+                    addView.DataContext = addViewModel;
+                    break;
             }
         }
         #endregion
 
-        #region ADDbt
-        
-        private void OnAdd(object parametr)
+        #region OnAdd
+        private void OnRecordAdded(Record newRecord)
         {
-            Records.Add(new Record { Cost = 1 });
+            Records.Add(newRecord);
             CalculateTotalSpending();
+
+            OnNav("Dashboard");
         }
         #endregion
+
     }
 }
