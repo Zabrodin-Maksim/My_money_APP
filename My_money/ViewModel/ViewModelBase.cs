@@ -1,4 +1,5 @@
-﻿using System;
+﻿using My_money.Model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;

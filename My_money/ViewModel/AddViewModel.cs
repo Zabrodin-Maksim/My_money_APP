@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace My_money.ViewModel
 {
@@ -12,20 +13,53 @@ namespace My_money.ViewModel
         public event Action<Record> RecordAdded;
         public event Action<string> BackM;
 
+
+        private string costTextProperty;
+        public string CostTextProperty
+        {
+            get { return costTextProperty; }
+            set { CheckNumericInput(value); }
+        }
+
+
+        private DateTime? selectedDate;
+        public DateTime? SelectedDate
+        {
+            get { return selectedDate; }
+            set { selectedDate = value; }
+        }
+
+
+        public List<TypsRecord> Typs { get; set; }
+
+        private TypsRecord selectedType;
+        public TypsRecord SelectedType
+        {
+            get { return selectedType; }
+            set { selectedType = value; }
+        }
+
+
         public AddViewModel() {
             AddCommand = new MyICommand<object>(OnAdd);
             BackCommand = new MyICommand<string>(OnBack);
+
+            Typs = Enum.GetValues(typeof(TypsRecord)).Cast<TypsRecord>().ToList();
         }
 
         #region Commands
         public MyICommand<object> AddCommand { get; private set; }
         public MyICommand<string> BackCommand { get; private set; }
         #endregion
-        // TODO: Связать textBox и тд с логикой Add
+
         #region ADD
         private void OnAdd(object parametr)
         {
-            Record newRecord= new Record { Cost = 1};
+            if (!CheckAddInput(costTextProperty, selectedDate, null))
+            {
+                return;
+            }
+            Record newRecord= new Record { Cost = int.Parse(costTextProperty), DateTimeOccurred = selectedDate, Typ = selectedType };
 
             RecordAdded?.Invoke(newRecord);
         }
@@ -36,13 +70,7 @@ namespace My_money.ViewModel
             BackM?.Invoke(param);
         }
 
-        #region Text Check
-        private string costTextProperty;
-        public string CostTextProperty
-        {
-            get { return costTextProperty; }
-            set { CheckNumericInput(value); }
-        }
+        #region Text Check & Add Check
 
         private void CheckNumericInput(string input)
         {
@@ -57,6 +85,16 @@ namespace My_money.ViewModel
                 }
             }
             costTextProperty = input;
+        }
+
+        private bool CheckAddInput(string cost, DateTime? dateTime, TypsRecord? typsRecord)
+        {
+            if (string.IsNullOrEmpty(cost))
+            {
+                MessageBox.Show("Please enter a valid cost.", "Error Detected in Input cost", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+            return true;
         }
         #endregion
 
