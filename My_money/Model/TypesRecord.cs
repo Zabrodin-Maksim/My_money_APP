@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace My_money.Model
 {
-    public enum TypsRecord
+    public enum TypesRecord
     {
         Groceries,
         Cafe,

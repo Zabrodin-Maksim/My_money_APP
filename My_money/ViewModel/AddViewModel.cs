@@ -30,10 +30,10 @@ namespace My_money.ViewModel
         }
 
 
-        public List<TypsRecord> Typs { get; set; }
+        public List<TypesRecord> Types { get; set; }
 
-        private TypsRecord selectedType;
-        public TypsRecord SelectedType
+        private TypesRecord selectedType;
+        public TypesRecord SelectedType
         {
             get { return selectedType; }
             set { selectedType = value; }
@@ -44,7 +44,7 @@ namespace My_money.ViewModel
             AddCommand = new MyICommand<object>(OnAdd);
             BackCommand = new MyICommand<string>(OnBack);
 
-            Typs = Enum.GetValues(typeof(TypsRecord)).Cast<TypsRecord>().ToList();
+            Types = Enum.GetValues(typeof(TypesRecord)).Cast<TypesRecord>().ToList();
         }
 
         #region Commands
@@ -59,7 +59,7 @@ namespace My_money.ViewModel
             {
                 return;
             }
-            Record newRecord= new Record { Cost = int.Parse(costTextProperty), DateTimeOccurred = selectedDate, Typ = selectedType };
+            Record newRecord = new Record { Cost = int.Parse(costTextProperty), DateTimeOccurred = selectedDate, Type = selectedType };
 
             RecordAdded?.Invoke(newRecord);
         }
@@ -87,7 +87,7 @@ namespace My_money.ViewModel
             costTextProperty = input;
         }
 
-        private bool CheckAddInput(string cost, DateTime? dateTime, TypsRecord? typsRecord)
+        private bool CheckAddInput(string cost, DateTime? dateTime, TypesRecord? typsRecord)
         {
             if (string.IsNullOrEmpty(cost))
             {

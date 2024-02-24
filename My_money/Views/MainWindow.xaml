@@ -318,7 +318,7 @@
                             <!--#endregion-->
 
                             <!--#region History -->
-                            <Button Grid.Row="4" Style="{StaticResource ButtonsMenu}">
+                            <Button Command="{Binding NavCommand}" CommandParameter="History" Grid.Row="4" Style="{StaticResource ButtonsMenu}">
                                 <StackPanel Orientation="Horizontal">
                                     <fa:IconImage Icon="ClockRotateLeft" Height="35" Width="40" Foreground="White"/>
                                     <TextBlock Text="History" Margin="10, 13, 10, 10"/>

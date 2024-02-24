@@ -20,21 +20,29 @@ namespace My_money.ViewModel
         public MainViewModel()
         {
             Records = new ObservableCollection<Record>();
-
             LoadRecords();
 
+            #region ViewModel
+            addViewModel = new AddViewModel();
+            historyViewModel = new HistoryViewModel(Records);
+            #endregion
+
+            #region Commands
             NavCommand = new MyICommand<string>(OnNav);
             ExitCommand = new MyICommand<object>(OnExit);
+            #endregion
 
             addViewModel.RecordAdded += OnRecordAdded;
             addViewModel.BackM += OnNav;
 
+            #region Closing
             Window mainWindow = Application.Current.MainWindow;
 
             if (mainWindow != null)
             {
                 mainWindow.Closing += MainWindowClosing;
             }
+            #endregion
         }
 
         private void CalculateTotalSpending()
@@ -46,7 +54,7 @@ namespace My_money.ViewModel
                 totalCost += record.Cost;
             }
 
-            OnPropertyChanged(nameof(TotalCost));
+            //OnPropertyChanged(nameof(TotalCost));
         }
 
         # region Fields and Properties
@@ -56,7 +64,14 @@ namespace My_money.ViewModel
         private int totalCost;
         public int TotalCost { get { return totalCost; } }
 
-        public ObservableCollection<Record> Records { get; set; }
+        private ObservableCollection<Record> records;
+        public ObservableCollection<Record> Records { get { return records; } 
+            set 
+            { 
+                records = value;
+            } 
+        }
+
         #endregion
 
         #region Commands
@@ -135,10 +150,12 @@ namespace My_money.ViewModel
         #region Views
         private DashboardView dashboardView = new DashboardView();
         private AddView addView = new AddView();
+        private HistoryView historyView = new HistoryView();
         #endregion
 
         #region ViewModel
-        AddViewModel addViewModel = new AddViewModel();
+        private AddViewModel addViewModel;
+        private HistoryViewModel historyViewModel;
         #endregion
 
         private void OnNav(string destination)
@@ -148,14 +165,16 @@ namespace My_money.ViewModel
                 case "Dashboard":
                     CurrentView = dashboardView;
                     break;
-                //case "History":
-                //default:
-                //    CurrentView = dashboardView;
-                //    break;
 
                 case "AddRecord":
                     CurrentView = addView;
                     addView.DataContext = addViewModel;
+                    break;
+
+                case "History":
+                default:
+                    CurrentView = historyView;
+                    historyView.DataContext = historyViewModel;
                     break;
             }
         }

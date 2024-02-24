@@ -25,7 +25,7 @@
         </Style>
 
         <Style x:Key="ComboBoxCom" TargetType="ComboBox">
-            <Setter Property="Foreground" Value="#C03F77"/>
+            <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="23"/>
             <Setter Property="Margin" Value="40 62 50 65"/>
         </Style>
@@ -518,7 +518,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Button x:Name="PART_Button" Grid.Column="1" Foreground="{TemplateBinding Foreground}" Focusable="False" HorizontalAlignment="Left" Margin="3,0,3,0" Grid.Row="0" Template="{StaticResource DropDownButtonTemplate}" VerticalAlignment="Top" Width="24"/>
-                    <DatePickerTextBox x:Name="PART_TextBox" Grid.Column="0" Focusable="{TemplateBinding Focusable}" HorizontalContentAlignment="Stretch" Grid.Row="0" VerticalContentAlignment="Stretch" SelectionBrush="#FF161A63"/>
+                    <DatePickerTextBox x:Name="PART_TextBox" Grid.Column="0" Focusable="{TemplateBinding Focusable}" HorizontalContentAlignment="Stretch" Grid.Row="0" VerticalContentAlignment="Stretch" SelectionBrush="#D3B7FF"/>
 
                     <Grid x:Name="PART_DisabledVisual" Grid.Column="0" Grid.ColumnSpan="2" IsHitTestVisible="False" Opacity="0" Grid.Row="0">
                         <Grid.ColumnDefinitions>
@@ -544,10 +544,10 @@
             <Setter Property="Background">
                 <Setter.Value>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                        <GradientStop Color="#797dd4" Offset="0"/>
+                        <GradientStop Color="White" Offset="0"/>
                         <GradientStop Color="#797dd4" Offset="0.16"/>
-                        <GradientStop Color="#797dd4" Offset="0.16"/>
-                        <GradientStop Color="#262ebf" Offset="1"/>
+                        <GradientStop Color="#7F7CF1" Offset="0.16"/>
+                        <GradientStop Color="#D3B7FF" Offset="1"/>
                     </LinearGradientBrush>
                 </Setter.Value>
             </Setter>
@@ -596,13 +596,13 @@
 
         <!--#region Column 0 (Legend)-->
         <TextBlock Grid.Row="1" Grid.Column="0" Text="Cost:" Style="{StaticResource TextLegend}"/>
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="Typ:" Style="{StaticResource TextLegend}"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Type:" Style="{StaticResource TextLegend}"/>
         <TextBlock Grid.Row="3" Grid.Column="0" Text="Date:" Style="{StaticResource TextLegend}"/>
         <!--#endregion-->
 
         <!--#region Column 1 (to complete)-->
         <TextBox Text="{Binding CostTextProperty, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Style="{StaticResource TextBoxCom}"/>
-        <ComboBox SelectedItem="{Binding SelectedType, Mode=TwoWay}" ItemContainerStyle="{DynamicResource ComboBoxItemContainerStyle1}"  Template="{DynamicResource ComboBoxTemplate1}" ItemsSource="{Binding Typs}" Grid.Row="2" Grid.Column="1" Style="{StaticResource ComboBoxCom}"/>
+        <ComboBox SelectedItem="{Binding SelectedType, Mode=TwoWay}" ItemContainerStyle="{DynamicResource ComboBoxItemContainerStyle1}"  Template="{DynamicResource ComboBoxTemplate1}" ItemsSource="{Binding Types}" Grid.Row="2" Grid.Column="1" Style="{StaticResource ComboBoxCom}"/>
         <DatePicker CalendarStyle="{DynamicResource DatePickerCalendarStyle1}" Template="{DynamicResource DatePickerTemplate1}" SelectedDate="{Binding SelectedDate, Mode=TwoWay}"  Grid.Row="3" Grid.Column="1" Style="{StaticResource DatePicker}" />
         <!--#endregion-->
 

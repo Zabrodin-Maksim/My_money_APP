@@ -13,7 +13,7 @@ namespace My_money.Model
     {
 
         private int cost;
-        private TypsRecord typ;
+        private TypesRecord type;
         private DateTime? dateTimeOccurred;
 
         public int Cost { get { return cost; }
@@ -22,9 +22,9 @@ namespace My_money.Model
             }
         }
 
-        public TypsRecord Typ {  get { return typ; } 
+        public TypesRecord Type {  get { return type; } 
             set { 
-                typ = value;
+                type = value;
             } 
         }
 
