@@ -10,7 +10,7 @@
         <Style x:Key="ButtonDelete" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Margin" Value="0 15 70 10"/>
+            <Setter Property="Margin" Value="0 0 70 15"/>
             <Setter Property="FontSize" Value="30"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -39,7 +39,22 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <Style TargetType="Slider">
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="Minimum" Value="0"/>
+            <Setter Property="Maximum" Value="1"/>
+            <Setter Property="IsSnapToTickEnabled" Value="True"/>
+            <Setter Property="TickPlacement" Value="BottomRight"/>
+            <Setter Property="TickFrequency" Value="1"/>
+            <Setter Property="Foreground" Value="#FB539B"/>
+        </Style>
+
+        <Style x:Key="SliderText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
         
+        <!--#region ListView Template-->
         <!--#region  Colors-->
         <!--Control colors.-->
         <Color x:Key="SelectedBackgroundColor">#3270DB</Color>
@@ -114,7 +129,7 @@
         </Style>
 
         <Style x:Key="GridViewColumnHeaderGripper" TargetType="Thumb">
-            <Setter Property="Width" Value="18" />
+            <Setter Property="Width" Value="17" />
             <Setter Property="Background">
                 <Setter.Value>
                     <LinearGradientBrush StartPoint="0,0"
@@ -157,14 +172,13 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="GridViewColumnHeader">
-                        <Grid>
+                        <Grid MinWidth="0">
                             <VisualStateManager.VisualStateGroups>
                                 <VisualStateGroup x:Name="CommonStates">
                                     <VisualState x:Name="Normal" />
                                     <VisualState x:Name="MouseOver">
                                         <Storyboard>
-                                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Panel.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)"
-                                                Storyboard.TargetName="HeaderBorder">
+                                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Panel.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="HeaderBorder">
                                                 <EasingColorKeyFrame KeyTime="0" Value="{StaticResource SelectedColorHeaderEl}" />
                                             </ColorAnimationUsingKeyFrames>
                                         </Storyboard>
@@ -173,7 +187,7 @@
                                     <VisualState x:Name="Disabled"/>
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
-                            <Border x:Name="HeaderBorder" BorderThickness="0,1,0,1" Padding="2,0,2,0">
+                            <Border x:Name="HeaderBorder" BorderThickness="0,0,0,1" Padding="3,0,2,0">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
                                         <GradientStop Color="{StaticResource ColorHeaderEl}" Offset="0"/>
@@ -181,7 +195,7 @@
                                     </LinearGradientBrush>
                                 </Border.Background>
                                 <ContentPresenter x:Name="HeaderContent"
-                              Margin="0,0,0,1"
+                              Margin="0,0,0,2"
                               RecognizesAccessKey="True"
                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -190,7 +204,7 @@
                             <Thumb x:Name="PART_HeaderGripper"
                  HorizontalAlignment="Right"
                  Margin="0,0,-9,0"
-                 Style="{StaticResource GridViewColumnHeaderGripper}" />
+                 Style="{StaticResource GridViewColumnHeaderGripper}"/>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -212,7 +226,7 @@
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="GridViewColumnHeader">
-                                <Border Name="HeaderBorder" BorderThickness="0,1,0,1">
+                                <Border Name="HeaderBorder" BorderThickness="0,0,0,1">
                                     <Border.Background>
                                         <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
                                             <GradientStop Color="{StaticResource GradientHeaderA}" Offset="0"/>
@@ -270,7 +284,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
-                        <Border x:Name="Border" Padding="5" SnapsToDevicePixels="true" Background="Transparent">
+                        <Border x:Name="Border" Padding="4 5" SnapsToDevicePixels="true" Background="Transparent">
                             <VisualStateManager.VisualStateGroups>
                                 <VisualStateGroup x:Name="CommonStates">
                                     <VisualState x:Name="Normal" />
@@ -301,6 +315,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <!--#endregion-->
+        
     </UserControl.Resources>
     
     <Grid>
@@ -309,12 +325,12 @@
             <RowDefinition Height="0.1*"/>
         </Grid.RowDefinitions>
 
-        <ListView SelectedItem="{Binding SelectedItem}" ItemsSource="{Binding Records}" d:ItemsSource="{d:SampleData ItemCount=5}">
+        <ListView SelectedItem="{Binding SelectedItem}" ItemsSource="{Binding Records}" d:ItemsSource="{d:SampleData ItemCount=5}" SelectionChanged="ListView_SelectionChanged" Margin="1,0,0,0">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Date" DisplayMemberBinding="{Binding DateTimeOccurred}"/>
+                    <GridViewColumn Header="Date" DisplayMemberBinding="{Binding DateTimeOccurred,StringFormat={}{0:dd.MM.yyyy}}"/>
                     <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}"/>
-                    <GridViewColumn Header="Cost" DisplayMemberBinding="{Binding Cost}"/>
+                    <GridViewColumn Header="Cost" DisplayMemberBinding="{Binding Cost,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
                 </GridView>
             </ListView.View>
         </ListView>
@@ -322,5 +338,14 @@
         <Button Command="{Binding DeleteCommand}" Grid.Row="1" Style="{StaticResource ButtonDelete}">
             <TextBlock Text="Delete"/>
         </Button>
+
+        <StackPanel Grid.Row="1" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Slider SelectionStart="0" Value="{Binding SelectedSort}"/>
+            <StackPanel Orientation="Horizontal" >
+                <TextBlock Text="Date" Style="{StaticResource SliderText}" Margin="-3 2 165 0"/>
+                <TextBlock Text="Cost" Style="{StaticResource SliderText}" Margin="0 2 0 0"/>
+            </StackPanel>
+        </StackPanel>
+        
     </Grid>
 </UserControl>

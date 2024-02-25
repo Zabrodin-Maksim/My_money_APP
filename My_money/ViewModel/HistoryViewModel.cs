@@ -10,7 +10,6 @@ namespace My_money.ViewModel
 {
     public class HistoryViewModel : ViewModelBase
     {
-        //TODO: Style and button delete
         private ObservableCollection<Record> records;
         public ObservableCollection<Record> Records {  get { return records; } 
             set 
@@ -29,9 +28,19 @@ namespace My_money.ViewModel
             }
         }
 
+        private int selectedSort;
+        public int SelectedSort { get { return selectedSort; }
+            set 
+            { 
+                selectedSort = value;
+                SortingRecords();
+            }
+        }
+
+        List<Record> sortedList;
+
         public MyICommand<object> DeleteCommand {  get; set; }
 
-        private MainViewModel _mainViewModel;
         public HistoryViewModel(ObservableCollection<Record> Records) 
         {
             this.Records = Records;
@@ -42,6 +51,30 @@ namespace My_money.ViewModel
         private void OnDelete(object obj)
         {
             Records.Remove(SelectedItem);
+        }
+
+        private void SortingRecords()
+        {
+            switch (SelectedSort)
+            {
+                case 0:
+                    sortedList = Records.OrderByDescending(item => item.DateTimeOccurred).ToList();
+                    Records.Clear();
+                    foreach (var item in sortedList)
+                    {
+                        Records.Add(item);
+                    }
+                    break;
+                case 1:
+                    sortedList = Records.OrderByDescending(item => item.Cost).ToList();
+                    Records.Clear();
+                    foreach (var item in sortedList)
+                    {
+                        Records.Add(item);
+                    }
+                    break;
+            }
+            
         }
     }
 }

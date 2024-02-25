@@ -144,7 +144,10 @@ namespace My_money.ViewModel
         public UserControl CurrentView
         {
             get { return currentView; }
-            set { SetProperty(ref currentView, value); }
+            set 
+            {
+                SetProperty(ref currentView, value);
+            }
         }
         
         #region Views
@@ -184,6 +187,7 @@ namespace My_money.ViewModel
         #region OnAdd
         private void OnRecordAdded(Record newRecord)
         {
+            
             Records.Add(newRecord);
             CalculateTotalSpending();
 
@@ -191,6 +195,15 @@ namespace My_money.ViewModel
         }
         #endregion
 
+        //private void SortingRecordsDate()
+        //{
+        //    List<Record> sortedList = Records.OrderByDescending(item => item.DateTimeOccurred).ToList();
+        //    Records.Clear();
+        //    foreach (var item in sortedList)
+        //    {
+        //        Records.Add(item);
+        //    }
+        //}
 
         #region Exit
         private void OnExit(object param)
