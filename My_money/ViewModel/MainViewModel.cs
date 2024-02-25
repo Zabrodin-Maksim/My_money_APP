@@ -163,6 +163,7 @@ namespace My_money.ViewModel
             switch (destination)
             {
                 case "Dashboard":
+                    CalculateTotalSpending();
                     CurrentView = dashboardView;
                     break;
 

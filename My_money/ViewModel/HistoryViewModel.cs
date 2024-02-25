@@ -19,11 +19,29 @@ namespace My_money.ViewModel
             } 
         }
 
+        private Record selectedItem;
+        public Record SelectedItem
+        {
+            get { return selectedItem; } 
+            set 
+            { 
+                selectedItem = value;
+            }
+        }
+
+        public MyICommand<object> DeleteCommand {  get; set; }
+
         private MainViewModel _mainViewModel;
         public HistoryViewModel(ObservableCollection<Record> Records) 
         {
-            
             this.Records = Records;
+
+            DeleteCommand = new MyICommand<object>(OnDelete);
+        }
+
+        private void OnDelete(object obj)
+        {
+            Records.Remove(SelectedItem);
         }
     }
 }

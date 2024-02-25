@@ -56,7 +56,7 @@
                     <Setter Property="Background">
                         <Setter.Value>
                             <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
-                                <GradientStop Color="#1C1D31" Offset="0"/>
+                                <GradientStop Color="#6132DB" Offset="-0.5"/>
                                 <GradientStop Color="#6441a5" Offset="1"/>
                             </LinearGradientBrush>
                         </Setter.Value>
@@ -339,7 +339,6 @@
 
                     <!--#region Main Usefull -->
                     <Grid Grid.Column="1">
-                        
                         <ContentControl Content="{Binding CurrentView}"/>
                     </Grid>
                     <!--#endregion-->

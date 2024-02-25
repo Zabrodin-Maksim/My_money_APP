@@ -41,7 +41,6 @@
             </Setter>
         </Style>
 
-
         <!--#region  Date Picker-->
 
         <Style TargetType="DatePickerTextBox">
@@ -130,6 +129,7 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.35*"/>
