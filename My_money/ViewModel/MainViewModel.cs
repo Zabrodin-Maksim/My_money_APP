@@ -21,7 +21,6 @@ namespace My_money.ViewModel
         {
             Records = new ObservableCollection<Record>();
             LoadRecords();
-
             #region ViewModel
             addViewModel = new AddViewModel();
             historyViewModel = new HistoryViewModel(Records);
@@ -33,6 +32,7 @@ namespace My_money.ViewModel
             #endregion
 
             addViewModel.RecordAdded += OnRecordAdded;
+            addViewModel.BankAdded += OnBankAdded;
             addViewModel.BackM += OnNav;
 
             #region Closing
@@ -59,7 +59,7 @@ namespace My_money.ViewModel
 
         # region Fields and Properties
         private int banksum;
-        public int Banksum { get { return banksum; } }
+        public int Banksum { get { return banksum; } set { SetProperty(ref banksum, value); } }
 
         private int totalCost;
         public int TotalCost { get { return totalCost; } }
@@ -68,10 +68,9 @@ namespace My_money.ViewModel
         public ObservableCollection<Record> Records { get { return records; } 
             set 
             { 
-                records = value;
+                SetProperty(ref records, value);
             } 
         }
-
         #endregion
 
         #region Commands
@@ -190,6 +189,13 @@ namespace My_money.ViewModel
             
             Records.Add(newRecord);
             CalculateTotalSpending();
+
+            OnNav("Dashboard");
+        }
+
+        private void OnBankAdded(int bank) 
+        {
+            Banksum += bank;
 
             OnNav("Dashboard");
         }

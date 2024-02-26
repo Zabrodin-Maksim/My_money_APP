@@ -11,7 +11,22 @@ namespace My_money.ViewModel
     public class AddViewModel : ViewModelBase
     {
         public event Action<Record> RecordAdded;
+        public event Action<int> BankAdded;
         public event Action<string> BackM;
+
+        private Visibility visibilityByBank;
+        public Visibility VisibilityByBank { get { return visibilityByBank; } set { visibilityByBank = value; } }
+
+        private bool isCheckBoxChecked;
+        public bool IsCheckBoxChecked
+        {
+            get { return isCheckBoxChecked; }
+            set
+            {
+                isCheckBoxChecked = value;
+                UpdateVisibility();
+            }
+        }
 
 
         private string costTextProperty;
@@ -55,20 +70,50 @@ namespace My_money.ViewModel
         #region ADD
         private void OnAdd(object parametr)
         {
-            if (!CheckAddInput(costTextProperty, selectedDate, null))
+            if (isCheckBoxChecked)
             {
-                return;
-            }
-            Record newRecord = new Record { Cost = int.Parse(costTextProperty), DateTimeOccurred = selectedDate, Type = selectedType };
+                if (!CheckAddInput(costTextProperty))
+                {
+                    return;
+                }
 
-            RecordAdded?.Invoke(newRecord);
+                BankAdded?.Invoke(int.Parse(costTextProperty));
+            }
+            else
+            {
+                if (!CheckAddInput(costTextProperty))
+                {
+                    return;
+                }
+
+                Record newRecord = new Record { Cost = int.Parse(costTextProperty), DateTimeOccurred = selectedDate, Type = selectedType };
+
+                RecordAdded?.Invoke(newRecord);
+            }
         }
         #endregion
 
+        #region Visibility
+        private void UpdateVisibility()
+        {
+            if (isCheckBoxChecked)
+            {
+                VisibilityByBank = Visibility.Collapsed;
+            }
+            else
+            {
+                VisibilityByBank = Visibility.Visible;
+            }
+            OnPropertyChanged(nameof(VisibilityByBank));
+        }
+        #endregion
+
+        #region Back
         private void OnBack(string param)
         {
             BackM?.Invoke(param);
         }
+        #endregion
 
         #region Text Check & Add Check
 
@@ -87,7 +132,7 @@ namespace My_money.ViewModel
             costTextProperty = input;
         }
 
-        private bool CheckAddInput(string cost, DateTime? dateTime, TypesRecord? typsRecord)
+        private bool CheckAddInput(string cost)
         {
             if (string.IsNullOrEmpty(cost))
             {
