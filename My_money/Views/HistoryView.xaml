@@ -325,7 +325,7 @@
             <RowDefinition Height="0.1*"/>
         </Grid.RowDefinitions>
 
-        <ListView SelectedItem="{Binding SelectedItem}" ItemsSource="{Binding Records}" d:ItemsSource="{d:SampleData ItemCount=5}" SelectionChanged="ListView_SelectionChanged" Margin="1,0,0,0">
+        <ListView SelectedItem="{Binding SelectedItem}" ItemsSource="{Binding Records}" d:ItemsSource="{d:SampleData ItemCount=5}"  Margin="1,0,0,0">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Date" DisplayMemberBinding="{Binding DateTimeOccurred,StringFormat={}{0:dd.MM.yyyy}}"/>

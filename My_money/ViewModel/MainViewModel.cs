@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,7 +21,10 @@ namespace My_money.ViewModel
         public MainViewModel()
         {
             Records = new ObservableCollection<Record>();
+            RecordsByTypes = new ObservableCollection<RecordByTypes>();
+
             LoadRecords();
+
             #region ViewModel
             addViewModel = new AddViewModel();
             historyViewModel = new HistoryViewModel(Records);
@@ -43,7 +47,9 @@ namespace My_money.ViewModel
                 mainWindow.Closing += MainWindowClosing;
             }
             #endregion
+
         }
+
 
         private void CalculateTotalSpending()
         {
@@ -57,12 +63,16 @@ namespace My_money.ViewModel
             //OnPropertyChanged(nameof(TotalCost));
         }
 
+
         # region Fields and Properties
+
         private int banksum;
         public int Banksum { get { return banksum; } set { SetProperty(ref banksum, value); } }
 
+
         private int totalCost;
         public int TotalCost { get { return totalCost; } }
+
 
         private ObservableCollection<Record> records;
         public ObservableCollection<Record> Records { get { return records; } 
@@ -71,7 +81,40 @@ namespace My_money.ViewModel
                 SetProperty(ref records, value);
             } 
         }
+
+
+        #region Sort List
+
+        private ObservableCollection<RecordByTypes> recordsByTypes;
+        public ObservableCollection<RecordByTypes> RecordsByTypes { get { return recordsByTypes; } set { recordsByTypes = value; } }
+
+        private List<Record> listRecordsByDate;
+        public List<Record> ListRecordsByDate { get { return listRecordsByDate; } set { listRecordsByDate = value; } }
+
+        private int selectedSort = 1;
+        public int SelectedSort 
+        { 
+            get { return selectedSort; } 
+            set 
+            { 
+                selectedSort = value;
+                SortListByTypes();
+            } 
+        }
+
+        private DateTime? selectedDate = DateTime.Now;
+        public DateTime? SelectedDate
+        {
+            get { return selectedDate; }
+            set 
+            { 
+                selectedDate = value;
+                SortListByTypes();
+            }
+        }
         #endregion
+        #endregion
+
 
         #region Commands
         public MyICommand<string> NavCommand { get; private set; }
@@ -90,6 +133,7 @@ namespace My_money.ViewModel
                 {
                     Records = Records,
                     Banksum = Banksum,
+                    RecordsByTypes = RecordsByTypes
                 };
 
                 serializer.Serialize(stream, appData);
@@ -112,6 +156,7 @@ namespace My_money.ViewModel
                     {
                         Records = appData.Records;
                         banksum = appData.Banksum;
+                        recordsByTypes = appData.RecordsByTypes;
                     }
                 }
             }
@@ -120,10 +165,21 @@ namespace My_money.ViewModel
                 // If the file does not exist, create a new list of data for demo
                 banksum = 5000;
 
-                Records.Add(new Record { Cost = 100 });
-                Records.Add(new Record { Cost = 200 });
-                Records.Add(new Record { Cost = 2000 });
-                Records.Add(new Record { Cost = 2000 });
+                Records.Add(new Record(100, DateTime.Now, TypesRecord.Groceries));
+                Records.Add(new Record(200, DateTime.Now, TypesRecord.Groceries));
+                Records.Add(new Record(2000, DateTime.Now, TypesRecord.Entertainment));
+                Records.Add(new Record(2000, DateTime.Now, TypesRecord.Other));
+
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Groceries, 6000));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Cafe, 1700));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Study, 0));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Housing, 5400));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Phone, 750));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Washing, 360));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Haircut, 450));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Car, 2000));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Entertainment, 1000));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Other, 2000));
 
             }
 
@@ -166,6 +222,7 @@ namespace My_money.ViewModel
             {
                 case "Dashboard":
                     CalculateTotalSpending();
+                    SortListByTypes(); 
                     CurrentView = dashboardView;
                     break;
 
@@ -182,6 +239,7 @@ namespace My_money.ViewModel
             }
         }
         #endregion
+
 
         #region OnAdd
         private void OnRecordAdded(Record newRecord)
@@ -201,6 +259,7 @@ namespace My_money.ViewModel
         }
         #endregion
 
+
         //private void SortingRecordsDate()
         //{
         //    List<Record> sortedList = Records.OrderByDescending(item => item.DateTimeOccurred).ToList();
@@ -211,10 +270,135 @@ namespace My_money.ViewModel
         //    }
         //}
 
+
         #region Exit
         private void OnExit(object param)
         {
             Application.Current.Shutdown();
+        }
+        #endregion
+
+
+        #region Sorting Records By Date
+        private void SortingRecordsByDate()
+        {
+            if (SelectedDate.HasValue)
+            {
+                listRecordsByDate = Records.ToList();
+                switch (selectedSort)
+                {
+
+                    // Day
+                    case 0:
+                        for (int i = listRecordsByDate.Count - 1; i >= 0; i--)
+                        {
+                            var item = listRecordsByDate[i];
+                            if (item.DateTimeOccurred.Value.Day != SelectedDate.Value.Day || item.DateTimeOccurred.Value.Month != SelectedDate.Value.Month || item.DateTimeOccurred.Value.Year != SelectedDate.Value.Year)
+                            {
+                                listRecordsByDate.RemoveAt(i);
+                            }
+                        }
+                        break;
+                    // Month
+                    case 1:
+                        for (int i = listRecordsByDate.Count - 1; i >= 0; i--)
+                        {
+                            var item = listRecordsByDate[i];
+                            if (item.DateTimeOccurred.Value.Month != SelectedDate.Value.Month || item.DateTimeOccurred.Value.Year != SelectedDate.Value.Year)
+                            {
+                                listRecordsByDate.RemoveAt(i);
+                            }
+                        }
+                        break;
+                    // Year
+                    case 2:
+                        for (int i = listRecordsByDate.Count - 1; i >= 0; i--)
+                        {
+                            var item = listRecordsByDate[i];
+                            if (item.DateTimeOccurred.Value.Year != SelectedDate.Value.Year)
+                            {
+                                listRecordsByDate.RemoveAt(i);
+                            }
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                SelectedDate = DateTime.Now;
+            }
+        }
+        #endregion
+
+        #region Sorting Records By Types
+        private void SortListByTypes()
+        {
+            CleanSpendByTypes();
+            SortingRecordsByDate();
+            if (listRecordsByDate != null)
+            {
+
+                foreach (var record in listRecordsByDate)
+                {
+                    switch(record.Type)
+                    {
+                        case TypesRecord.Groceries:
+                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
+                            break;
+
+                        case TypesRecord.Cafe:
+                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
+                            break;
+
+                        case TypesRecord.Study:
+                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
+                            break;
+
+                        case TypesRecord.Housing:
+                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
+                            break;
+
+                        case TypesRecord.Phone:
+                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
+                            break;
+
+                        case TypesRecord.Washing:
+                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
+                            break;
+
+                        case TypesRecord.Haircut:
+                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
+                            break;
+
+                        case TypesRecord.Car:
+                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
+                            break;
+
+                        case TypesRecord.Entertainment:
+                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
+                            break;
+
+                        case TypesRecord.Other:
+                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
+                            break;
+                        
+                    }
+                }
+                
+            }
+            else
+            {
+                MessageBox.Show("You don't have any records!", "Error Detected in records list", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+        }
+
+        private void CleanSpendByTypes()
+        {
+            foreach (var types in recordsByTypes)
+            {
+                types.Spend = 0;
+            }
         }
         #endregion
     }

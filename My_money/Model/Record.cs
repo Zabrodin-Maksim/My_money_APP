@@ -36,5 +36,14 @@ namespace My_money.Model
                 dateTimeOccurred = value;
             }
         }
+
+        public Record() { }
+
+        public Record(int cost, DateTime? dateTime, TypesRecord type)
+        {
+            this.cost = cost;
+            this.dateTimeOccurred = dateTime;
+            this.type = type;
+        }
     }
 }

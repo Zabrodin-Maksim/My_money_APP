@@ -37,7 +37,7 @@ namespace My_money.ViewModel
         }
 
 
-        private DateTime? selectedDate;
+        private DateTime? selectedDate = DateTime.Now;
         public DateTime? SelectedDate
         {
             get { return selectedDate; }
@@ -86,7 +86,7 @@ namespace My_money.ViewModel
                     return;
                 }
 
-                Record newRecord = new Record { Cost = int.Parse(costTextProperty), DateTimeOccurred = selectedDate, Type = selectedType };
+                Record newRecord = new Record(int.Parse(costTextProperty), selectedDate, selectedType);
 
                 RecordAdded?.Invoke(newRecord);
             }
@@ -135,6 +135,11 @@ namespace My_money.ViewModel
         private bool CheckAddInput(string cost)
         {
             if (string.IsNullOrEmpty(cost))
+            {
+                MessageBox.Show("Please enter a valid cost.", "Error Detected in Input cost", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+            if (!SelectedDate.HasValue)
             {
                 MessageBox.Show("Please enter a valid cost.", "Error Detected in Input cost", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;

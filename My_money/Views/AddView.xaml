@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:My_money.Views"
              xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
              mc:Ignorable="d" 
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              d:DesignHeight="752.2" d:DesignWidth="976"
     xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2">
 
@@ -700,7 +701,7 @@
         <CheckBox IsChecked="{Binding IsCheckBoxChecked, Mode=TwoWay}" Style="{DynamicResource CheckBoxStyle1}" Grid.Row="1" Grid.Column="1" />
         <TextBox Text="{Binding CostTextProperty, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Style="{StaticResource TextBoxCom}"/>
         <ComboBox Visibility="{Binding VisibilityByBank}" SelectedItem="{Binding SelectedType, Mode=TwoWay}" ItemContainerStyle="{DynamicResource ComboBoxItemContainerStyle1}"  Template="{DynamicResource ComboBoxTemplate1}" ItemsSource="{Binding Types}" Grid.Row="3" Grid.Column="1" Style="{StaticResource ComboBoxCom}"/>
-        <DatePicker Visibility="{Binding VisibilityByBank}" CalendarStyle="{DynamicResource DatePickerCalendarStyle1}" Template="{DynamicResource DatePickerTemplate1}" SelectedDate="{Binding SelectedDate, Mode=TwoWay}"  Grid.Row="4" Grid.Column="1" Style="{StaticResource DatePicker}" />
+        <DatePicker Visibility="{Binding VisibilityByBank}" CalendarStyle="{DynamicResource DatePickerCalendarStyle1}" Template="{DynamicResource DatePickerTemplate1}" SelectedDate="{Binding SelectedDate, Mode=TwoWay}"  Grid.Row="4" Grid.Column="1" Style="{StaticResource DatePicker}"/>
         <!--#endregion-->
 
         <!--#region Column 3 (BT)-->
