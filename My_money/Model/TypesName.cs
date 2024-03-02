@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace My_money.Model
 {
-    public class TypesRecord
+    public class TypesName
     {
         public static List<string> Values { get; set; } = new List<string>
         {

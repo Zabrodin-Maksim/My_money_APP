@@ -58,7 +58,7 @@ namespace My_money.ViewModel
             AddCommand = new MyICommand<object>(OnAdd);
             BackCommand = new MyICommand<string>(OnBack);
 
-            Types = TypesRecord.Values;
+            Types = TypesName.Values;
         }
 
         #region Commands

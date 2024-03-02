@@ -60,7 +60,7 @@ namespace My_money.ViewModel
             }
         }
 
-        private void SortingRecordsDate()
+        private void SortingRecordsDate() //History View
         {
             List<Record> sortedList = Records.OrderByDescending(item => item.DateTimeOccurred).ToList();
             Records.Clear();
@@ -88,7 +88,6 @@ namespace My_money.ViewModel
                 SetProperty(ref records, value);
             } 
         }
-
 
         #region Sort List
 
@@ -120,6 +119,7 @@ namespace My_money.ViewModel
             }
         }
         #endregion
+
         #endregion
 
 
@@ -141,7 +141,7 @@ namespace My_money.ViewModel
                     Records = Records,
                     Banksum = Banksum,
                     RecordsByTypes = RecordsByTypes,
-                    Types = TypesRecord.Values
+                    Types = TypesName.Values
                 };
 
                 serializer.Serialize(stream, appData);
@@ -165,7 +165,7 @@ namespace My_money.ViewModel
                         Records = appData.Records;
                         banksum = appData.Banksum;
                         recordsByTypes = appData.RecordsByTypes;
-                        TypesRecord.Values = appData.Types;
+                        TypesName.Values = appData.Types;
                     }
                 }
             }
@@ -174,21 +174,21 @@ namespace My_money.ViewModel
                 // If the file does not exist, create a new list of data for demo
                 banksum = 5000;
 
-                Records.Add(new Record(100, DateTime.Now, TypesRecord.Values[0]));
-                Records.Add(new Record(200, DateTime.Now, TypesRecord.Values[2]));
-                Records.Add(new Record(2000, DateTime.Now, TypesRecord.Values[3]));
-                Records.Add(new Record(2000, DateTime.Now, TypesRecord.Values[4]));
+                Records.Add(new Record(100, DateTime.Now, TypesName.Values[0]));
+                Records.Add(new Record(200, DateTime.Now, TypesName.Values[2]));
+                Records.Add(new Record(2000, DateTime.Now, TypesName.Values[3]));
+                Records.Add(new Record(2000, DateTime.Now, TypesName.Values[4]));
 
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[0], 6000));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[1], 1700));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[2], 0));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[3], 5400));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[4], 750));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[5], 360));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[6], 450));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[7], 2000));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[8], 1000));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[9], 2000));
+                recordsByTypes.Add(new RecordByTypes(TypesName.Values[0], 6000));
+                recordsByTypes.Add(new RecordByTypes(TypesName.Values[1], 1700));
+                recordsByTypes.Add(new RecordByTypes(TypesName.Values[2], 0));
+                recordsByTypes.Add(new RecordByTypes(TypesName.Values[3], 5400));
+                recordsByTypes.Add(new RecordByTypes(TypesName.Values[4], 750));
+                recordsByTypes.Add(new RecordByTypes(TypesName.Values[5], 360));
+                recordsByTypes.Add(new RecordByTypes(TypesName.Values[6], 450));
+                recordsByTypes.Add(new RecordByTypes(TypesName.Values[7], 2000));
+                recordsByTypes.Add(new RecordByTypes(TypesName.Values[8], 1000));
+                recordsByTypes.Add(new RecordByTypes(TypesName.Values[9], 2000));
 
             }
 
@@ -286,6 +286,7 @@ namespace My_money.ViewModel
 
                     // Day
                     case 0:
+
                         for (int i = listRecordsByDate.Count - 1; i >= 0; i--)
                         {
                             var item = listRecordsByDate[i];
@@ -330,6 +331,7 @@ namespace My_money.ViewModel
         #region Sorting Records By Types
         private void SortListByTypes()
         {
+            ChangePlanPeriod();
             CleanSpendByTypes();
             SortingRecordsByDate();
             if (listRecordsByDate != null)
@@ -337,9 +339,9 @@ namespace My_money.ViewModel
 
                 foreach (var record in listRecordsByDate)
                 {
-                    for(int i = 0; i < TypesRecord.Values.Count; i++)
+                    for(int i = 0; i < TypesName.Values.Count; i++)
                     {
-                        if(record.Type == TypesRecord.Values[i])
+                        if (record.Type == TypesName.Values[i])
                         {
                             recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
                             break;
@@ -360,6 +362,14 @@ namespace My_money.ViewModel
             foreach (var types in recordsByTypes)
             {
                 types.Spend = 0;
+            }
+        }
+
+        private void ChangePlanPeriod()
+        {
+            foreach (var types in recordsByTypes)
+            {
+                types.PlanByDatePeriod = SelectedSort;
             }
         }
         #endregion

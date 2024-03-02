@@ -24,7 +24,19 @@ namespace My_money.Model
         }
 
         private int plan;
-        public int Plan { get { return plan; } set { plan = value; SetProperty(ref plan, value); } }
+        public int Plan { get { return plan; } set 
+            { 
+                SetProperty(ref plan, value); 
+            } 
+        }
+
+        private int planByDatePeriod;
+        public int PlanByDatePeriod { get { return planByDatePeriod; }
+            set
+            {
+                SetProperty(ref planByDatePeriod, CalculPlanByPeriod(value));
+            }
+        }
 
         private int remaining;
         public int Remaining { get { return remaining; } set { SetProperty(ref remaining, value); } }
@@ -40,7 +52,25 @@ namespace My_money.Model
         private void CalculRemaining()
         {
             Remaining = 0;
-            Remaining = plan - spend;
+            Remaining = planByDatePeriod - spend;
+        }
+
+        private int CalculPlanByPeriod (int period)
+        {
+            switch (period)
+            {
+                // Day
+                case 0:
+                    return plan / 30;
+                // Month
+                case 1:
+                    return plan;
+                // Year
+                case 2:
+                    return plan * 12;
+                default:
+                    return plan;
+            }
         }
     }
 }

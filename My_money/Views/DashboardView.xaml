@@ -632,7 +632,7 @@
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Name}"/>
-                        <GridViewColumn Header="Plan" DisplayMemberBinding="{Binding Plan,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
+                        <GridViewColumn Header="Plan" DisplayMemberBinding="{Binding PlanByDatePeriod,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
                         <GridViewColumn Header="Spend" DisplayMemberBinding="{Binding Spend,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
                         <GridViewColumn Header="Remaining" DisplayMemberBinding="{Binding Remaining,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
                     </GridView>
