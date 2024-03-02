@@ -11,9 +11,8 @@ namespace My_money.Model
     [Serializable]
     public class Record 
     {
-
         private int cost;
-        private TypesRecord type;
+        private String type;
         private DateTime? dateTimeOccurred;
 
         public int Cost { get { return cost; }
@@ -22,7 +21,7 @@ namespace My_money.Model
             }
         }
 
-        public TypesRecord Type {  get { return type; } 
+        public String Type {  get { return type; } 
             set { 
                 type = value;
             } 
@@ -39,7 +38,7 @@ namespace My_money.Model
 
         public Record() { }
 
-        public Record(int cost, DateTime? dateTime, TypesRecord type)
+        public Record(int cost, DateTime? dateTime, String type)
         {
             this.cost = cost;
             this.dateTimeOccurred = dateTime;

@@ -24,6 +24,7 @@ namespace My_money.ViewModel
             RecordsByTypes = new ObservableCollection<RecordByTypes>();
 
             LoadRecords();
+            SortingRecordsDate();
 
             #region ViewModel
             addViewModel = new AddViewModel();
@@ -50,17 +51,23 @@ namespace My_money.ViewModel
 
         }
 
-
         private void CalculateTotalSpending()
         {
             totalCost = 0;
-
-            foreach (var record in Records)
+            foreach (var record in listRecordsByDate)
             {
-                totalCost += record.Cost;
+                TotalCost += record.Cost;
             }
+        }
 
-            //OnPropertyChanged(nameof(TotalCost));
+        private void SortingRecordsDate()
+        {
+            List<Record> sortedList = Records.OrderByDescending(item => item.DateTimeOccurred).ToList();
+            Records.Clear();
+            foreach (var item in sortedList)
+            {
+                Records.Add(item);
+            }
         }
 
 
@@ -71,7 +78,7 @@ namespace My_money.ViewModel
 
 
         private int totalCost;
-        public int TotalCost { get { return totalCost; } }
+        public int TotalCost { get { return totalCost; } set { SetProperty(ref totalCost, value); } }
 
 
         private ObservableCollection<Record> records;
@@ -133,7 +140,8 @@ namespace My_money.ViewModel
                 {
                     Records = Records,
                     Banksum = Banksum,
-                    RecordsByTypes = RecordsByTypes
+                    RecordsByTypes = RecordsByTypes,
+                    Types = TypesRecord.Values
                 };
 
                 serializer.Serialize(stream, appData);
@@ -157,6 +165,7 @@ namespace My_money.ViewModel
                         Records = appData.Records;
                         banksum = appData.Banksum;
                         recordsByTypes = appData.RecordsByTypes;
+                        TypesRecord.Values = appData.Types;
                     }
                 }
             }
@@ -165,25 +174,25 @@ namespace My_money.ViewModel
                 // If the file does not exist, create a new list of data for demo
                 banksum = 5000;
 
-                Records.Add(new Record(100, DateTime.Now, TypesRecord.Groceries));
-                Records.Add(new Record(200, DateTime.Now, TypesRecord.Groceries));
-                Records.Add(new Record(2000, DateTime.Now, TypesRecord.Entertainment));
-                Records.Add(new Record(2000, DateTime.Now, TypesRecord.Other));
+                Records.Add(new Record(100, DateTime.Now, TypesRecord.Values[0]));
+                Records.Add(new Record(200, DateTime.Now, TypesRecord.Values[2]));
+                Records.Add(new Record(2000, DateTime.Now, TypesRecord.Values[3]));
+                Records.Add(new Record(2000, DateTime.Now, TypesRecord.Values[4]));
 
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Groceries, 6000));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Cafe, 1700));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Study, 0));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Housing, 5400));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Phone, 750));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Washing, 360));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Haircut, 450));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Car, 2000));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Entertainment, 1000));
-                recordsByTypes.Add(new RecordByTypes(TypesRecord.Other, 2000));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[0], 6000));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[1], 1700));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[2], 0));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[3], 5400));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[4], 750));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[5], 360));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[6], 450));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[7], 2000));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[8], 1000));
+                recordsByTypes.Add(new RecordByTypes(TypesRecord.Values[9], 2000));
 
             }
 
-            CalculateTotalSpending();
+            SortListByTypes();
         }
 
         private void MainWindowClosing(object? sender, CancelEventArgs e)
@@ -221,7 +230,6 @@ namespace My_money.ViewModel
             switch (destination)
             {
                 case "Dashboard":
-                    CalculateTotalSpending();
                     SortListByTypes(); 
                     CurrentView = dashboardView;
                     break;
@@ -246,7 +254,6 @@ namespace My_money.ViewModel
         {
             
             Records.Add(newRecord);
-            CalculateTotalSpending();
 
             OnNav("Dashboard");
         }
@@ -258,17 +265,6 @@ namespace My_money.ViewModel
             OnNav("Dashboard");
         }
         #endregion
-
-
-        //private void SortingRecordsDate()
-        //{
-        //    List<Record> sortedList = Records.OrderByDescending(item => item.DateTimeOccurred).ToList();
-        //    Records.Clear();
-        //    foreach (var item in sortedList)
-        //    {
-        //        Records.Add(item);
-        //    }
-        //}
 
 
         #region Exit
@@ -322,6 +318,7 @@ namespace My_money.ViewModel
                         }
                         break;
                 }
+                CalculateTotalSpending();
             }
             else
             {
@@ -340,48 +337,13 @@ namespace My_money.ViewModel
 
                 foreach (var record in listRecordsByDate)
                 {
-                    switch(record.Type)
+                    for(int i = 0; i < TypesRecord.Values.Count; i++)
                     {
-                        case TypesRecord.Groceries:
+                        if(record.Type == TypesRecord.Values[i])
+                        {
                             recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
                             break;
-
-                        case TypesRecord.Cafe:
-                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
-                            break;
-
-                        case TypesRecord.Study:
-                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
-                            break;
-
-                        case TypesRecord.Housing:
-                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
-                            break;
-
-                        case TypesRecord.Phone:
-                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
-                            break;
-
-                        case TypesRecord.Washing:
-                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
-                            break;
-
-                        case TypesRecord.Haircut:
-                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
-                            break;
-
-                        case TypesRecord.Car:
-                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
-                            break;
-
-                        case TypesRecord.Entertainment:
-                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
-                            break;
-
-                        case TypesRecord.Other:
-                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
-                            break;
-                        
+                        }
                     }
                 }
                 

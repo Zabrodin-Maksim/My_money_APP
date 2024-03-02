@@ -6,17 +6,20 @@ using System.Threading.Tasks;
 
 namespace My_money.Model
 {
-    public enum TypesRecord
+    public class TypesRecord
     {
-        Groceries,
-        Cafe,
-        Study,
-        Housing,
-        Phone,
-        Washing,
-        Haircut,
-        Car,
-        Entertainment,
-        Other
+        public static List<string> Values { get; set; } = new List<string>
+        {
+            "Groceries",
+            "Cafe",
+            "Study",
+            "Housing",
+            "Phone",
+            "Washing",
+            "Haircut",
+            "Car",
+            "Entertainment",
+            "Other"
+        };
     }
 }

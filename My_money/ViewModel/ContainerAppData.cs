@@ -15,5 +15,6 @@ namespace My_money.ViewModel
         public int Banksum { get; set; }
 
         public ObservableCollection<RecordByTypes> RecordsByTypes { get; set; }
+        public List<string> Types { get; set; }
     }
 }

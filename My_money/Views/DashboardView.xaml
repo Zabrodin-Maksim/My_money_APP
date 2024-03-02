@@ -227,6 +227,7 @@
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Foreground" Value="White" />
+            
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="GridViewColumnHeader">
@@ -254,6 +255,7 @@
                                 </Border.Background>
                                 <ContentPresenter x:Name="HeaderContent"
                        Margin="0,0,0,2"
+                       
                        RecognizesAccessKey="True"
                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -305,7 +307,6 @@
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="20"/>
-            <Setter Property="Margin" Value="-1 0 0 0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListView">
@@ -630,9 +631,10 @@
             <ListView ItemsSource="{Binding RecordsByTypes}" d:ItemsSource="{d:SampleData ItemCount=5}"  Margin="1,0,0,0">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Date" DisplayMemberBinding="{Binding Name}"/>
-                        <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Spend,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
-                        <GridViewColumn Header="Cost" DisplayMemberBinding="{Binding Plan,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
+                        <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Name}"/>
+                        <GridViewColumn Header="Plan" DisplayMemberBinding="{Binding Plan,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
+                        <GridViewColumn Header="Spend" DisplayMemberBinding="{Binding Spend,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
+                        <GridViewColumn Header="Remaining" DisplayMemberBinding="{Binding Remaining,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
                     </GridView>
                 </ListView.View>
             </ListView>

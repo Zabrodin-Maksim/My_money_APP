@@ -44,11 +44,10 @@ namespace My_money.ViewModel
             set { selectedDate = value; }
         }
 
+        public List<String> Types { get; set; }
 
-        public List<TypesRecord> Types { get; set; }
-
-        private TypesRecord selectedType;
-        public TypesRecord SelectedType
+        private String selectedType;
+        public String SelectedType
         {
             get { return selectedType; }
             set { selectedType = value; }
@@ -59,7 +58,7 @@ namespace My_money.ViewModel
             AddCommand = new MyICommand<object>(OnAdd);
             BackCommand = new MyICommand<string>(OnBack);
 
-            Types = Enum.GetValues(typeof(TypesRecord)).Cast<TypesRecord>().ToList();
+            Types = TypesRecord.Values;
         }
 
         #region Commands
@@ -136,12 +135,17 @@ namespace My_money.ViewModel
         {
             if (string.IsNullOrEmpty(cost))
             {
-                MessageBox.Show("Please enter a valid cost.", "Error Detected in Input cost", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please, enter a valid cost.", "Error Detected in Input cost", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
             if (!SelectedDate.HasValue)
             {
-                MessageBox.Show("Please enter a valid cost.", "Error Detected in Input cost", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please, select the date of your record", "Error Detected in Input Date", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+            if (SelectedType == null)
+            {
+                MessageBox.Show("Please, select the type of your record", "Error Detected in Input Type", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
             return true;
