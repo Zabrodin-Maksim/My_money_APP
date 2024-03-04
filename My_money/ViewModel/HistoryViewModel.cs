@@ -13,8 +13,8 @@ namespace My_money.ViewModel
         private ObservableCollection<Record> records;
         public ObservableCollection<Record> Records {  get { return records; } 
             set 
-            { 
-                records = value; 
+            {
+                SetProperty(ref records, value);
             } 
         }
 

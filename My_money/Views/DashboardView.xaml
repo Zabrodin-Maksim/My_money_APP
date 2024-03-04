@@ -631,9 +631,9 @@
             <ListView ItemsSource="{Binding RecordsByTypes}" d:ItemsSource="{d:SampleData ItemCount=5}"  Margin="1,0,0,0">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Name}"/>
-                        <GridViewColumn Header="Plan" DisplayMemberBinding="{Binding PlanByDatePeriod,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
-                        <GridViewColumn Header="Spend" DisplayMemberBinding="{Binding Spend,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
+                        <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Name}" Width="170" />
+                        <GridViewColumn Header="Plan" DisplayMemberBinding="{Binding PlanByDatePeriod,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}" Width="150" />
+                        <GridViewColumn Header="Spend" DisplayMemberBinding="{Binding Spend,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}" Width="150" />
                         <GridViewColumn Header="Remaining" DisplayMemberBinding="{Binding Remaining,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
                     </GridView>
                 </ListView.View>

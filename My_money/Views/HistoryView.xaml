@@ -328,9 +328,9 @@
         <ListView SelectedItem="{Binding SelectedItem}" ItemsSource="{Binding Records}" d:ItemsSource="{d:SampleData ItemCount=5}"  Margin="1,0,0,0">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Date" DisplayMemberBinding="{Binding DateTimeOccurred,StringFormat={}{0:dd.MM.yyyy}}"/>
-                    <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}"/>
-                    <GridViewColumn Header="Cost" DisplayMemberBinding="{Binding Cost,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
+                    <GridViewColumn Header="Date" DisplayMemberBinding="{Binding DateTimeOccurred,StringFormat={}{0:dd.MM.yyyy}}" Width="150" />
+                    <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}" Width="150" />
+                    <GridViewColumn Header="Cost" DisplayMemberBinding="{Binding Cost,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}" Width="150"/>
                 </GridView>
             </ListView.View>
         </ListView>

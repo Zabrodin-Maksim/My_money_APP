@@ -12,7 +12,7 @@ namespace My_money.Model
     public class Record 
     {
         private int cost;
-        private String type;
+        private string type;
         private DateTime? dateTimeOccurred;
 
         public int Cost { get { return cost; }
@@ -21,7 +21,7 @@ namespace My_money.Model
             }
         }
 
-        public String Type {  get { return type; } 
+        public string Type {  get { return type; } 
             set { 
                 type = value;
             } 

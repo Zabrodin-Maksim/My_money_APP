@@ -1,6 +1,7 @@
 ﻿using My_money.Model;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace My_money.ViewModel
 
         private Visibility visibilityByBank;
         public Visibility VisibilityByBank { get { return visibilityByBank; } set { visibilityByBank = value; } }
+
 
         private bool isCheckBoxChecked;
         public bool IsCheckBoxChecked
@@ -44,10 +46,21 @@ namespace My_money.ViewModel
             set { selectedDate = value; }
         }
 
-        public List<String> Types { get; set; }
 
-        private String selectedType;
-        public String SelectedType
+        private ObservableCollection<string> types;
+        public ObservableCollection<string> Types 
+        { 
+            get { return types; } 
+
+            set 
+            {
+                SetProperty(ref types, value);
+            } 
+        }
+
+
+        private string selectedType;
+        public string SelectedType
         {
             get { return selectedType; }
             set { selectedType = value; }
@@ -138,15 +151,18 @@ namespace My_money.ViewModel
                 MessageBox.Show("Please, enter a valid cost.", "Error Detected in Input cost", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
-            if (!SelectedDate.HasValue)
+            if (!isCheckBoxChecked)
             {
-                MessageBox.Show("Please, select the date of your record", "Error Detected in Input Date", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return false;
-            }
-            if (SelectedType == null)
-            {
-                MessageBox.Show("Please, select the type of your record", "Error Detected in Input Type", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return false;
+                if (!SelectedDate.HasValue)
+                {
+                    MessageBox.Show("Please, select the date of your record", "Error Detected in Input Date", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
+                if (SelectedType == null)
+                {
+                    MessageBox.Show("Please, select the type of your record", "Error Detected in Input Type", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
             }
             return true;
         }

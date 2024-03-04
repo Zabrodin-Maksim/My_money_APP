@@ -4,15 +4,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms.VisualStyles;
 
 namespace My_money.Model
 {
-    // TODO: СДЕЛАТЬ ЗАВИСИМОСТЬ CalculRemaining ОТ ВЫБРОННОГО ПЕРИОДА ВРЕМЕНИ
+    
     [Serializable]
     public class RecordByTypes : ViewModelBase
     {
-        private String name;
-        public String Name { get { return name; } set { name = value; } }
+        #region Properties
+
+        private string name;
+        public string Name { get { return name; } 
+            set 
+            {
+                CheckNameExist(value);
+                SetProperty(ref name, value); 
+            } 
+        }
 
         private int spend;
         public int Spend { get { return spend; } 
@@ -41,9 +50,11 @@ namespace My_money.Model
         private int remaining;
         public int Remaining { get { return remaining; } set { SetProperty(ref remaining, value); } }
 
+        #endregion
+
         public RecordByTypes() { }
 
-        public RecordByTypes(String name, int plan)
+        public RecordByTypes(string name, int plan)
         {
             this.name = name;
             this.plan = plan;
@@ -71,6 +82,24 @@ namespace My_money.Model
                 default:
                     return plan;
             }
+        }
+
+        private void CheckNameExist(string newName)
+        {
+            //if edit type
+            for (int i = 0; i < TypesName.Values.Count; i++)
+            {
+                if (TypesName.Values[i] == name)
+                {
+                    TypesName.Values[i] = newName;
+                }
+            }
+            //if new type
+            if (!TypesName.Values.Contains(newName))
+            {
+                TypesName.Values.Add(newName);
+            }
+            
         }
     }
 }

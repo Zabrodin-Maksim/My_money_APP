@@ -29,6 +29,8 @@ namespace My_money.ViewModel
             #region ViewModel
             addViewModel = new AddViewModel();
             historyViewModel = new HistoryViewModel(Records);
+            planViewModel = new PlanViewModel(RecordsByTypes, Records);
+
             #endregion
 
             #region Commands
@@ -71,7 +73,7 @@ namespace My_money.ViewModel
         }
 
 
-        # region Fields and Properties
+        # region Properties
 
         private int banksum;
         public int Banksum { get { return banksum; } set { SetProperty(ref banksum, value); } }
@@ -218,11 +220,13 @@ namespace My_money.ViewModel
         private DashboardView dashboardView = new DashboardView();
         private AddView addView = new AddView();
         private HistoryView historyView = new HistoryView();
+        private PlanView planView = new PlanView();
         #endregion
 
         #region ViewModel
         private AddViewModel addViewModel;
         private HistoryViewModel historyViewModel;
+        private PlanViewModel planViewModel;
         #endregion
 
         private void OnNav(string destination)
@@ -240,9 +244,13 @@ namespace My_money.ViewModel
                     break;
 
                 case "History":
-                default:
                     CurrentView = historyView;
                     historyView.DataContext = historyViewModel;
+                    break;
+
+                case "Plan":
+                    CurrentView = planView;
+                    planView.DataContext = planViewModel;
                     break;
             }
         }
@@ -283,7 +291,6 @@ namespace My_money.ViewModel
                 listRecordsByDate = Records.ToList();
                 switch (selectedSort)
                 {
-
                     // Day
                     case 0:
 

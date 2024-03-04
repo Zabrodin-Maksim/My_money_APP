@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace My_money.Views
 {
     /// <summary>
-    /// Логика взаимодействия для HistoryView.xaml
+    /// Логика взаимодействия для PlanView.xaml
     /// </summary>
-    public partial class HistoryView : UserControl
+    public partial class PlanView : UserControl
     {
-        public HistoryView()
+        public PlanView()
         {
             InitializeComponent();
         }
