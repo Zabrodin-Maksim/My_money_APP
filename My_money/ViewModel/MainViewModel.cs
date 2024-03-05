@@ -60,6 +60,7 @@ namespace My_money.ViewModel
             {
                 TotalCost += record.Cost;
             }
+            OnPropertyChanged(nameof(TotalCost));
         }
 
         private void SortingRecordsDate() //History View
@@ -195,6 +196,7 @@ namespace My_money.ViewModel
             }
 
             SortListByTypes();
+            ViewModelBase.flagStartProg = true;
         }
 
         private void MainWindowClosing(object? sender, CancelEventArgs e)
@@ -335,7 +337,7 @@ namespace My_money.ViewModel
         }
         #endregion
 
-        #region Sorting Records By Types
+        #region Sorting List By Types
         private void SortListByTypes()
         {
             ChangePlanPeriod();

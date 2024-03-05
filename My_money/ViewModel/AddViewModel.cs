@@ -148,19 +148,19 @@ namespace My_money.ViewModel
         {
             if (string.IsNullOrEmpty(cost))
             {
-                MessageBox.Show("Please, enter a valid cost.", "Error Detected in Input cost", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please, enter a valid cost.", "Warning: Error Detected in Input cost", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
             if (!isCheckBoxChecked)
             {
                 if (!SelectedDate.HasValue)
                 {
-                    MessageBox.Show("Please, select the date of your record", "Error Detected in Input Date", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Please, select the date of your record", "Warning: Error Detected in Input Date", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return false;
                 }
                 if (SelectedType == null)
                 {
-                    MessageBox.Show("Please, select the type of your record", "Error Detected in Input Type", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Please, select the type of your record", "Warning: Error Detected in Input Type", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return false;
                 }
             }

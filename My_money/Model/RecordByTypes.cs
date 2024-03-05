@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms.VisualStyles;
 
 namespace My_money.Model
@@ -12,6 +13,7 @@ namespace My_money.Model
     [Serializable]
     public class RecordByTypes : ViewModelBase
     {
+
         #region Properties
 
         private string name;
@@ -19,7 +21,7 @@ namespace My_money.Model
             set 
             {
                 CheckNameExist(value);
-                SetProperty(ref name, value); 
+                 
             } 
         }
 
@@ -50,6 +52,7 @@ namespace My_money.Model
         private int remaining;
         public int Remaining { get { return remaining; } set { SetProperty(ref remaining, value); } }
 
+        
         #endregion
 
         public RecordByTypes() { }
@@ -86,20 +89,38 @@ namespace My_money.Model
 
         private void CheckNameExist(string newName)
         {
-            //if edit type
-            for (int i = 0; i < TypesName.Values.Count; i++)
+            // if edit type is "Other"
+            if (name == "Other")
             {
-                if (TypesName.Values[i] == name)
+                MessageBox.Show("You can't edit name of type Other!", "Warning: Can't delete", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else
+            {
+                for (int i = 0; i < TypesName.Values.Count; i++)
                 {
-                    TypesName.Values[i] = newName;
+                    // if try add exists type
+                    if (newName == TypesName.Values[i] && ViewModelBase.flagStartProg)
+                    {
+                        MessageBox.Show("This type (" + newName + ") already exists.", "Warning: Type already exists.", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        newName = "Fuck";
+                    }else
+                    //if edit type
+                    if (TypesName.Values[i] == name)
+                    {
+                        TypesName.Values[i] = newName;
+                    }
+                }
+                //if new type (add name in list of TypesName)
+                if (!TypesName.Values.Contains(newName) && newName != "Fuck")
+                {
+                    TypesName.Values.Add(newName);
                 }
             }
-            //if new type
-            if (!TypesName.Values.Contains(newName))
+            if (newName != "Fuck")
             {
-                TypesName.Values.Add(newName);
+                SetProperty(ref name, newName);
             }
-            
         }
     }
 }

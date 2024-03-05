@@ -109,7 +109,7 @@
         <Style x:Key="DataGridStyle1" TargetType="{x:Type DataGrid}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontSize" Value="25"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="RowDetailsVisibilityMode" Value="VisibleWhenSelected"/>
@@ -320,10 +320,10 @@
             <RowDefinition Height="0.1*"/>
         </Grid.RowDefinitions>
 
-        <DataGrid  SelectedItem="{Binding selectedItem}" ItemsSource="{Binding RecordByTypes}" d:ItemsSource="{d:SampleData ItemCount=5}" RowStyle="{DynamicResource DataGridRowStyle1}" RowHeaderStyle="{DynamicResource DataGridRowHeaderStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" CellStyle="{DynamicResource DataGridCellStyle1(TEXT)}" Style="{DynamicResource DataGridStyle1}" Background="Transparent" AutoGenerateColumns="False"  Margin="1,0,0,0">
+        <DataGrid  SelectedItem="{Binding selectedItem}" ItemsSource="{Binding RecordByTypes}" d:ItemsSource="{d:SampleData ItemCount=5}" RowStyle="{DynamicResource DataGridRowStyle1}" RowHeaderStyle="{DynamicResource DataGridRowHeaderStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" CellStyle="{DynamicResource DataGridCellStyle1(TEXT)}" Style="{DynamicResource DataGridStyle1}" Background="Transparent" AutoGenerateColumns="False"  Margin="1,0,0,0" GridLinesVisibility="Horizontal" CanUserDeleteRows="False">
             <DataGrid.Columns>
-                <DataGridTextColumn  Header="Type name" Binding="{Binding Name}" Width="150" FontSize="25"/>
-                <DataGridTextColumn  Header="Cost Planing" Binding="{Binding Plan}" Width="150" FontSize="25"/>
+                <DataGridTextColumn  Header="Type name" Binding="{Binding Name}" Width="180" FontSize="25"/>
+                <DataGridTextColumn  Header="Cost Planing" Binding="{Binding Plan}" Width="160" FontSize="25"/>
             </DataGrid.Columns>
         </DataGrid>
 

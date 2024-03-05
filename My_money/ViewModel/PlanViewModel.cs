@@ -38,7 +38,7 @@ namespace My_money.ViewModel
             {
                 if(selectedItem.Name == "Other")
                 {
-                    MessageBox.Show("You cannot delete the 'Other' record type as it is a universal type!", "Error Detected in Delete Other type", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("You cannot delete the 'Other' record type as it is a universal type!", "Warning: Error Detected in Delete Other type", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 else
                 {
@@ -51,7 +51,7 @@ namespace My_money.ViewModel
                         }
                     }
                     Change(selectedItem.Name);
-                    MessageBox.Show("All records of type " + selectedItem.Name + " have been moved under the 'Other' type.", "Successful deletion of the type" + selectedItem.Name, MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("All records of type " + selectedItem.Name + " have been moved under the 'Other' type.", "Information: Successful deletion of the type" + selectedItem.Name, MessageBoxButton.OK, MessageBoxImage.Information);
                     RecordByTypes.Remove(selectedItem);
                     
                 }
