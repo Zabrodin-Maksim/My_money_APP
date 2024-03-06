@@ -18,6 +18,8 @@ namespace My_money.ViewModel
             } 
         }
 
+        public event Action<int> BalanceBack;
+
         private Record selectedItem;
         public Record SelectedItem
         {
@@ -50,6 +52,7 @@ namespace My_money.ViewModel
 
         private void OnDelete(object obj)
         {
+            BalanceBack.Invoke(SelectedItem.Cost);
             Records.Remove(SelectedItem);
         }
 

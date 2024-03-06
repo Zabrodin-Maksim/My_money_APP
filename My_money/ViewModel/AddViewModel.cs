@@ -13,24 +13,47 @@ namespace My_money.ViewModel
     {
         public event Action<Record> RecordAdded;
         public event Action<int> BankAdded;
-        public event Action<string> BackM;
+        public event Action<int> BalanceAdded;
+        public event Action<string> Back;
 
-        private Visibility visibilityByBank;
-        public Visibility VisibilityByBank { get { return visibilityByBank; } set { visibilityByBank = value; } }
+        // Visibility for Type and Date
+        private Visibility visibilityMainInform;
+        public Visibility VisibilityMainInform { get { return visibilityMainInform; } set { visibilityMainInform = value; } }
+
+        // Visibility for In Bank
+        private Visibility visibilityBank;
+        public Visibility VisibilityBank { get { return visibilityBank; } set { visibilityBank = value; } }
+
+        // Visibility for In Balance
+        private Visibility visibilityBalance;
+        public Visibility VisibilityBalance { get { return visibilityBalance; } set { visibilityBalance = value; } }
 
 
-        private bool isCheckBoxChecked;
-        public bool IsCheckBoxChecked
+        //Check Boxes
+        private bool isBankChecked;
+        public bool IsBankChecked
         {
-            get { return isCheckBoxChecked; }
+            get { return isBankChecked; }
             set
             {
-                isCheckBoxChecked = value;
+                SetProperty(ref isBankChecked, value);
+                UpdateVisibility();
+            }
+        }
+
+        private bool isBalanceChecked;
+        public bool IsBalanceChecked
+        {
+            get { return isBalanceChecked; }
+            set
+            {
+                SetProperty(ref isBalanceChecked, value);
                 UpdateVisibility();
             }
         }
 
 
+        //Properties
         private string costTextProperty;
         public string CostTextProperty
         {
@@ -67,11 +90,14 @@ namespace My_money.ViewModel
         }
 
 
+
         public AddViewModel() {
             AddCommand = new MyICommand<object>(OnAdd);
             BackCommand = new MyICommand<string>(OnBack);
 
             Types = TypesName.Values;
+
+            SelectedType = Types[0];
         }
 
         #region Commands
@@ -82,7 +108,8 @@ namespace My_money.ViewModel
         #region ADD
         private void OnAdd(object parametr)
         {
-            if (isCheckBoxChecked)
+            // Add in Bank
+            if (isBankChecked)
             {
                 if (!CheckAddInput(costTextProperty))
                 {
@@ -91,6 +118,17 @@ namespace My_money.ViewModel
 
                 BankAdded?.Invoke(int.Parse(costTextProperty));
             }
+            // Add in Balance
+            else if (isBalanceChecked)
+            {
+                if (!CheckAddInput(costTextProperty))
+                {
+                    return;
+                }
+
+                BalanceAdded?.Invoke(int.Parse(costTextProperty));
+            }
+            // Add in Records
             else
             {
                 if (!CheckAddInput(costTextProperty))
@@ -102,28 +140,44 @@ namespace My_money.ViewModel
 
                 RecordAdded?.Invoke(newRecord);
             }
+            Clear();
         }
         #endregion
 
         #region Visibility
         private void UpdateVisibility()
         {
-            if (isCheckBoxChecked)
+
+            if(isBankChecked || isBalanceChecked)
             {
-                VisibilityByBank = Visibility.Collapsed;
+                VisibilityMainInform = Visibility.Collapsed;
             }
-            else
+            else { VisibilityMainInform = Visibility.Visible; }
+
+            if (isBankChecked)
             {
-                VisibilityByBank = Visibility.Visible;
+                VisibilityBalance = Visibility.Collapsed;
             }
-            OnPropertyChanged(nameof(VisibilityByBank));
+            else { VisibilityBalance = Visibility.Visible; }
+
+            if (isBalanceChecked)
+            {
+                VisibilityBank = Visibility.Collapsed;
+            }
+            else { VisibilityBank = Visibility.Visible; }
+
+            // Update all 
+            OnPropertyChanged(nameof(VisibilityMainInform));
+            OnPropertyChanged(nameof(VisibilityBank));
+            OnPropertyChanged(nameof(VisibilityBalance));
         }
         #endregion
 
         #region Back
         private void OnBack(string param)
         {
-            BackM?.Invoke(param);
+            Clear();
+            Back?.Invoke(param);
         }
         #endregion
 
@@ -151,7 +205,7 @@ namespace My_money.ViewModel
                 MessageBox.Show("Please, enter a valid cost.", "Warning: Error Detected in Input cost", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
-            if (!isCheckBoxChecked)
+            if (!isBankChecked && !isBalanceChecked)
             {
                 if (!SelectedDate.HasValue)
                 {
@@ -168,5 +222,13 @@ namespace My_money.ViewModel
         }
         #endregion
 
+        #region Clear interface 
+        private void Clear()
+        {
+            IsBankChecked = false;
+            IsBalanceChecked = false;
+            SelectedType = Types[0];
+        }
+        #endregion
     }
 }

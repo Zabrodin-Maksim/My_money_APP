@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Xml.Serialization;
 using My_money.Model;
 using My_money.Views;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 
 namespace My_money.ViewModel
 {
@@ -40,7 +41,10 @@ namespace My_money.ViewModel
 
             addViewModel.RecordAdded += OnRecordAdded;
             addViewModel.BankAdded += OnBankAdded;
-            addViewModel.BackM += OnNav;
+            addViewModel.BalanceAdded += OnBalanceAdded;
+            addViewModel.Back += OnNav;
+
+            historyViewModel.BalanceBack += OnBalanceBack;
 
             #region Closing
             Window mainWindow = Application.Current.MainWindow;
@@ -51,6 +55,12 @@ namespace My_money.ViewModel
             }
             #endregion
 
+        }
+
+
+        private void OnBalanceBack(int cost)
+        {
+            Balance += cost;
         }
 
         private void CalculateTotalSpending()
@@ -74,14 +84,18 @@ namespace My_money.ViewModel
         }
 
 
-        # region Properties
+        #region Properties
+
+        private int totalCost;
+        public int TotalCost { get { return totalCost; } set { SetProperty(ref totalCost, value); } }
+
+        private int balance;
+        public int Balance { get { return balance; } set { SetProperty(ref balance, value); } }
 
         private int banksum;
         public int Banksum { get { return banksum; } set { SetProperty(ref banksum, value); } }
 
 
-        private int totalCost;
-        public int TotalCost { get { return totalCost; } set { SetProperty(ref totalCost, value); } }
 
 
         private ObservableCollection<Record> records;
@@ -97,8 +111,10 @@ namespace My_money.ViewModel
         private ObservableCollection<RecordByTypes> recordsByTypes;
         public ObservableCollection<RecordByTypes> RecordsByTypes { get { return recordsByTypes; } set { recordsByTypes = value; } }
 
+
         private List<Record> listRecordsByDate;
         public List<Record> ListRecordsByDate { get { return listRecordsByDate; } set { listRecordsByDate = value; } }
+
 
         private int selectedSort = 1;
         public int SelectedSort 
@@ -110,6 +126,7 @@ namespace My_money.ViewModel
                 SortListByTypes();
             } 
         }
+
 
         private DateTime? selectedDate = DateTime.Now;
         public DateTime? SelectedDate
@@ -143,6 +160,7 @@ namespace My_money.ViewModel
                 {
                     Records = Records,
                     Banksum = Banksum,
+                    Balance = Balance,
                     RecordsByTypes = RecordsByTypes,
                     Types = TypesName.Values
                 };
@@ -167,6 +185,7 @@ namespace My_money.ViewModel
                     {
                         Records = appData.Records;
                         banksum = appData.Banksum;
+                        balance = appData.Balance;
                         recordsByTypes = appData.RecordsByTypes;
                         TypesName.Values = appData.Types;
                     }
@@ -175,12 +194,8 @@ namespace My_money.ViewModel
             else
             {
                 // If the file does not exist, create a new list of data for demo
-                banksum = 5000;
-
-                Records.Add(new Record(100, DateTime.Now, TypesName.Values[0]));
-                Records.Add(new Record(200, DateTime.Now, TypesName.Values[2]));
-                Records.Add(new Record(2000, DateTime.Now, TypesName.Values[3]));
-                Records.Add(new Record(2000, DateTime.Now, TypesName.Values[4]));
+                banksum = 0;
+                balance = 0;
 
                 recordsByTypes.Add(new RecordByTypes(TypesName.Values[0], 6000));
                 recordsByTypes.Add(new RecordByTypes(TypesName.Values[1], 1700));
@@ -262,7 +277,7 @@ namespace My_money.ViewModel
         #region OnAdd
         private void OnRecordAdded(Record newRecord)
         {
-            
+            Balance -= newRecord.Cost; 
             Records.Add(newRecord);
 
             OnNav("Dashboard");
@@ -271,6 +286,13 @@ namespace My_money.ViewModel
         private void OnBankAdded(int bank) 
         {
             Banksum += bank;
+
+            OnNav("Dashboard");
+        }
+
+        private void OnBalanceAdded(int balance)
+        {
+            Balance += balance;
 
             OnNav("Dashboard");
         }

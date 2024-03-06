@@ -576,7 +576,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-
+                <!--Total Spending-->
                 <Border Style="{StaticResource TotalSpend}" Grid.Column="0" >
                     <Grid>
                         <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12"/>
@@ -590,6 +590,7 @@
                     </Grid>
                 </Border>
 
+                <!--Balance-->
                 <Border Style="{StaticResource TotalSpend}" Grid.Column="1">
                     <Grid>
                         <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12"/>
@@ -598,11 +599,12 @@
 
                         <StackPanel VerticalAlignment="Bottom" Margin="10,0">
                             <TextBlock Text="Balance:" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
-                            <TextBlock Text="3.500 Kč" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding Balance, ConverterCulture=cs-CZ, StringFormat=\{0:c1\}}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
+                <!--Bank-->
                 <Border Style="{StaticResource TotalSpend}" Grid.Column="2">
                     <Grid>
                         <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12"/>

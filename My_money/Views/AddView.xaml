@@ -691,17 +691,19 @@
         <TextBlock Text="Add" Style="{StaticResource TextLegend}" FontSize="25" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100 9 0 0"/>
 
         <!--#region Column 0 (Legend)-->
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="In bank?" Style="{StaticResource TextLegend}"/>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="In balance:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilityBalance}"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="In bank:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilityBank}"/>
         <TextBlock Grid.Row="2" Grid.Column="0" Text="Cost:" Style="{StaticResource TextLegend}"/>
-        <TextBlock Grid.Row="3" Grid.Column="0" Text="Type:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilityByBank}"/>
-        <TextBlock Grid.Row="4" Grid.Column="0" Text="Date:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilityByBank}"/>
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Type:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilityMainInform}"/>
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Date:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilityMainInform}"/>
         <!--#endregion-->
 
         <!--#region Column 1 (to complete)-->
-        <CheckBox IsChecked="{Binding IsCheckBoxChecked, Mode=TwoWay}" Style="{DynamicResource CheckBoxStyle1}" Grid.Row="1" Grid.Column="1" />
+        <CheckBox Visibility="{Binding VisibilityBalance}" IsChecked="{Binding IsBalanceChecked, Mode=TwoWay}" Style="{DynamicResource CheckBoxStyle1}" Grid.Row="1" Grid.Column="1" />
+        <CheckBox Visibility="{Binding VisibilityBank}" IsChecked="{Binding IsBankChecked, Mode=TwoWay}" Style="{DynamicResource CheckBoxStyle1}" Grid.Row="1" Grid.Column="2" />
         <TextBox Text="{Binding CostTextProperty, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Style="{StaticResource TextBoxCom}"/>
-        <ComboBox Visibility="{Binding VisibilityByBank}" SelectedItem="{Binding SelectedType, Mode=TwoWay}" ItemContainerStyle="{DynamicResource ComboBoxItemContainerStyle1}"  Template="{DynamicResource ComboBoxTemplate1}" ItemsSource="{Binding Types}" Grid.Row="3" Grid.Column="1" Style="{StaticResource ComboBoxCom}"/>
-        <DatePicker Visibility="{Binding VisibilityByBank}" CalendarStyle="{DynamicResource DatePickerCalendarStyle1}" Template="{DynamicResource DatePickerTemplate1}" SelectedDate="{Binding SelectedDate, Mode=TwoWay}"  Grid.Row="4" Grid.Column="1" Style="{StaticResource DatePicker}"/>
+        <ComboBox Visibility="{Binding VisibilityMainInform}" SelectedItem="{Binding SelectedType, Mode=TwoWay}" ItemContainerStyle="{DynamicResource ComboBoxItemContainerStyle1}"  Template="{DynamicResource ComboBoxTemplate1}" ItemsSource="{Binding Types}" Grid.Row="3" Grid.Column="1" Style="{StaticResource ComboBoxCom}"/>
+        <DatePicker Visibility="{Binding VisibilityMainInform}" CalendarStyle="{DynamicResource DatePickerCalendarStyle1}" Template="{DynamicResource DatePickerTemplate1}" SelectedDate="{Binding SelectedDate, Mode=TwoWay}"  Grid.Row="4" Grid.Column="1" Style="{StaticResource DatePicker}"/>
         <!--#endregion-->
 
         <!--#region Column 3 (BT)-->
