@@ -12,7 +12,7 @@ namespace My_money.ViewModel
     public class ContainerAppData
     {
         public ObservableCollection<Record> Records { get; set; }
-        public int Banksum { get; set; }
+        public int Savings { get; set; }
         public int Balance { get; set; }
 
         public ObservableCollection<RecordByTypes> RecordsByTypes { get; set; }

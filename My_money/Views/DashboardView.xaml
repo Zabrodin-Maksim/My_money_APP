@@ -612,8 +612,8 @@
                         <fa:IconImage Icon="MoneyBillTrendUp" Width="55" Height="55" Foreground="White" Margin="182,7,13,47"/>
 
                         <StackPanel VerticalAlignment="Bottom" Margin="10,0">
-                            <TextBlock Text="Bank:" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
-                            <TextBlock Text="{Binding Banksum, ConverterCulture=cs-CZ, StringFormat=\{0:c1\}}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
+                            <TextBlock Text="Savings:" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding Savings, ConverterCulture=cs-CZ, StringFormat=\{0:c1\}}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
                         </StackPanel>
                     </Grid>
                 </Border>

@@ -40,7 +40,7 @@ namespace My_money.ViewModel
             #endregion
 
             addViewModel.RecordAdded += OnRecordAdded;
-            addViewModel.BankAdded += OnBankAdded;
+            addViewModel.SavingsAdded += OnBankAdded;
             addViewModel.BalanceAdded += OnBalanceAdded;
             addViewModel.Back += OnNav;
 
@@ -92,8 +92,8 @@ namespace My_money.ViewModel
         private int balance;
         public int Balance { get { return balance; } set { SetProperty(ref balance, value); } }
 
-        private int banksum;
-        public int Banksum { get { return banksum; } set { SetProperty(ref banksum, value); } }
+        private int savings;
+        public int Savings { get { return savings; } set { SetProperty(ref savings, value); } }
 
 
 
@@ -159,7 +159,7 @@ namespace My_money.ViewModel
                 ContainerAppData appData = new ContainerAppData
                 {
                     Records = Records,
-                    Banksum = Banksum,
+                    Savings = Savings,
                     Balance = Balance,
                     RecordsByTypes = RecordsByTypes,
                     Types = TypesName.Values
@@ -184,7 +184,7 @@ namespace My_money.ViewModel
                     if (appData != null)
                     {
                         Records = appData.Records;
-                        banksum = appData.Banksum;
+                        savings = appData.Savings;
                         balance = appData.Balance;
                         recordsByTypes = appData.RecordsByTypes;
                         TypesName.Values = appData.Types;
@@ -193,8 +193,8 @@ namespace My_money.ViewModel
             }
             else
             {
-                // If the file does not exist, create a new list of data for demo
-                banksum = 0;
+                // If the file does not exist, create a new list of data 
+                savings = 0;
                 balance = 0;
 
                 recordsByTypes.Add(new RecordByTypes(TypesName.Values[0], 6000));
@@ -283,9 +283,9 @@ namespace My_money.ViewModel
             OnNav("Dashboard");
         }
 
-        private void OnBankAdded(int bank) 
+        private void OnBankAdded(int savings) 
         {
-            Banksum += bank;
+            Savings += savings;
 
             OnNav("Dashboard");
         }
