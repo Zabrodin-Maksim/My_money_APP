@@ -227,7 +227,11 @@ namespace My_money.ViewModel
         {
             IsSavingsChecked = false;
             IsBalanceChecked = false;
+            CostTextProperty = "0";
             SelectedType = Types[0];
+
+            OnPropertyChanged(nameof(SelectedType));
+            OnPropertyChanged(nameof(CostTextProperty));
         }
         #endregion
     }

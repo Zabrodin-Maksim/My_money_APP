@@ -230,7 +230,7 @@
 
                     <!--#region Main Usefull -->
                     <Grid Grid.Column="1">
-                        <ContentControl Content="{Binding CurrentView}"/>
+                        <ContentControl Content="{Binding CurrentView}" Background="#1C1D31"/>
                     </Grid>
                     <!--#endregion-->
                 </Grid>

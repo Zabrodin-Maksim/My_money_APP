@@ -21,9 +21,14 @@ namespace My_money.ViewModel
     {
         public MainViewModel()
         {
+            //Start View
+            CurrentView = dashboardView;
+
+
             Records = new ObservableCollection<Record>();
             RecordsByTypes = new ObservableCollection<RecordByTypes>();
             SavingsGoals = new ObservableCollection<SavingsGoal>();
+
 
             LoadRecords();
             SortingRecordsDate();
@@ -32,7 +37,7 @@ namespace My_money.ViewModel
             addViewModel = new AddViewModel();
             historyViewModel = new HistoryViewModel(Records);
             planViewModel = new PlanViewModel(RecordsByTypes, Records);
-            moneyBoxViewModel = new MoneyBoxViewModel(SavingsGoals);
+            moneyBoxViewModel = new MoneyBoxViewModel(SavingsGoals, savings);
             #endregion
 
             #region Commands
@@ -41,11 +46,14 @@ namespace My_money.ViewModel
             #endregion
 
             addViewModel.RecordAdded += OnRecordAdded;
-            addViewModel.SavingsAdded += OnBankAdded;
+            addViewModel.SavingsAdded += OnSavingsAdded;
             addViewModel.BalanceAdded += OnBalanceAdded;
             addViewModel.Back += OnNav;
 
             historyViewModel.BalanceBack += OnBalanceBack;
+
+            moneyBoxViewModel.DeleteGoal += OnDeleteGoal;
+
 
             #region Closing
             Window mainWindow = Application.Current.MainWindow;
@@ -58,11 +66,15 @@ namespace My_money.ViewModel
 
         }
 
+        private void OnDeleteGoal(int goalHave) //Moneybox
+        {
+            Savings -= goalHave;
+        }   
 
-        private void OnBalanceBack(int cost)
+        private void OnBalanceBack(int cost) //History
         {
             Balance += cost;
-        }
+        }   
 
         private void CalculateTotalSpending()
         {
@@ -289,6 +301,7 @@ namespace My_money.ViewModel
 
 
         #region OnAdd
+        //Record
         private void OnRecordAdded(Record newRecord)
         {
             Balance -= newRecord.Cost; 
@@ -296,14 +309,15 @@ namespace My_money.ViewModel
 
             OnNav("Dashboard");
         }
-
-        private void OnBankAdded(int savings) 
+        //Savings
+        private void OnSavingsAdded(int savings) 
         {
             Savings += savings;
+            moneyBoxViewModel.Savings += savings;
 
             OnNav("Dashboard");
         }
-
+        //Balance
         private void OnBalanceAdded(int balance)
         {
             Balance += balance;

@@ -10,11 +10,12 @@ namespace My_money.Model
     [Serializable]
     public class SavingsGoal : ViewModelBase
     {
+
         private string goalName;
         public string GoalName { get { return goalName; } set { goalName = value; } }
 
         private int have;
-        public int Have { get { return have; } set { have = value; CalculPercent(); } }
+        public int Have { get { return have; } set { SetProperty(ref have, value); CalculPercent(); } }
 
         private int need;
         public int Need { get { return need; } set { need = value; CalculPercent(); } }
