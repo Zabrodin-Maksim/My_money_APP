@@ -578,9 +578,9 @@
                 </Grid.ColumnDefinitions>
 
                 <!--Total Spending-->
-                <Border Style="{StaticResource TotalSpend}" Grid.Column="0" >
+                <Border Style="{StaticResource TotalSpend}" Grid.Column="0">
                     <Grid>
-                        <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12"/>
+                        <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12" VerticalAlignment="Top" HorizontalAlignment="Right" />
 
                         <fa:IconImage Icon="MoneyBill1" Width="60" Height="60" Foreground="White" Margin="182,7,13,47"/>
 
@@ -594,7 +594,7 @@
                 <!--Balance-->
                 <Border Style="{StaticResource TotalSpend}" Grid.Column="1">
                     <Grid>
-                        <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12"/>
+                        <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12" VerticalAlignment="Top" HorizontalAlignment="Right"/>
 
                         <fa:IconImage Icon="CreditCard" Width="60" Height="60" Foreground="White" Margin="182,7,13,47"/>
 
@@ -608,7 +608,7 @@
                 <!--Bank-->
                 <Border Style="{StaticResource TotalSpend}" Grid.Column="2">
                     <Grid>
-                        <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12"/>
+                        <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12" VerticalAlignment="Top" HorizontalAlignment="Right"/>
 
                         <fa:IconImage Icon="MoneyBillTrendUp" Width="55" Height="55" Foreground="White" Margin="182,7,13,47"/>
 

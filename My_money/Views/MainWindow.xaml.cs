@@ -25,5 +25,6 @@ namespace My_money
             InitializeComponent();
             DataContext = new My_money.ViewModel.MainViewModel();
         }
+        
     }
 }

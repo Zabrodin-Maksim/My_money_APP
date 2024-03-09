@@ -42,7 +42,10 @@ namespace My_money.ViewModel
 
             #region Commands
             NavCommand = new MyICommand<string>(OnNav);
+
             ExitCommand = new MyICommand<object>(OnExit);
+            MinimizeWindowCommand = new MyICommand<object>(MinimizeWindow);
+            //MaximizeWindowCommand = new MyICommand<object>(MaximizeWindow);
             #endregion
 
             addViewModel.RecordAdded += OnRecordAdded;
@@ -163,6 +166,10 @@ namespace My_money.ViewModel
         #region Commands
         public MyICommand<string> NavCommand { get; private set; }
         public MyICommand<object> ExitCommand { get; private set; }
+
+        public MyICommand<object> MinimizeWindowCommand { get; private set; }
+
+        //public MyICommand<object> MaximizeWindowCommand { get; private set; }
         #endregion
 
 
@@ -335,6 +342,22 @@ namespace My_money.ViewModel
         #endregion
 
 
+        #region Minimize Window
+        private void MinimizeWindow(object par)
+        {
+            SystemCommands.MinimizeWindow(Application.Current.MainWindow);
+        }
+        #endregion
+
+
+        //#region Maximize Window()
+        //private void MaximizeWindow(object par)
+        //{
+        //    SystemCommands.MaximizeWindow(Application.Current.MainWindow);
+        //}
+        //#endregion
+
+
         #region Sorting Records By Date
         private void SortingRecordsByDate()
         {
@@ -386,6 +409,7 @@ namespace My_money.ViewModel
             }
         }
         #endregion
+
 
         #region Sorting List By Types
         private void SortListByTypes()
