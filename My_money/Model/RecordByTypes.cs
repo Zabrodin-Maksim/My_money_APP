@@ -21,7 +21,6 @@ namespace My_money.Model
             set 
             {
                 CheckNameExist(value);
-                 
             } 
         }
 

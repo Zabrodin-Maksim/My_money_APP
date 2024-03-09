@@ -17,5 +17,6 @@ namespace My_money.ViewModel
 
         public ObservableCollection<RecordByTypes> RecordsByTypes { get; set; }
         public ObservableCollection<string> Types { get; set; }
+        public ObservableCollection<SavingsGoal> SavingsGoal { get; set;}
     }
 }

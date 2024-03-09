@@ -23,6 +23,7 @@ namespace My_money.ViewModel
         {
             Records = new ObservableCollection<Record>();
             RecordsByTypes = new ObservableCollection<RecordByTypes>();
+            SavingsGoals = new ObservableCollection<SavingsGoal>();
 
             LoadRecords();
             SortingRecordsDate();
@@ -31,7 +32,7 @@ namespace My_money.ViewModel
             addViewModel = new AddViewModel();
             historyViewModel = new HistoryViewModel(Records);
             planViewModel = new PlanViewModel(RecordsByTypes, Records);
-
+            moneyBoxViewModel = new MoneyBoxViewModel(SavingsGoals);
             #endregion
 
             #region Commands
@@ -85,7 +86,11 @@ namespace My_money.ViewModel
 
 
         #region Properties
+        //Moneybox
+        private ObservableCollection<SavingsGoal> savingsGoals;
+        public ObservableCollection<SavingsGoal> SavingsGoals {  get { return savingsGoals; } set { SetProperty(ref savingsGoals, value); } }
 
+        //Dashboard
         private int totalCost;
         public int TotalCost { get { return totalCost; } set { SetProperty(ref totalCost, value); } }
 
@@ -162,7 +167,8 @@ namespace My_money.ViewModel
                     Savings = Savings,
                     Balance = Balance,
                     RecordsByTypes = RecordsByTypes,
-                    Types = TypesName.Values
+                    Types = TypesName.Values,
+                    SavingsGoal = SavingsGoals
                 };
 
                 serializer.Serialize(stream, appData);
@@ -188,6 +194,7 @@ namespace My_money.ViewModel
                         balance = appData.Balance;
                         recordsByTypes = appData.RecordsByTypes;
                         TypesName.Values = appData.Types;
+                        SavingsGoals = appData.SavingsGoal;
                     }
                 }
             }
@@ -238,12 +245,14 @@ namespace My_money.ViewModel
         private AddView addView = new AddView();
         private HistoryView historyView = new HistoryView();
         private PlanView planView = new PlanView();
+        private MoneyBoxView moneyBoxView = new MoneyBoxView();
         #endregion
 
         #region ViewModel
         private AddViewModel addViewModel;
         private HistoryViewModel historyViewModel;
         private PlanViewModel planViewModel;
+        private MoneyBoxViewModel moneyBoxViewModel;
         #endregion
 
         private void OnNav(string destination)
@@ -268,6 +277,11 @@ namespace My_money.ViewModel
                 case "Plan":
                     CurrentView = planView;
                     planView.DataContext = planViewModel;
+                    break;
+
+                case "Moneybox":
+                    CurrentView = moneyBoxView;
+                    moneyBoxView.DataContext = moneyBoxViewModel;
                     break;
             }
         }

@@ -1,4 +1,5 @@
 ﻿<UserControl
+             xmlns:glob="clr-namespace:System.Globalization;assembly=mscorlib"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -585,7 +586,7 @@
 
                         <StackPanel VerticalAlignment="Bottom" Margin="10,0">
                             <TextBlock Text="Total Spending:" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
-                            <TextBlock Text="{Binding TotalCost, ConverterCulture=cs-CZ, StringFormat=\{0:c1\}}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding TotalCost, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -599,7 +600,7 @@
 
                         <StackPanel VerticalAlignment="Bottom" Margin="10,0">
                             <TextBlock Text="Balance:" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
-                            <TextBlock Text="{Binding Balance, ConverterCulture=cs-CZ, StringFormat=\{0:c1\}}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding Balance, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -613,7 +614,7 @@
 
                         <StackPanel VerticalAlignment="Bottom" Margin="10,0">
                             <TextBlock Text="Savings:" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
-                            <TextBlock Text="{Binding Savings, ConverterCulture=cs-CZ, StringFormat=\{0:c1\}}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding Savings, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -634,9 +635,9 @@
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Name}" Width="170" />
-                        <GridViewColumn Header="Plan" DisplayMemberBinding="{Binding PlanByDatePeriod,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}" Width="150" />
-                        <GridViewColumn Header="Spend" DisplayMemberBinding="{Binding Spend,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}" Width="150" />
-                        <GridViewColumn Header="Remaining" DisplayMemberBinding="{Binding Remaining,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}"/>
+                        <GridViewColumn Header="Plan" DisplayMemberBinding="{Binding PlanByDatePeriod,StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
+                        <GridViewColumn Header="Spend" DisplayMemberBinding="{Binding Spend,StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
+                        <GridViewColumn Header="Remaining" DisplayMemberBinding="{Binding Remaining,StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}"/>
                     </GridView>
                 </ListView.View>
             </ListView>

@@ -1,12 +1,20 @@
 ﻿<UserControl x:Class="My_money.Views.HistoryView"
+             xmlns:glob="clr-namespace:System.Globalization;assembly=mscorlib"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:My_money.Views"
+             xmlns:local="clr-namespace:My_money.Views" xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
              mc:Ignorable="d" 
              d:DesignHeight="752.2" d:DesignWidth="976">
     <UserControl.Resources>
+        <Style x:Key="TextLegend" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="25"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+
         <Style x:Key="ButtonDelete" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="White"/>
@@ -321,25 +329,29 @@
     
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="0.1*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="0.1*"/>
         </Grid.RowDefinitions>
 
-        <ListView SelectedItem="{Binding SelectedItem}" ItemsSource="{Binding Records}" d:ItemsSource="{d:SampleData ItemCount=5}"  Margin="1,0,0,0">
+        <fa:IconImage Icon="ClockFour" Width="38" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Top" Margin=" 46, 7, 0, 0" />
+        <TextBlock Text="History" Style="{StaticResource TextLegend}" FontSize="25" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100 9 0 0"/>
+
+        <ListView Grid.Row="1" SelectedItem="{Binding SelectedItem}" ItemsSource="{Binding Records}" d:ItemsSource="{d:SampleData ItemCount=5}"  Margin="1,0,0,0">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Date" DisplayMemberBinding="{Binding DateTimeOccurred,StringFormat={}{0:dd.MM.yyyy}}" Width="150" />
                     <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}" Width="150" />
-                    <GridViewColumn Header="Cost" DisplayMemberBinding="{Binding Cost,StringFormat={}{0:c1}, ConverterCulture=cs-CZ}" Width="150"/>
+                    <GridViewColumn Header="Cost" DisplayMemberBinding="{Binding Cost,StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150"/>
                 </GridView>
             </ListView.View>
         </ListView>
 
-        <Button Command="{Binding DeleteCommand}" Grid.Row="1" Style="{StaticResource ButtonDelete}">
+        <Button Command="{Binding DeleteCommand}" Grid.Row="2" Style="{StaticResource ButtonDelete}">
             <TextBlock Text="Delete"/>
         </Button>
 
-        <StackPanel Grid.Row="1" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <StackPanel Grid.Row="2" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
             <Slider SelectionStart="0" Value="{Binding SelectedSort}"/>
             <StackPanel Orientation="Horizontal" >
                 <TextBlock Text="Date" Style="{StaticResource SliderText}" Margin="-3 2 165 0"/>

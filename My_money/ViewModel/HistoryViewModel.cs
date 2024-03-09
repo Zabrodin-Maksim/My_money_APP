@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace My_money.ViewModel
 {
@@ -52,8 +53,15 @@ namespace My_money.ViewModel
 
         private void OnDelete(object obj)
         {
-            BalanceBack.Invoke(SelectedItem.Cost);
-            Records.Remove(SelectedItem);
+            if(selectedItem != null)
+            {
+                BalanceBack.Invoke(SelectedItem.Cost);
+                Records.Remove(SelectedItem);
+            }
+            else
+            {
+                MessageBox.Show("Please, select the Item", "Error Detected in Selected Item", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void SortingRecords()

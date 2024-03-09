@@ -191,7 +191,7 @@
                             <!--#endregion-->
 
                             <!--#region moneybox  -->
-                            <Button Grid.Row="2" Style="{StaticResource ButtonsMenu}">
+                            <Button Command="{Binding NavCommand}" CommandParameter="Moneybox" Grid.Row="2" Style="{StaticResource ButtonsMenu}">
                                 <StackPanel Orientation="Horizontal">
                                     <fa:IconImage Icon="PiggyBank" Height="40" Width="40" Foreground="White"/>
                                     <TextBlock Text="Moneybox " Margin="10, 15, 10, 10"/>
