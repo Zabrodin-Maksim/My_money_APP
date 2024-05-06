@@ -24,7 +24,7 @@ Thus, the "My Money" program provides users with tools for more effective manage
 
 ![image](https://github.com/Zabrodin-Maksim/My_money_APP/assets/108241271/d4ac5a93-368a-4fbd-9acb-52c9da5e78eb)
 
-The main menu of the program (Dashboard) is designed to display essential information.
+The main menu of the program (Dashboard) is designed to display essential information. The currency used by the program is adapted to the selected region format in the Windows system and changes accordingly.
 
 ![image](https://github.com/Zabrodin-Maksim/My_money_APP/assets/108241271/b0310b47-8caa-43e6-bee4-11d422edacf9)
 
