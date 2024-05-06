@@ -16,7 +16,7 @@ namespace My_money.ViewModel
         public event Action<int> BalanceAdded;
         public event Action<string> Back;
 
-        // Visibility for Type and Date
+        // Visibility for Type and Date/
         private Visibility visibilityMainInform;
         public Visibility VisibilityMainInform { get { return visibilityMainInform; } set { visibilityMainInform = value; } }
 
