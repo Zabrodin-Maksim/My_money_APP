@@ -29,6 +29,7 @@ namespace My_money.ViewModel
             RecordsByTypes = new ObservableCollection<RecordByTypes>();
             SavingsGoals = new ObservableCollection<SavingsGoal>();
 
+            appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), appName);
 
             LoadRecords();
             SortingRecordsDate();
@@ -114,7 +115,10 @@ namespace My_money.ViewModel
 
         private int savings;
         public int Savings { get { return savings; } set { SetProperty(ref savings, value); } }
-
+        //Save and Load
+        private string appName = "My money";
+        private string dataFileName = "data.xml";
+        private string appDataPath;
 
 
 
@@ -173,9 +177,16 @@ namespace My_money.ViewModel
         #endregion
 
 
-        #region Start and Save
-        private void SaveToXml(string fileName)
+        #region Load and Save
+        private void SaveToXml()
         {
+            string fileName = Path.Combine(appDataPath, dataFileName);
+
+            if (!Directory.Exists(appDataPath))
+            {
+                Directory.CreateDirectory(appDataPath);
+            }
+
             XmlSerializer serializer = new XmlSerializer(typeof(ContainerAppData));
 
             using (Stream stream = new FileStream(fileName, FileMode.Create))
@@ -197,7 +208,7 @@ namespace My_money.ViewModel
         private void LoadRecords()
         {
             // Loading data from an XML file
-            string fileName = "data.xml";
+            string fileName = Path.Combine(appDataPath, dataFileName);
 
             if (File.Exists(fileName))
             {
@@ -242,7 +253,7 @@ namespace My_money.ViewModel
 
         private void MainWindowClosing(object? sender, CancelEventArgs e)
         {
-            SaveToXml("data.xml");
+            SaveToXml();
         }
         #endregion
 
