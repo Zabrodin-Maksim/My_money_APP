@@ -15,6 +15,12 @@ The "My Money" program is designed to track personal finances and manage the use
 *	**Setting financial goals:** Users can set specific savings goals, defining the desired amount. The program will help track the user's progress.
 Thus, the "My Money" program provides users with tools for more effective management of their finances, expense planning, and achieving financial goals.
 
+## Installation
+1. Download the project zip file from the GitHub repository: [My_money_APP/My_money_Setup.rar]( https://github.com/Zabrodin-Maksim/My_money_APP/blob/master/My_money_Setup.rar)
+2. Unzip the file and open.
+3. Run the setup.exe installation file.
+
+
 ## Usage
 
 ![image](https://github.com/Zabrodin-Maksim/My_money_APP/assets/108241271/d4ac5a93-368a-4fbd-9acb-52c9da5e78eb)
