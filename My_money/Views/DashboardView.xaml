@@ -48,6 +48,8 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Text" Value="Choose a date"/>
             <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Margin" Value="0 4 0 0"/>
+            <Setter Property="TextAlignment" Value="Center"/>
         </Style>
 
         <Style x:Key="DatePicker" TargetType="{x:Type DatePicker}">
@@ -630,14 +632,14 @@
                 <ColumnDefinition Width="0.5*"/>
             </Grid.ColumnDefinitions>
 
-            <!--#region List Records By Date-->
+            <!--#region Main INFO-->
             <ListView ItemsSource="{Binding RecordsByTypes}" d:ItemsSource="{d:SampleData ItemCount=5}"  Margin="1,0,0,0">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Name}" Width="170" />
                         <GridViewColumn Header="Plan" DisplayMemberBinding="{Binding PlanByDatePeriod,StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
-                        <GridViewColumn Header="Spend" DisplayMemberBinding="{Binding Spend,StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
-                        <GridViewColumn Header="Remaining" DisplayMemberBinding="{Binding Remaining,StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}"/>
+                        <GridViewColumn Header="Total spent" DisplayMemberBinding="{Binding Spend,StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
+                        <GridViewColumn Header="Remaining" DisplayMemberBinding="{Binding Remaining,StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150"/>
                     </GridView>
                 </ListView.View>
             </ListView>
@@ -689,7 +691,7 @@
 
                     <!-- DATE PICKER-->
 
-                    <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay}" Style="{StaticResource DatePicker}" CalendarStyle="{DynamicResource DatePickerCalendarStyle1}" Template="{DynamicResource DatePickerTemplate1}" Grid.Row="1" Width="150"  />
+                    <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay}" Style="{StaticResource DatePicker}" CalendarStyle="{DynamicResource DatePickerCalendarStyle1}" Template="{DynamicResource DatePickerTemplate1}" Grid.Row="1" Width="150" Margin="15,15,0,0"  />
                     
                 </Grid>
                 <!--#endregion-->

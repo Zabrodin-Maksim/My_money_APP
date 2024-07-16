@@ -19,7 +19,7 @@ namespace My_money.ViewModel
             } 
         }
 
-        public event Action<int> BalanceBack;
+        public event Action<float> BalanceBack;
 
         private Record selectedItem;
         public Record SelectedItem
@@ -31,8 +31,8 @@ namespace My_money.ViewModel
             }
         }
 
-        private int selectedSort;
-        public int SelectedSort { get { return selectedSort; }
+        private float selectedSort;
+        public float SelectedSort { get { return selectedSort; }
             set 
             { 
                 selectedSort = value;
@@ -64,7 +64,7 @@ namespace My_money.ViewModel
             }
         }
 
-        private void SortingRecords()
+        public void SortingRecords()
         {
             switch (SelectedSort)
             {

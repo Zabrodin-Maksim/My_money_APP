@@ -25,6 +25,13 @@ namespace My_money
             InitializeComponent();
             DataContext = new My_money.ViewModel.MainViewModel();
         }
-        
+
+        private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
+        }
     }
 }

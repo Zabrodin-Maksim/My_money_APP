@@ -12,8 +12,8 @@ namespace My_money.ViewModel
     public class ContainerAppData
     {
         public ObservableCollection<Record> Records { get; set; }
-        public int Savings { get; set; }
-        public int Balance { get; set; }
+        public float Savings { get; set; }
+        public float Balance { get; set; }
 
         public ObservableCollection<RecordByTypes> RecordsByTypes { get; set; }
         public ObservableCollection<string> Types { get; set; }

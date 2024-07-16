@@ -14,7 +14,7 @@ namespace My_money.ViewModel
 {
     public class MoneyBoxViewModel : ViewModelBase
     {
-        public event Action<int> DeleteGoal;
+        public event Action<float> DeleteGoal;
 
 
         private ObservableCollection<SavingsGoal> savingsGoals;
@@ -24,11 +24,11 @@ namespace My_money.ViewModel
             set { SetProperty(ref savingsGoals, value); }
         }
 
-        private int savings; //from Dashboard
-        public int Savings { get { return savings; } set { SetProperty(ref savings, value); CalculNotUsedMoney(); } }
+        private float savings; //from Dashboard
+        public float Savings { get { return savings; } set { SetProperty(ref savings, value); CalculNotUsedMoney(); } }
 
-        private int notUsedMoney;
-        public int NotUsedMoney
+        private float notUsedMoney;
+        public float NotUsedMoney
         {
             get { return notUsedMoney; }
             set { SetProperty(ref notUsedMoney, value); }
@@ -41,7 +41,7 @@ namespace My_money.ViewModel
         public MyICommand<object> DeleteCommand { get; set; }
 
 
-        public MoneyBoxViewModel(ObservableCollection<SavingsGoal> _savingsGoals, int _savings)
+        public MoneyBoxViewModel(ObservableCollection<SavingsGoal> _savingsGoals, float _savings)
         {
             savings = _savings;
             SavingsGoals = _savingsGoals;

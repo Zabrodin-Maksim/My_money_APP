@@ -24,8 +24,8 @@ namespace My_money.Model
             } 
         }
 
-        private int spend;
-        public int Spend { get { return spend; } 
+        private float spend;
+        public float Spend { get { return spend; } 
             set 
             {
                 SetProperty(ref spend, value);
@@ -33,30 +33,30 @@ namespace My_money.Model
             } 
         }
 
-        private int plan;
-        public int Plan { get { return plan; } set 
+        private float plan;
+        public float Plan { get { return plan; } set 
             { 
                 SetProperty(ref plan, value); 
             } 
         }
 
-        private int planByDatePeriod;
-        public int PlanByDatePeriod { get { return planByDatePeriod; }
+        private float planByDatePeriod;
+        public float PlanByDatePeriod { get { return planByDatePeriod; }
             set
             {
                 SetProperty(ref planByDatePeriod, CalculPlanByPeriod(value));
             }
         }
 
-        private int remaining;
-        public int Remaining { get { return remaining; } set { SetProperty(ref remaining, value); } }
+        private float remaining;
+        public float Remaining { get { return remaining; } set { SetProperty(ref remaining, value); } }
 
         
         #endregion
 
         public RecordByTypes() { }
 
-        public RecordByTypes(string name, int plan)
+        public RecordByTypes(string name, float plan)
         {
             this.name = name;
             this.plan = plan;
@@ -68,7 +68,7 @@ namespace My_money.Model
             Remaining = planByDatePeriod - spend;
         }
 
-        private int CalculPlanByPeriod (int period)
+        private float CalculPlanByPeriod (float period)
         {
             switch (period)
             {

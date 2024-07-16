@@ -11,11 +11,11 @@ namespace My_money.Model
     [Serializable]
     public class Record 
     {
-        private int cost;
+        private float cost;
         private string type;
         private DateTime? dateTimeOccurred;
 
-        public int Cost { get { return cost; }
+        public float Cost { get { return cost; }
             set { 
                 cost = value;
             }
@@ -38,7 +38,7 @@ namespace My_money.Model
 
         public Record() { }
 
-        public Record(int cost, DateTime? dateTime, String type)
+        public Record(float cost, DateTime? dateTime, String type)
         {
             this.cost = cost;
             this.dateTimeOccurred = dateTime;

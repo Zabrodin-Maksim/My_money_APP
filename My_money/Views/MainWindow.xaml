@@ -10,6 +10,7 @@
         Title="My Money" 
         Height="740" 
         Width="1220" 
+        
         WindowStartupLocation="CenterScreen" 
         
         WindowStyle="None" ResizeMode="NoResize" Background="Transparent" AllowsTransparency="True"
@@ -117,7 +118,7 @@
     <!--#endregion-->
 
     <!-- back grid -->
-    <Grid>
+    <Grid MouseLeftButtonDown="Grid_MouseLeftButtonDown">
         <!--#region Background -->
         <Border Background="#1C1D31" CornerRadius="20">
             <!--#endregion-->

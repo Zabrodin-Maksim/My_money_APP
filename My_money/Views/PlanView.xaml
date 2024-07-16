@@ -334,8 +334,8 @@
 
         <DataGrid Grid.Row="1" SelectedItem="{Binding selectedItem}" ItemsSource="{Binding RecordByTypes}" d:ItemsSource="{d:SampleData ItemCount=5}" RowStyle="{DynamicResource DataGridRowStyle1}" RowHeaderStyle="{DynamicResource DataGridRowHeaderStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" CellStyle="{DynamicResource DataGridCellStyle1(TEXT)}" Style="{DynamicResource DataGridStyle1}" Background="Transparent" AutoGenerateColumns="False"  Margin="1,0,0,0" GridLinesVisibility="Horizontal" CanUserDeleteRows="False" CanUserAddRows="False">
             <DataGrid.Columns>
-                <DataGridTextColumn  Header="Type name" Binding="{Binding Name}" Width="180" FontSize="25"/>
-                <DataGridTextColumn  Header="Cost Planing" Binding="{Binding Plan, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}" Width="160" FontSize="25"/>
+                <DataGridTextColumn  Header="Type name" Binding="{Binding Name}" Width="200" FontSize="25"/>
+                <DataGridTextColumn  Header="Budget Amount" Binding="{Binding Plan, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}" Width="200" FontSize="25"/>
             </DataGrid.Columns>
         </DataGrid>
 

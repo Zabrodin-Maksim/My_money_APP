@@ -14,11 +14,11 @@ namespace My_money.Model
         private string goalName;
         public string GoalName { get { return goalName; } set { goalName = value; } }
 
-        private int have;
-        public int Have { get { return have; } set { SetProperty(ref have, value); CalculPercent(); } }
+        private float have;
+        public float Have { get { return have; } set { SetProperty(ref have, value); CalculPercent(); } }
 
-        private int need;
-        public int Need { get { return need; } set { need = value; CalculPercent(); } }
+        private float need;
+        public float Need { get { return need; } set { need = value; CalculPercent(); } }
 
         private float percent;
         public float Percent
@@ -29,7 +29,7 @@ namespace My_money.Model
 
         public SavingsGoal() { }
 
-        public SavingsGoal(string goalName, int have, int need)
+        public SavingsGoal(string goalName, float have, float need)
         {
             this.goalName = goalName;
             this.have = have;

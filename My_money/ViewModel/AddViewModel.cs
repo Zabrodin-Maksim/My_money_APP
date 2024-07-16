@@ -12,8 +12,8 @@ namespace My_money.ViewModel
     public class AddViewModel : ViewModelBase
     {
         public event Action<Record> RecordAdded;
-        public event Action<int> SavingsAdded;
-        public event Action<int> BalanceAdded;
+        public event Action<float> SavingsAdded;
+        public event Action<float> BalanceAdded;
         public event Action<string> Back;
 
         // Visibility for Type and Date/
@@ -108,39 +108,47 @@ namespace My_money.ViewModel
         #region ADD
         private void OnAdd(object parametr)
         {
-            // Add in Savings
-            if (isSavingsChecked)
-            {
-                if (!CheckAddInput(costTextProperty))
+            try { 
+                // Add in Savings
+                if (isSavingsChecked)
                 {
-                    return;
-                }
+                    if (!CheckAddInput(costTextProperty))
+                    {
+                        return;
+                    }
 
-                SavingsAdded?.Invoke(int.Parse(costTextProperty));
-            }
-            // Add in Balance
-            else if (isBalanceChecked)
-            {
-                if (!CheckAddInput(costTextProperty))
+                    SavingsAdded?.Invoke(float.Parse(costTextProperty));
+                }
+                // Add in Balance
+                else if (isBalanceChecked)
                 {
-                    return;
-                }
+                    if (!CheckAddInput(costTextProperty))
+                    {
+                        return;
+                    }
 
-                BalanceAdded?.Invoke(int.Parse(costTextProperty));
-            }
-            // Add in Records
-            else
-            {
-                if (!CheckAddInput(costTextProperty))
+                    BalanceAdded?.Invoke(float.Parse(costTextProperty));
+                }
+                // Add in Records
+                else
                 {
-                    return;
+                    if (!CheckAddInput(costTextProperty))
+                    {
+                        return;
+                    }
+                    if (costTextProperty[0] == '-') {
+                        throw new FormatException();
+                    }
+                    Record newRecord = new Record(float.Parse(costTextProperty), selectedDate, selectedType);
+
+                    RecordAdded?.Invoke(newRecord);
                 }
-
-                Record newRecord = new Record(int.Parse(costTextProperty), selectedDate, selectedType);
-
-                RecordAdded?.Invoke(newRecord);
+                Clear();
             }
-            Clear();
+            catch (FormatException ex)
+            {
+                MessageBox.Show("Please, enter a valid cost.", "Warning: Error Detected in Input cost", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
         #endregion
 
@@ -189,7 +197,7 @@ namespace My_money.ViewModel
             {
                 foreach (char ch in input)
                 {
-                    if (!char.IsDigit(ch))
+                    if (!char.IsDigit(ch) && ch != '-' && ch != ',')
                     {
                         return;
                     }
