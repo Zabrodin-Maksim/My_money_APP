@@ -1,21 +1,14 @@
-﻿using Microsoft.VisualBasic;
-using My_money.Model;
+﻿using My_money.Model;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms.VisualStyles;
 
 namespace My_money.ViewModel
 {
     public class MoneyBoxViewModel : ViewModelBase
     {
         public event Action<float> DeleteGoal;
-
 
         private ObservableCollection<SavingsGoal> savingsGoals;
         public ObservableCollection<SavingsGoal> SavingsGoals
@@ -40,7 +33,6 @@ namespace My_money.ViewModel
         public MyICommand<object> AddCommand { get; set; }
         public MyICommand<object> DeleteCommand { get; set; }
 
-
         public MoneyBoxViewModel(ObservableCollection<SavingsGoal> _savingsGoals, float _savings)
         {
             savings = _savings;
@@ -53,7 +45,6 @@ namespace My_money.ViewModel
 
             SubscribeToPropertyChangeEvents();
         }
-
         private void SubscribeToPropertyChangeEvents()
         {
             if (SavingsGoals.Count > 0)
@@ -64,7 +55,6 @@ namespace My_money.ViewModel
                 }
             }
         }
-        
         private void Goal_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Have")
@@ -72,15 +62,12 @@ namespace My_money.ViewModel
                 CalculNotUsedMoney();
             }
         }
-
-
         private void OnAdd(object par)
         {
             SavingsGoals.Add(new SavingsGoal("Enter Name", 0, 0));
 
             SubscribeToPropertyChangeEvents();
         }
-
         private void OnDelete(object par)
         {
             if(selectedItem != null)
@@ -101,9 +88,6 @@ namespace My_money.ViewModel
                 MessageBox.Show("Please, select the Item", "Error Detected in Selected Item", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
-
-
-
         private void CalculNotUsedMoney()
         {
             if (SavingsGoals != null)

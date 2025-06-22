@@ -1,10 +1,6 @@
 ﻿using My_money.Model;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace My_money.ViewModel
@@ -27,7 +23,6 @@ namespace My_money.ViewModel
         // Visibility for In Balance
         private Visibility visibilityBalance;
         public Visibility VisibilityBalance { get { return visibilityBalance; } set { visibilityBalance = value; } }
-
 
         //Check Boxes
         private bool isSavingsChecked;
@@ -52,7 +47,6 @@ namespace My_money.ViewModel
             }
         }
 
-
         //Properties
         private string costTextProperty;
         public string CostTextProperty
@@ -61,14 +55,12 @@ namespace My_money.ViewModel
             set { CheckNumericInput(value); }
         }
 
-
         private DateTime? selectedDate = DateTime.Now;
         public DateTime? SelectedDate
         {
             get { return selectedDate; }
             set { selectedDate = value; }
         }
-
 
         private ObservableCollection<string> types;
         public ObservableCollection<string> Types 
@@ -81,15 +73,12 @@ namespace My_money.ViewModel
             } 
         }
 
-
         private string selectedType;
         public string SelectedType
         {
             get { return selectedType; }
             set { selectedType = value; }
         }
-
-
 
         public AddViewModel() {
             AddCommand = new MyICommand<object>(OnAdd);
@@ -190,7 +179,6 @@ namespace My_money.ViewModel
         #endregion
 
         #region Text Check & Add Check
-
         private void CheckNumericInput(string input)
         {
             if (!string.IsNullOrEmpty(input))

@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace My_money.ViewModel
 {
     public class MyICommand<T> : ICommand
     {
-
         Action<T> _TargetExecuteMethod;
         Func<T, bool> _TargetCanExecuteMethod;
 
@@ -30,10 +25,8 @@ namespace My_money.ViewModel
         }
 
         #region ICommand Members
-
         bool ICommand.CanExecute(object parameter)
         {
-
             if (_TargetCanExecuteMethod != null)
             {
                 T tparm = (T)parameter;
@@ -44,11 +37,8 @@ namespace My_money.ViewModel
             {
                 return true;
             }
-
             return false;
         }
-
-
 
         public event EventHandler CanExecuteChanged = delegate { };
 
@@ -59,7 +49,6 @@ namespace My_money.ViewModel
                 _TargetExecuteMethod((T)parameter);
             }
         }
-
         #endregion
     }
 }

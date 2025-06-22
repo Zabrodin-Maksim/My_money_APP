@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace My_money.ViewModel
@@ -50,7 +48,6 @@ namespace My_money.ViewModel
 
             DeleteCommand = new MyICommand<object>(OnDelete);
         }
-
         private void OnDelete(object obj)
         {
             if(selectedItem != null)
@@ -85,7 +82,6 @@ namespace My_money.ViewModel
                     }
                     break;
             }
-            
         }
     }
 }

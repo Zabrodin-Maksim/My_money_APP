@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace My_money.Model
 {
@@ -20,7 +14,6 @@ namespace My_money.Model
                 cost = value;
             }
         }
-
         public string Type {  get { return type; } 
             set { 
                 type = value;
@@ -37,7 +30,6 @@ namespace My_money.Model
         }
 
         public Record() { }
-
         public Record(float cost, DateTime? dateTime, String type)
         {
             this.cost = cost;
