@@ -1,11 +1,16 @@
 ﻿using My_money.ViewModel;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace My_money.Model
 {
     [Serializable]
     public class SavingsGoal : ViewModelBase
     {
+
         private string goalName;
         public string GoalName { get { return goalName; } set { goalName = value; } }
 

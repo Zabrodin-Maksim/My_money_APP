@@ -1,13 +1,10 @@
-﻿using My_money.ViewModel;
-using System;
-using System.Windows;
+﻿using System.Windows;
 
 namespace My_money.Model
 {
-    
-    [Serializable]
-    public class RecordByTypes : ViewModelBase
+    public class RecordByTypes
     {
+
         #region Properties
 
         private string name;
@@ -44,6 +41,8 @@ namespace My_money.Model
 
         private float remaining;
         public float Remaining { get { return remaining; } set { SetProperty(ref remaining, value); } }
+
+        
         #endregion
 
         public RecordByTypes() { }
@@ -59,6 +58,7 @@ namespace My_money.Model
             Remaining = 0;
             Remaining = planByDatePeriod - spend;
         }
+
         private float CalculPlanByPeriod (float period)
         {
             switch (period)
