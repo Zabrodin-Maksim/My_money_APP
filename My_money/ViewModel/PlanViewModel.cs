@@ -1,6 +1,13 @@
 ﻿using My_money.Model;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace My_money.ViewModel
 {
@@ -46,6 +53,7 @@ namespace My_money.ViewModel
                     Change(selectedItem.Name);
                     MessageBox.Show("All records of type " + selectedItem.Name + " have been moved under the 'Other' type.", "Information: Successful deletion of the type" + selectedItem.Name, MessageBoxButton.OK, MessageBoxImage.Information);
                     RecordByTypes.Remove(selectedItem);
+                    
                 }
             }
             else
@@ -53,10 +61,12 @@ namespace My_money.ViewModel
                 MessageBox.Show("Please, select the Item", "Error Detected in Selected Item", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+
         private void OnAdd(object par)
         {
             RecordByTypes.Add(new RecordByTypes("New Type", 0));
         }
+
         private void Change(string nameType)
         {
             foreach (var record in records)
