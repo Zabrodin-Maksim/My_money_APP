@@ -248,7 +248,7 @@
 
                     <!--#region Main Usefull -->
                     <Grid Grid.Column="1">
-                        <ContentControl Content="{Binding CurrentView}" Background="#1C1D31"/>
+                        <ContentControl Content="{Binding CurrentViewё}" Background="#1C1D31"/>
                     </Grid>
                     <!--#endregion-->
                 </Grid>
