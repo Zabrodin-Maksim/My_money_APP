@@ -142,7 +142,7 @@ namespace My_money.ViewModel
             set 
             { 
                 selectedSort = value;
-                SortListByTypes();
+                CalculateSpendByType();
             } 
         }
 
@@ -154,7 +154,7 @@ namespace My_money.ViewModel
             set 
             { 
                 selectedDate = value;
-                SortListByTypes();
+                CalculateSpendByType();
             }
         }
         #endregion
@@ -242,7 +242,7 @@ namespace My_money.ViewModel
 
             }
 
-            SortListByTypes();
+            CalculateSpendByType();
             ViewModelBase.flagStartProg = true;
         }
 
@@ -285,7 +285,7 @@ namespace My_money.ViewModel
             switch (destination)
             {
                 case "Dashboard":
-                    SortListByTypes(); 
+                    CalculateSpendByType(); 
                     CurrentView = dashboardView;
                     break;
 
@@ -418,8 +418,8 @@ namespace My_money.ViewModel
         #endregion
 
 
-        #region Sorting List By Types
-        private void SortListByTypes()
+        #region Calculate Spend By Type
+        private void CalculateSpendByType()
         {
             ChangePlanPeriod();
             CleanSpendByTypes();
