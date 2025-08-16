@@ -7,7 +7,7 @@ namespace My_money.Services
     public interface IUserFinanceService
     {
         Task<UserFinance> GetUserFinanceAsync();
-        Task AddUserFinanceAsync(UserFinance userFinance);
-        Task UpdateUserFinanceAsync(float savings, float balance);
+        Task<int> AddUserFinanceAsync(UserFinance userFinance);
+        Task UpdateUserFinanceAsync(decimal savings, decimal balance);
     }
 }

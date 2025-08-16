@@ -8,8 +8,8 @@ namespace My_money.Data.Repositories
     public interface IRecordRepository
     {
         Task<List<Record>> GetAllAsync();
-        Task<Record> GetByIdAsync(int id);
-        Task AddAsync(Record record);
+        Task<Record?> GetByIdAsync(int id);
+        Task<int> AddAsync(Record record);
         Task UpdateAsync(Record record);
         Task DeleteAsync(int id);
 

@@ -34,7 +34,7 @@ namespace My_money.Data.Repositories
             return goals;
         }
 
-        public async Task<SavingsGoal> GetByIdAsync(int id)
+        public async Task<SavingsGoal?> GetByIdAsync(int id)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
@@ -52,7 +52,7 @@ namespace My_money.Data.Repositories
             return null;
         }
 
-        public async Task AddAsync(SavingsGoal goal)
+        public async Task<int> AddAsync(SavingsGoal goal)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
@@ -62,7 +62,7 @@ namespace My_money.Data.Repositories
                 command.Parameters.AddWithValue("@name", goal.GoalName);
                 command.Parameters.AddWithValue("@have", goal.Have);
                 command.Parameters.AddWithValue("@need", goal.Need);
-                await command.ExecuteNonQueryAsync();
+                return Convert.ToInt32(await command.ExecuteScalarAsync());
             }
         }
 
@@ -99,8 +99,8 @@ namespace My_money.Data.Repositories
             {
                 Id = Convert.ToInt32(reader["ID"]),
                 GoalName = reader["GoalName"].ToString(),
-                Have = Convert.ToSingle(reader["Have"]),
-                Need = Convert.ToSingle(reader["Need"])
+                Have = Convert.ToDecimal(reader["Have"]),
+                Need = Convert.ToDecimal(reader["Need"])
             };
         }
     }

@@ -34,7 +34,7 @@ namespace My_money.Data.Repositories
             return records;
         }
 
-        public async Task<Record> GetByIdAsync(int id)
+        public async Task<Record?> GetByIdAsync(int id)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
@@ -50,7 +50,7 @@ namespace My_money.Data.Repositories
             return null;
         }
 
-        public async Task AddAsync(Record record)
+        public async Task<int> AddAsync(Record record)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
@@ -62,7 +62,7 @@ namespace My_money.Data.Repositories
                 command.Parameters.AddWithValue("@categoryId", record.CategoryId);
                 command.Parameters.AddWithValue("@dateTimeOccured", record.DateTimeOccurred?.ToString("yyyy-MM-dd HH:mm:ss"));
                 command.Parameters.AddWithValue("@description", record.Description ?? "");
-                await command.ExecuteNonQueryAsync();
+                return Convert.ToInt32(await command.ExecuteScalarAsync());
             }
         }
 
@@ -138,7 +138,7 @@ namespace My_money.Data.Repositories
             return new Record
             {
                 Id = Convert.ToInt32(reader["ID"]),
-                Cost = Convert.ToSingle(reader["Cost"]),
+                Cost = Convert.ToDecimal(reader["Cost"]),
                 CategoryId = Convert.ToInt32(reader["CategoryId"]),
                 DateTimeOccurred = reader["DateTimeOccured"] != DBNull.Value ? DateTime.Parse(reader["DateTimeOccured"].ToString()) : (DateTime?)null,
                 Description = reader["Description"]?.ToString()

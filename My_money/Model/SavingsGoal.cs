@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public string GoalName { get; set; }
-        public float? Have { get; set; }
-        public float? Need { get; set; }
+        public decimal? Have { get; set; }
+        public decimal? Need { get; set; }
     }
 }

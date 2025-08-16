@@ -34,7 +34,7 @@ namespace My_money.Data.Repositories
             return categories;
         }
 
-        public async Task<BudgetCategory> GetByIdAsync(int id)
+        public async Task<BudgetCategory?> GetByIdAsync(int id)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
@@ -50,7 +50,7 @@ namespace My_money.Data.Repositories
             return null;
         }
 
-        public async Task<BudgetCategory> GetByNameAsync(string name)
+        public async Task<BudgetCategory?> GetByNameAsync(string name)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
@@ -66,7 +66,7 @@ namespace My_money.Data.Repositories
             return null;
         }
 
-        public async Task AddAsync(BudgetCategory category)
+        public async Task<int> AddAsync(BudgetCategory category)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
@@ -76,7 +76,7 @@ namespace My_money.Data.Repositories
                 command.Parameters.AddWithValue("@name", category.Name);
                 command.Parameters.AddWithValue("@plan", category.Plan);
                 command.Parameters.AddWithValue("@spend", category.Spend);
-                await command.ExecuteNonQueryAsync();
+                return Convert.ToInt32(await command.ExecuteScalarAsync());
             }
         }
 
@@ -113,8 +113,8 @@ namespace My_money.Data.Repositories
             {
                 Id = Convert.ToInt32(reader["ID"]),
                 Name = reader["Name"].ToString(),
-                Plan = reader["Plan"] is DBNull ? 0 : Convert.ToSingle(reader["Plan"]),
-                Spend = reader["Spend"] is DBNull ? 0 : Convert.ToSingle(reader["Spend"])
+                Plan = reader["Plan"] is DBNull ? 0 : Convert.ToDecimal(reader["Plan"]),
+                Spend = reader["Spend"] is DBNull ? 0 : Convert.ToDecimal(reader["Spend"])
             };
         }
     }

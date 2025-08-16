@@ -5,7 +5,7 @@ namespace My_money.Model
     public class UserFinance
     {
         public int Id { get; set; }
-        public float? Savings { get; set; }
-        public float? Balance { get; set; }
+        public decimal? Savings { get; set; }
+        public decimal? Balance { get; set; }
     }
 }

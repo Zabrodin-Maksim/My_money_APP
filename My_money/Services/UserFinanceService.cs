@@ -14,11 +14,11 @@ namespace My_money.Services
             _userFinanceRepository = userFinanceRepository;
         }
 
-        public async Task AddUserFinanceAsync(UserFinance userFinance)
+        public async Task<int> AddUserFinanceAsync(UserFinance userFinance)
         {
             _ = userFinance ?? throw new ArgumentNullException(nameof(userFinance), "User finance cannot be null");
 
-            await _userFinanceRepository.AddAsync(userFinance);
+            return await _userFinanceRepository.AddAsync(userFinance);
         }
 
         public async Task<UserFinance> GetUserFinanceAsync()
@@ -26,12 +26,14 @@ namespace My_money.Services
             return await _userFinanceRepository.GetAsync() ?? await AddDefaultUserFinance();
         }
 
-        public async Task UpdateUserFinanceAsync(float savings, float balance)
+        public async Task UpdateUserFinanceAsync(decimal savings, decimal balance)
         {
             _ = savings >= 0 ? savings : throw new ArgumentOutOfRangeException(nameof(savings), "Savings cannot be negative");
-
+            
+            var actualUserFinance = await GetUserFinanceAsync();
             await _userFinanceRepository.UpdateAsync(new UserFinance
             {
+                Id = actualUserFinance.Id,
                 Savings = savings,
                 Balance = balance
             });
@@ -46,8 +48,7 @@ namespace My_money.Services
             };
 
             await _userFinanceRepository.AddAsync(defaultFinance);
-            return defaultFinance;
-
+            return await _userFinanceRepository.GetAsync() ?? throw new Exception();
         }
     }
 }

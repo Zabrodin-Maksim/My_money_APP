@@ -15,7 +15,7 @@ namespace My_money.Data.Repositories
             _connectionString = connectionString;
         }
 
-        public async Task<UserFinance> GetAsync()
+        public async Task<UserFinance?> GetAsync()
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
@@ -32,7 +32,7 @@ namespace My_money.Data.Repositories
             return null;
         }
 
-        public async Task AddAsync(UserFinance userFinance)
+        public async Task<int> AddAsync(UserFinance userFinance)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
@@ -41,7 +41,7 @@ namespace My_money.Data.Repositories
                     "INSERT INTO UserFinances (Savings, Balance) VALUES (@savings, @balance)", connection);
                 command.Parameters.AddWithValue("@savings", userFinance.Savings);
                 command.Parameters.AddWithValue("@balance", userFinance.Balance);
-                await command.ExecuteNonQueryAsync();
+                return Convert.ToInt32(await command.ExecuteScalarAsync());
             }
         }
 
@@ -76,8 +76,8 @@ namespace My_money.Data.Repositories
             return new UserFinance
             {
                 Id = reader["ID"] is DBNull ? 0 : Convert.ToInt32(reader["ID"]),
-                Savings = reader["Savings"] is DBNull ? 0 : Convert.ToSingle(reader["Savings"]),
-                Balance = reader["Balance"] is DBNull ? 0 : Convert.ToSingle(reader["Balance"])
+                Savings = reader["Savings"] is DBNull ? 0 : Convert.ToDecimal(reader["Savings"]),
+                Balance = reader["Balance"] is DBNull ? 0 : Convert.ToDecimal(reader["Balance"])
             };
         }
     }
