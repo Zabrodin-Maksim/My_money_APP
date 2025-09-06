@@ -1,5 +1,6 @@
-﻿using My_money.Data.Repositories;
+﻿using My_money.Data.Repositories.IRepositories;
 using My_money.Model;
+using My_money.Services.IServices;
 using System;
 using System.Threading.Tasks;
 
@@ -39,7 +40,7 @@ namespace My_money.Services
             });
         }
 
-        private async Task<UserFinance> AddDefaultUserFinance()
+        public async Task<UserFinance> AddDefaultUserFinance()
         {
             var defaultFinance = new UserFinance
             {

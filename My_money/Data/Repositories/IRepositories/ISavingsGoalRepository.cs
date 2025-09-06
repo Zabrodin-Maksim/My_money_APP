@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace My_money.Data.Repositories
+namespace My_money.Data.Repositories.IRepositories
 {
     public interface ISavingsGoalRepository
     {

@@ -1,4 +1,5 @@
-﻿using My_money.Model;
+﻿using My_money.Data.Repositories.IRepositories;
+using My_money.Model;
 using System;
 using System.Data.Common;
 using System.Data.SQLite;
