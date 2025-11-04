@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace My_money.Model
+﻿namespace My_money.Model
 {
     public class UserFinance
     {

@@ -1,14 +1,8 @@
-﻿using Microsoft.VisualBasic;
-using My_money.Model;
+﻿using My_money.Model;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms.VisualStyles;
 
 namespace My_money.ViewModel
 {
@@ -34,8 +28,11 @@ namespace My_money.ViewModel
             set { SetProperty(ref notUsedMoney, value); }
         }
 
-        public SavingsGoal selectedItem { get; 
-            set; }
+        public SavingsGoal selectedItem
+        {
+            get;
+            set;
+        }
 
         public MyICommand<object> AddCommand { get; set; }
         public MyICommand<object> DeleteCommand { get; set; }
@@ -64,7 +61,7 @@ namespace My_money.ViewModel
                 }
             }
         }
-        
+
         private void Goal_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Have")
@@ -83,15 +80,15 @@ namespace My_money.ViewModel
 
         private void OnDelete(object par)
         {
-            if(selectedItem != null)
+            if (selectedItem != null)
             {
-                if(selectedItem.Percent >= 100.0f)
+                if (selectedItem.Percent >= 100.0f)
                 {
                     savings -= selectedItem.Have;
                     DeleteGoal.Invoke(selectedItem.Have);
                 }
                 selectedItem.PropertyChanged -= Goal_PropertyChanged;
-                
+
                 SavingsGoals.Remove(selectedItem);
 
                 CalculNotUsedMoney();

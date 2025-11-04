@@ -30,7 +30,7 @@ namespace My_money.Services
         public async Task UpdateUserFinanceAsync(decimal savings, decimal balance)
         {
             _ = savings >= 0 ? savings : throw new ArgumentOutOfRangeException(nameof(savings), "Savings cannot be negative");
-            
+
             var actualUserFinance = await GetUserFinanceAsync();
             await _userFinanceRepository.UpdateAsync(new UserFinance
             {

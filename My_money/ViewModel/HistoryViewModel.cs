@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace My_money.ViewModel
@@ -12,11 +10,13 @@ namespace My_money.ViewModel
     public class HistoryViewModel : ViewModelBase
     {
         private ObservableCollection<Record> records;
-        public ObservableCollection<Record> Records {  get { return records; } 
-            set 
+        public ObservableCollection<Record> Records
+        {
+            get { return records; }
+            set
             {
                 SetProperty(ref records, value);
-            } 
+            }
         }
 
         public event Action<float> BalanceBack;
@@ -24,17 +24,19 @@ namespace My_money.ViewModel
         private Record selectedItem;
         public Record SelectedItem
         {
-            get { return selectedItem; } 
-            set 
-            { 
+            get { return selectedItem; }
+            set
+            {
                 selectedItem = value;
             }
         }
 
         private float selectedSort;
-        public float SelectedSort { get { return selectedSort; }
-            set 
-            { 
+        public float SelectedSort
+        {
+            get { return selectedSort; }
+            set
+            {
                 selectedSort = value;
                 SortingRecords();
             }
@@ -42,9 +44,9 @@ namespace My_money.ViewModel
 
         List<Record> sortedList;
 
-        public MyICommand<object> DeleteCommand {  get; set; }
+        public MyICommand<object> DeleteCommand { get; set; }
 
-        public HistoryViewModel(ObservableCollection<Record> Records) 
+        public HistoryViewModel(ObservableCollection<Record> Records)
         {
             this.Records = Records;
 
@@ -53,7 +55,7 @@ namespace My_money.ViewModel
 
         private void OnDelete(object obj)
         {
-            if(selectedItem != null)
+            if (selectedItem != null)
             {
                 BalanceBack.Invoke(SelectedItem.Cost);
                 Records.Remove(SelectedItem);
@@ -85,7 +87,7 @@ namespace My_money.ViewModel
                     }
                     break;
             }
-            
+
         }
     }
 }

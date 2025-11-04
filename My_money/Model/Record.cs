@@ -2,7 +2,7 @@
 
 namespace My_money.Model
 {
-    public class Record 
+    public class Record
     {
         public int Id { get; set; }
         public decimal Cost { get; set; }

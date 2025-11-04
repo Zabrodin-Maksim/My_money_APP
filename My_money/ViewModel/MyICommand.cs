@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -9,16 +6,15 @@ namespace My_money.ViewModel
 {
     public class MyICommand<T> : ICommand
     {
-
-        Action<T> _TargetExecuteMethod;
+        Func<T, Task> _TargetExecuteMethod;
         Func<T, bool> _TargetCanExecuteMethod;
 
-        public MyICommand(Action<T> executeMethod)
+        public MyICommand(Func<T, Task> executeMethod)
         {
             _TargetExecuteMethod = executeMethod;
         }
 
-        public MyICommand(Action<T> executeMethod, Func<T, bool> canExecuteMethod)
+        public MyICommand(Func<T, Task> executeMethod, Func<T, bool> canExecuteMethod)
         {
             _TargetExecuteMethod = executeMethod;
             _TargetCanExecuteMethod = canExecuteMethod;
@@ -31,7 +27,7 @@ namespace My_money.ViewModel
 
         #region ICommand Members
 
-        bool ICommand.CanExecute(object parameter)
+        public bool CanExecute(object parameter)
         {
 
             if (_TargetCanExecuteMethod != null)
@@ -48,15 +44,13 @@ namespace My_money.ViewModel
             return false;
         }
 
-
-
         public event EventHandler CanExecuteChanged = delegate { };
 
-        void ICommand.Execute(object parameter)
+        public async void Execute(object parameter)
         {
             if (_TargetExecuteMethod != null)
             {
-                _TargetExecuteMethod((T)parameter);
+                await _TargetExecuteMethod((T)parameter);
             }
         }
 

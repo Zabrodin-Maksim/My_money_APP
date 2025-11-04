@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using My_money.ViewModel;
+using System.Windows;
 using System.Windows.Input;
 
 namespace My_money
@@ -8,10 +9,10 @@ namespace My_money
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(MainViewModel vm)
         {
             InitializeComponent();
-            DataContext = new ViewModel.MainViewModel();
+            DataContext = vm;
         }
 
         private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

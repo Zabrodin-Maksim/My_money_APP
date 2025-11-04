@@ -24,7 +24,7 @@
             <Setter Property="CornerRadius" Value="10"/>
         </Style>
 
-        <Style x:Key="TotalSpend" TargetType="{x:Type Border}">
+        <Style x:Key="UpBlocks" TargetType="{x:Type Border}">
             <Setter Property="Background">
                 <Setter.Value>
                     <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
@@ -68,7 +68,7 @@
 
         <!--#endregion-->
 
-        <Style x:Key="SliderSt" TargetType="{x:Type Slider}">
+        <Style x:Key="SliderPeriod" TargetType="{x:Type Slider}">
             <Setter Property="Width" Value="200"/>
             <Setter Property="Minimum" Value="0"/>
             <Setter Property="Value" Value="1"/>
@@ -579,22 +579,22 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!--Total Spending-->
-                <Border Style="{StaticResource TotalSpend}" Grid.Column="0">
+                <!--Total Spend-->
+                <Border Style="{StaticResource UpBlocks}" Grid.Column="0">
                     <Grid>
                         <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12" VerticalAlignment="Top" HorizontalAlignment="Right" />
 
                         <fa:IconImage Icon="MoneyBill1" Width="60" Height="60" Foreground="White" Margin="182,7,13,47"/>
 
                         <StackPanel VerticalAlignment="Bottom" Margin="10,0">
-                            <TextBlock Text="Total Spending:" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
-                            <TextBlock Text="{Binding TotalCost, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
+                            <TextBlock Text="Total Spend:" Foreground="White" FontSize="20" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding TotalSpend, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}" Foreground="White" FontSize="35" Margin="0,0,0,5"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
                 <!--Balance-->
-                <Border Style="{StaticResource TotalSpend}" Grid.Column="1">
+                <Border Style="{StaticResource UpBlocks}" Grid.Column="1">
                     <Grid>
                         <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12" VerticalAlignment="Top" HorizontalAlignment="Right"/>
 
@@ -608,7 +608,7 @@
                 </Border>
 
                 <!--Bank-->
-                <Border Style="{StaticResource TotalSpend}" Grid.Column="2">
+                <Border Style="{StaticResource UpBlocks}" Grid.Column="2">
                     <Grid>
                         <Ellipse Width="200" Height="200" Opacity="0.4" Fill="White" Margin="142,-98,-87,12" VerticalAlignment="Top" HorizontalAlignment="Right"/>
 
@@ -633,13 +633,13 @@
             </Grid.ColumnDefinitions>
 
             <!--#region Main INFO-->
-            <ListView ItemsSource="{Binding RecordsByTypes}" d:ItemsSource="{d:SampleData ItemCount=5}"  Margin="1,0,0,0">
+            <ListView ItemsSource="{Binding BudgetCategories}" d:ItemsSource="{d:SampleData ItemCount=5}"  Margin="1,5,0,0">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Name}" Width="170" />
-                        <GridViewColumn Header="Plan" DisplayMemberBinding="{Binding PlanByDatePeriod,StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
-                        <GridViewColumn Header="Total spent" DisplayMemberBinding="{Binding Spend,StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
-                        <GridViewColumn Header="Remaining" DisplayMemberBinding="{Binding Remaining,StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150"/>
+                        <GridViewColumn Header="Plan" DisplayMemberBinding="{Binding PlanByPeriod, StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
+                        <GridViewColumn Header="Total spend" DisplayMemberBinding="{Binding SpendByPeriod, StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
+                        <GridViewColumn Header="Remaining" DisplayMemberBinding="{Binding RemainingByPeriod, StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150"/>
                     </GridView>
                 </ListView.View>
             </ListView>
@@ -671,7 +671,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <Slider Style="{StaticResource SliderSt}" Value="{Binding SelectedSort, Mode=TwoWay}"/>
+                        <Slider Style="{StaticResource SliderPeriod}" Value="{Binding SelectedSortPeriod, Mode=TwoWay}"/>
 
                         <Grid Grid.Row="1">
                             <Grid.ColumnDefinitions>

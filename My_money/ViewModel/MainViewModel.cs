@@ -1,40 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using My_money.Model;
+using My_money.Services.IServices;
+using My_money.Views;
+using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Xml.Serialization;
-using My_money.Model;
-using My_money.Views;
 
 namespace My_money.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-        public MainViewModel()
+        #region Dependency Injection Services
+        private readonly IBudgetCategoryService _budgetCategoryService;
+        private readonly IUserFinanceService _userFinanceService;
+        #endregion
+        /* Notes
+         * 
+         * !. Вместо акций и всей остальной херни (типа связи между VM для пресчета данных),
+         * при переходе на dashboard просто брать из db все по новой
+         * (т.е. сделать метод на обновление данных)
+         * 
+         * !. 
+         */
+
+
+        public MainViewModel(
+            IBudgetCategoryService budgetCategoryService,
+            IUserFinanceService userFinanceService)
         {
             //Start View
             CurrentView = dashboardView;
 
-
-            Records = new ObservableCollection<Record>();
-            RecordsByTypes = new ObservableCollection<RecordByTypes>();
-            SavingsGoals = new ObservableCollection<SavingsGoal>();
-
-            appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), appName);
-
-            LoadRecords();
-            SortingRecordsDate();
-
-            #region ViewModel
-            addViewModel = new AddViewModel();
-            historyViewModel = new HistoryViewModel(Records);
-            planViewModel = new PlanViewModel(RecordsByTypes, Records);
-            moneyBoxViewModel = new MoneyBoxViewModel(SavingsGoals, savings);
+            #region DI Services
+            _budgetCategoryService = budgetCategoryService;
+            _userFinanceService = userFinanceService;
             #endregion
+
+            // Initialize data
+            UpdateDashboardData();
 
             #region Commands
             NavCommand = new MyICommand<string>(OnNav);
@@ -44,117 +49,45 @@ namespace My_money.ViewModel
             //MaximizeWindowCommand = new MyICommand<object>(MaximizeWindow);
             #endregion
 
-            addViewModel.RecordAdded += OnRecordAdded;
-            addViewModel.SavingsAdded += OnSavingsAdded;
-            addViewModel.BalanceAdded += OnBalanceAdded;
             addViewModel.Back += OnNav;
 
-            historyViewModel.BalanceBack += OnBalanceBack;
-
-            moneyBoxViewModel.DeleteGoal += OnDeleteGoal;
-
-
-            #region Closing
-            Window mainWindow = Application.Current.MainWindow;
-
-            if (mainWindow != null)
-            {
-                mainWindow.Closing += MainWindowClosing;
-            }
-            #endregion
-
-        }
-
-        private void OnDeleteGoal(float goalHave) //Moneybox
-        {
-            Savings -= goalHave;
-        }   
-
-        private void OnBalanceBack(float cost) //History
-        {
-            Balance += cost;
-        }   
-
-        private void CalculateTotalSpending()
-        {
-            totalCost = 0;
-            foreach (var record in listRecordsByDate)
-            {
-                TotalCost += record.Cost;
-            }
-            OnPropertyChanged(nameof(TotalCost));
-        }
-
-        private void SortingRecordsDate() //History View
-        {
-            List<Record> sortedList = Records.OrderByDescending(item => item.DateTimeOccurred).ToList();
-            Records.Clear();
-            foreach (var item in sortedList)
-            {
-                Records.Add(item);
-            }
         }
 
 
         #region Properties
-        //Moneybox
-        private ObservableCollection<SavingsGoal> savingsGoals;
-        public ObservableCollection<SavingsGoal> SavingsGoals {  get { return savingsGoals; } set { SetProperty(ref savingsGoals, value); } }
+        private decimal totalSpend;
+        public decimal TotalSpend { get { return totalSpend; } set { SetProperty(ref totalSpend, value); } }
 
-        //Dashboard
-        private float totalCost;
-        public float TotalCost { get { return totalCost; } set { SetProperty(ref totalCost, value); } }
+        private decimal balance;
+        public decimal Balance { get { return balance; } set { SetProperty(ref balance, value); } }
 
-        private float balance;
-        public float Balance { get { return balance; } set { SetProperty(ref balance, value); } }
-
-        private float savings;
-        public float Savings { get { return savings; } set { SetProperty(ref savings, value); } }
-        //Save and Load
-        private string appName = "My money";
-        private string dataFileName = "data.xml";
-        private string appDataPath;
+        private decimal savings;
+        public decimal Savings { get { return savings; } set { SetProperty(ref savings, value); } }
 
 
+        private ObservableCollection<BudgetCategory> budgetCategories;
+        public ObservableCollection<BudgetCategory> BudgetCategories { get { return budgetCategories; } set { budgetCategories = value; } }
 
-        private ObservableCollection<Record> records;
-        public ObservableCollection<Record> Records { get { return records; } 
-            set 
-            { 
-                SetProperty(ref records, value);
-            } 
+        #region Period for sorting
+        private int selectedSortPeriod = 1; //0 - day, 1 - month, 2 - year
+        public int SelectedSortPeriod
+        {
+            get { return selectedSortPeriod; }
+            set
+            {
+                selectedSortPeriod = value;
+                RefreshPeriod();
+            }
         }
 
-        #region Sort List
-
-        private ObservableCollection<RecordByTypes> recordsByTypes;
-        public ObservableCollection<RecordByTypes> RecordsByTypes { get { return recordsByTypes; } set { recordsByTypes = value; } }
-
-
-        private List<Record> listRecordsByDate;
-        public List<Record> ListRecordsByDate { get { return listRecordsByDate; } set { listRecordsByDate = value; } }
-
-
-        private int selectedSort = 1;
-        public int SelectedSort 
-        { 
-            get { return selectedSort; } 
-            set 
-            { 
-                selectedSort = value;
-                CalculateSpendByType();
-            } 
-        }
-
-
-        private DateTime? selectedDate = DateTime.Now;
-        public DateTime? SelectedDate
+        private DateTime selectedDate = DateTime.Now;
+        public DateTime SelectedDate
         {
             get { return selectedDate; }
-            set 
-            { 
+            set
+            {
                 selectedDate = value;
-                CalculateSpendByType();
+                RefreshPeriod();
             }
         }
         #endregion
@@ -172,86 +105,70 @@ namespace My_money.ViewModel
         #endregion
 
 
-        #region Load and Save
-        private void SaveToXml()
+        #region Data Service Methods
+
+        #region Budget Category
+        private async Task GetAllBudgetCategoriesByPeriodAsync(DateTime from, DateTime to)
         {
-            string fileName = Path.Combine(appDataPath, dataFileName);
-
-            if (!Directory.Exists(appDataPath))
-            {
-                Directory.CreateDirectory(appDataPath);
-            }
-
-            XmlSerializer serializer = new XmlSerializer(typeof(ContainerAppData));
-
-            using (Stream stream = new FileStream(fileName, FileMode.Create))
-            {
-                ContainerAppData appData = new ContainerAppData
-                {
-                    Records = Records,
-                    Savings = Savings,
-                    Balance = Balance,
-                    RecordsByTypes = RecordsByTypes,
-                    Types = TypesName.Values,
-                    SavingsGoal = SavingsGoals
-                };
-
-                serializer.Serialize(stream, appData);
-            }
+            BudgetCategories = new ObservableCollection<BudgetCategory>(await _budgetCategoryService.GetAllBudgetCategoriesByPeriodAsync(from, to));
         }
 
-        private void LoadRecords()
+        #endregion
+
+        #region User Finance
+        private async Task<UserFinance> GetUserFinanceAsync()
         {
-            // Loading data from an XML file
-            string fileName = Path.Combine(appDataPath, dataFileName);
-
-            if (File.Exists(fileName))
-            {
-                using (Stream stream = new FileStream(fileName, FileMode.Open))
-                {
-                    XmlSerializer serializer = new XmlSerializer(typeof(ContainerAppData));
-                    ContainerAppData? appData = serializer.Deserialize(stream) as ContainerAppData;
-
-                    if (appData != null)
-                    {
-                        Records = appData.Records;
-                        savings = appData.Savings;
-                        balance = appData.Balance;
-                        recordsByTypes = appData.RecordsByTypes;
-                        TypesName.Values = appData.Types;
-                        SavingsGoals = appData.SavingsGoal;
-                    }
-                }
-            }
-            else
-            {
-                // If the file does not exist, create a new list of data 
-                savings = 0;
-                balance = 0;
-
-                recordsByTypes.Add(new RecordByTypes(TypesName.Values[0], 6000));
-                recordsByTypes.Add(new RecordByTypes(TypesName.Values[1], 1700));
-                recordsByTypes.Add(new RecordByTypes(TypesName.Values[2], 0));
-                recordsByTypes.Add(new RecordByTypes(TypesName.Values[3], 5400));
-                recordsByTypes.Add(new RecordByTypes(TypesName.Values[4], 750));
-                recordsByTypes.Add(new RecordByTypes(TypesName.Values[5], 360));
-                recordsByTypes.Add(new RecordByTypes(TypesName.Values[6], 450));
-                recordsByTypes.Add(new RecordByTypes(TypesName.Values[7], 2000));
-                recordsByTypes.Add(new RecordByTypes(TypesName.Values[8], 1000));
-                recordsByTypes.Add(new RecordByTypes(TypesName.Values[9], 2000));
-
-            }
-
-            CalculateSpendByType();
-            ViewModelBase.flagStartProg = true;
-        }
-
-        private void MainWindowClosing(object? sender, CancelEventArgs e)
-        {
-            SaveToXml();
+            return await _userFinanceService.GetUserFinanceAsync();
         }
         #endregion
 
+        #endregion
+
+        private async void UpdateDashboardData()
+        {
+            // TODO: ТУТ МОЖНО БУДЕТ ДОБАВИТЬ ТИПА ЗАГРУЗКУ ДАННЫХ С ПРОГРЕСС БАРОМ
+            await RefreshPeriod();
+            TotalSpend = BudgetCategories.Count > 0 ? BudgetCategories.Sum(cat => cat.SpendByPeriod) ?? 0 : 0;
+            var userFinance = await GetUserFinanceAsync();
+            Balance = userFinance.Balance ?? 0;
+            Savings = userFinance.Savings ?? 0;
+        }
+
+        private async Task RefreshPeriod()
+        {
+            var (from, to) = GetPeriodRange(SelectedDate, SelectedSortPeriod);
+            await GetAllBudgetCategoriesByPeriodAsync(from, to);
+        }
+
+        private (DateTime from, DateTime to) GetPeriodRange(DateTime selectedDate, int selectedSortPeriod)
+        {
+            DateTime from, to;
+
+            switch (selectedSortPeriod)
+            {
+                case 0: // day
+                    from = selectedDate.Date;
+                    to = selectedDate.Date.AddDays(1).AddTicks(-1);
+                    break;
+
+                case 1: // mounth
+                    from = new DateTime(selectedDate.Year, selectedDate.Month, 1);
+                    to = from.AddMonths(1).AddTicks(-1);
+                    break;
+
+                case 2: // year
+                    from = new DateTime(selectedDate.Year, 1, 1);
+                    to = new DateTime(selectedDate.Year + 1, 1, 1).AddTicks(-1);
+                    break;
+
+                default:
+                    from = selectedDate.Date;
+                    to = selectedDate.Date.AddDays(1).AddTicks(-1);
+                    break;
+            }
+
+            return (from, to);
+        }
 
         #region NAVIGATION
 
@@ -259,12 +176,12 @@ namespace My_money.ViewModel
         public UserControl CurrentView
         {
             get { return currentView; }
-            set 
+            set
             {
                 SetProperty(ref currentView, value);
             }
         }
-        
+
         #region Views
         private DashboardView dashboardView = new DashboardView();
         private AddView addView = new AddView();
@@ -285,7 +202,6 @@ namespace My_money.ViewModel
             switch (destination)
             {
                 case "Dashboard":
-                    CalculateSpendByType(); 
                     CurrentView = dashboardView;
                     break;
 
@@ -314,33 +230,6 @@ namespace My_money.ViewModel
         #endregion
 
 
-        #region OnAdd
-        //Record
-        private void OnRecordAdded(Record newRecord)
-        {
-            Balance -= newRecord.Cost; 
-            Records.Add(newRecord);
-
-            //OnNav("Dashboard");
-        }
-        //Savings
-        private void OnSavingsAdded(float savings) 
-        {
-            Savings += savings;
-            moneyBoxViewModel.Savings += savings;
-
-            OnNav("Dashboard");
-        }
-        //Balance
-        private void OnBalanceAdded(float balance)
-        {
-            Balance += balance;
-
-            OnNav("Dashboard");
-        }
-        #endregion
-
-
         #region Exit
         private void OnExit(object param)
         {
@@ -363,105 +252,5 @@ namespace My_money.ViewModel
         //    SystemCommands.MaximizeWindow(Application.Current.MainWindow);
         //}
         //#endregion
-
-
-        #region Sorting Records By Date
-        private void SortingRecordsByDate()
-        {
-            if (SelectedDate.HasValue)
-            {
-                listRecordsByDate = Records.ToList();
-                switch (selectedSort)
-                {
-                    // Day
-                    case 0:
-
-                        for (int i = listRecordsByDate.Count - 1; i >= 0; i--)
-                        {
-                            var item = listRecordsByDate[i];
-                            if (item.DateTimeOccurred.Value.Day != SelectedDate.Value.Day || item.DateTimeOccurred.Value.Month != SelectedDate.Value.Month || item.DateTimeOccurred.Value.Year != SelectedDate.Value.Year)
-                            {
-                                listRecordsByDate.RemoveAt(i);
-                            }
-                        }
-                        break;
-                    // Month
-                    case 1:
-                        for (int i = listRecordsByDate.Count - 1; i >= 0; i--)
-                        {
-                            var item = listRecordsByDate[i];
-                            if (item.DateTimeOccurred.Value.Month != SelectedDate.Value.Month || item.DateTimeOccurred.Value.Year != SelectedDate.Value.Year)
-                            {
-                                listRecordsByDate.RemoveAt(i);
-                            }
-                        }
-                        break;
-                    // Year
-                    case 2:
-                        for (int i = listRecordsByDate.Count - 1; i >= 0; i--)
-                        {
-                            var item = listRecordsByDate[i];
-                            if (item.DateTimeOccurred.Value.Year != SelectedDate.Value.Year)
-                            {
-                                listRecordsByDate.RemoveAt(i);
-                            }
-                        }
-                        break;
-                }
-                CalculateTotalSpending();
-            }
-            else
-            {
-                SelectedDate = DateTime.Now;
-            }
-        }
-        #endregion
-
-
-        #region Calculate Spend By Type
-        private void CalculateSpendByType()
-        {
-            ChangePlanPeriod();
-            CleanSpendByTypes();
-            SortingRecordsByDate();
-            if (listRecordsByDate != null)
-            {
-
-                foreach (var record in listRecordsByDate)
-                {
-                    for(int i = 0; i < TypesName.Values.Count; i++)
-                    {
-                        if (record.Type == TypesName.Values[i])
-                        {
-                            recordsByTypes.FirstOrDefault(item => item.Name == record.Type).Spend += record.Cost;
-                            break;
-                        }
-                    }
-                }
-                
-            }
-            else
-            {
-                MessageBox.Show("You don't have any records!", "Error Detected in records list", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-        }
-
-        private void CleanSpendByTypes()
-        {
-            foreach (var types in recordsByTypes)
-            {
-                types.Spend = 0;
-            }
-        }
-
-        private void ChangePlanPeriod()
-        {
-            foreach (var types in recordsByTypes)
-            {
-                types.PlanByDatePeriod = SelectedSort;
-            }
-        }
-        #endregion
     }
 }

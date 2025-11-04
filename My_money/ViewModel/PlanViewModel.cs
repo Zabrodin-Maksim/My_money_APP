@@ -1,20 +1,14 @@
 ﻿using My_money.Model;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace My_money.ViewModel
 {
     public class PlanViewModel : ViewModelBase
     {
         private ObservableCollection<RecordByTypes> recordByTypes;
-        public ObservableCollection<RecordByTypes> RecordByTypes {  get { return recordByTypes; } set { SetProperty(ref recordByTypes, value); } }
+        public ObservableCollection<RecordByTypes> RecordByTypes { get { return recordByTypes; } set { SetProperty(ref recordByTypes, value); } }
 
         public RecordByTypes selectedItem { get; set; }
 
@@ -23,7 +17,7 @@ namespace My_money.ViewModel
 
         private ObservableCollection<Record> records;
 
-        public PlanViewModel(ObservableCollection<RecordByTypes> recordByTypes, ObservableCollection<Record> records) 
+        public PlanViewModel(ObservableCollection<RecordByTypes> recordByTypes, ObservableCollection<Record> records)
         {
             RecordByTypes = recordByTypes;
             this.records = records;
@@ -36,7 +30,7 @@ namespace My_money.ViewModel
         {
             if (selectedItem != null)
             {
-                if(selectedItem.Name == "Other")
+                if (selectedItem.Name == "Other")
                 {
                     MessageBox.Show("You cannot delete the 'Other' record type as it is a universal type!", "Warning: Error Detected in Delete Other type", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
@@ -53,7 +47,7 @@ namespace My_money.ViewModel
                     Change(selectedItem.Name);
                     MessageBox.Show("All records of type " + selectedItem.Name + " have been moved under the 'Other' type.", "Information: Successful deletion of the type" + selectedItem.Name, MessageBoxButton.OK, MessageBoxImage.Information);
                     RecordByTypes.Remove(selectedItem);
-                    
+
                 }
             }
             else
@@ -71,7 +65,7 @@ namespace My_money.ViewModel
         {
             foreach (var record in records)
             {
-                if(record.Type == nameType)
+                if (record.Type == nameType)
                 {
                     record.Type = "Other";
                 }

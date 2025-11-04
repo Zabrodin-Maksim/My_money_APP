@@ -67,14 +67,14 @@ namespace My_money.ViewModel
 
 
         private ObservableCollection<string> types;
-        public ObservableCollection<string> Types 
-        { 
-            get { return types; } 
+        public ObservableCollection<string> Types
+        {
+            get { return types; }
 
-            set 
+            set
             {
                 SetProperty(ref types, value);
-            } 
+            }
         }
 
 
@@ -87,7 +87,8 @@ namespace My_money.ViewModel
 
 
 
-        public AddViewModel() {
+        public AddViewModel()
+        {
             AddCommand = new MyICommand<object>(OnAdd);
             BackCommand = new MyICommand<string>(OnBack);
 
@@ -104,7 +105,8 @@ namespace My_money.ViewModel
         #region ADD
         private void OnAdd(object parametr)
         {
-            try { 
+            try
+            {
                 // Add in Savings
                 if (isSavingsChecked)
                 {
@@ -132,7 +134,8 @@ namespace My_money.ViewModel
                     {
                         return;
                     }
-                    if (costTextProperty[0] == '-') {
+                    if (costTextProperty[0] == '-')
+                    {
                         throw new FormatException();
                     }
                     Record newRecord = new Record(float.Parse(costTextProperty), selectedDate, selectedType);
@@ -152,7 +155,7 @@ namespace My_money.ViewModel
         private void UpdateVisibility()
         {
 
-            if(isSavingsChecked || isBalanceChecked)
+            if (isSavingsChecked || isBalanceChecked)
             {
                 VisibilityMainInform = Visibility.Collapsed;
             }
