@@ -4,7 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:My_money"
-        xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp" 
+        xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
+        xmlns:vm="clr-namespace:My_money.ViewModel"
+        xmlns:views="clr-namespace:My_money.Views"
         mc:Ignorable="d"
         
         Title="My Money" 
@@ -19,9 +21,9 @@
     <!--WindowStyle="ThreeDBorderWindow" ResizeMode="NoResize" Background="Transparent"-->
     <!--WindowStyle="None" ResizeMode="NoResize" Background="Transparent" AllowsTransparency="True"-->
 
-    <!--#region Style -->
     <Window.Resources>
-        
+
+        <!--#region Style -->
         <Style x:Key="IconText">
             <Setter Property="Control.Foreground" Value="White"/>
             <Setter Property="Control.FontFamily" Value="ISOCpeur"/>
@@ -112,10 +114,32 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <!--#endregion-->
 
+        <!--#region Navigation-->
 
+        <DataTemplate DataType="{x:Type vm:MainViewModel}">
+            <views:DashboardView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:AddViewModel}">
+            <views:AddView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:HistoryViewModel}">
+            <views:HistoryView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:MoneyBoxViewModel}">
+            <views:MoneyBoxView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:PlanViewModel}">
+            <views:PlanView/>
+        </DataTemplate>
+        <!--#endregion-->
+        
     </Window.Resources>
-    <!--#endregion-->
 
     <!-- back grid -->
     <Grid MouseLeftButtonDown="Grid_MouseLeftButtonDown">
@@ -182,7 +206,7 @@
                             <!--#region Buttons-->
 
                             <!--#region Dashboard -->
-                            <Button Command="{Binding NavCommand}" CommandParameter="Dashboard" Grid.Row="1" Style="{StaticResource ButtonsMenu}">
+                            <Button Command="{Binding NavigateToDashboard}" Grid.Row="1" Style="{StaticResource ButtonsMenu}">
                                 <StackPanel Orientation="Horizontal">
                                     <fa:IconImage Icon="ChartPie" Height="40" Width="43" Foreground="White"/>
                                     <TextBlock Text="Dashboard" Margin="10, 10, 10, 10"/>
@@ -191,7 +215,7 @@
                             <!--#endregion-->
 
                             <!--#region moneybox  -->
-                            <Button Command="{Binding NavCommand}" CommandParameter="Moneybox" Grid.Row="2" Style="{StaticResource ButtonsMenu}">
+                            <Button Command="{Binding NavigateToMoneyBox}" Grid.Row="2" Style="{StaticResource ButtonsMenu}">
                                 <StackPanel Orientation="Horizontal">
                                     <fa:IconImage Icon="PiggyBank" Height="40" Width="40" Foreground="White"/>
                                     <TextBlock Text="Moneybox " Margin="10, 15, 10, 10"/>
@@ -200,7 +224,7 @@
                             <!--#endregion-->
 
                             <!--#region Plan -->
-                            <Button Command="{Binding NavCommand}" CommandParameter="Plan" Grid.Row="3" Style="{StaticResource ButtonsMenu}">
+                            <Button Command="{Binding NavigateToPlan}" Grid.Row="3" Style="{StaticResource ButtonsMenu}">
                                 <StackPanel Orientation="Horizontal">
                                     <fa:IconImage Icon="ScaleBalanced" Height="40" Width="40" Foreground="White"/>
                                     <TextBlock Text="Plan" Margin="10, 15, 10, 10"/>
@@ -209,7 +233,7 @@
                             <!--#endregion-->
 
                             <!--#region History -->
-                            <Button Command="{Binding NavCommand}" CommandParameter="History" Grid.Row="4" Style="{StaticResource ButtonsMenu}">
+                            <Button Command="{Binding NavigateToHistory}" Grid.Row="4" Style="{StaticResource ButtonsMenu}">
                                 <StackPanel Orientation="Horizontal">
                                     <fa:IconImage Icon="ClockRotateLeft" Height="35" Width="40" Foreground="White"/>
                                     <TextBlock Text="History" Margin="10, 13, 10, 10"/>
@@ -248,7 +272,7 @@
 
                     <!--#region Main Usefull -->
                     <Grid Grid.Column="1">
-                        <ContentControl Content="{Binding CurrentViewё}" Background="#1C1D31"/>
+                        <ContentControl Content="{Binding CurrentView}" Background="#1C1D31"/>
                     </Grid>
                     <!--#endregion-->
                 </Grid>

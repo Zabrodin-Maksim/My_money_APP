@@ -50,14 +50,15 @@ namespace My_money
             services.AddSingleton<IRecordService, RecordService>();
             services.AddSingleton<ISavingsGoalService, SavingsGoalService>();
             services.AddSingleton<IUserFinanceService, UserFinanceService>();
+            services.AddSingleton<NavigationService>();
             #endregion
 
             #region ViewModels
-            services.AddSingleton<MainViewModel>();
-            services.AddSingleton<AddViewModel>();
-            services.AddSingleton<HistoryViewModel>();
-            services.AddSingleton<MoneyBoxViewModel>();
-            services.AddSingleton<PlanViewModel>();
+            services.AddTransient<MainViewModel>();
+            services.AddTransient<AddViewModel>();
+            services.AddTransient<HistoryViewModel>();
+            services.AddTransient<MoneyBoxViewModel>();
+            services.AddTransient<PlanViewModel>();
             #endregion
 
             _serviceProvider = services.BuildServiceProvider();

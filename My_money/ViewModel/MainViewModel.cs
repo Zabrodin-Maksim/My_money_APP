@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace My_money.ViewModel
 {
@@ -15,6 +14,7 @@ namespace My_money.ViewModel
         #region Dependency Injection Services
         private readonly IBudgetCategoryService _budgetCategoryService;
         private readonly IUserFinanceService _userFinanceService;
+        private readonly Services.NavigationService _navigationService;
         #endregion
         /* Notes
          * 
@@ -28,28 +28,31 @@ namespace My_money.ViewModel
 
         public MainViewModel(
             IBudgetCategoryService budgetCategoryService,
-            IUserFinanceService userFinanceService)
+            IUserFinanceService userFinanceService,
+            Services.NavigationService navigationService
+            )
         {
-            //Start View
-            CurrentView = dashboardView;
 
             #region DI Services
             _budgetCategoryService = budgetCategoryService;
             _userFinanceService = userFinanceService;
+            _navigationService = navigationService;
             #endregion
 
             // Initialize data
             UpdateDashboardData();
 
             #region Commands
-            NavCommand = new MyICommand<string>(OnNav);
+            NavigateToDashboard = new MyICommand<object>(NavigateToDashboardView);
+            NavigateToAdd = new MyICommand<object>(NavigateToAddView);
+            NavigateToHistory = new MyICommand<object>(NavigateToHistoryView);
+            NavigateToPlan = new MyICommand<object>(NavigateToPlanView);
+            NavigateToMoneyBox = new MyICommand<object>(NavigateToBoxView);
 
             ExitCommand = new MyICommand<object>(OnExit);
             MinimizeWindowCommand = new MyICommand<object>(MinimizeWindow);
             //MaximizeWindowCommand = new MyICommand<object>(MaximizeWindow);
             #endregion
-
-            addViewModel.Back += OnNav;
 
         }
 
@@ -96,7 +99,16 @@ namespace My_money.ViewModel
 
 
         #region Commands
-        public MyICommand<string> NavCommand { get; private set; }
+
+        #region Navigation Commands
+        public MyICommand<object> NavigateToDashboard { get; private set; }
+        public MyICommand<object> NavigateToAdd { get; private set; }
+        public MyICommand<object> NavigateToHistory { get; private set; }
+        public MyICommand<object> NavigateToPlan { get; private set; }
+        public MyICommand<object> NavigateToMoneyBox { get; private set; }
+
+        #endregion
+
         public MyICommand<object> ExitCommand { get; private set; }
 
         public MyICommand<object> MinimizeWindowCommand { get; private set; }
@@ -126,7 +138,7 @@ namespace My_money.ViewModel
 
         private async void UpdateDashboardData()
         {
-            // TODO: ТУТ МОЖНО БУДЕТ ДОБАВИТЬ ТИПА ЗАГРУЗКУ ДАННЫХ С ПРОГРЕСС БАРОМ
+            // TODO: UI ТУТ МОЖНО БУДЕТ ДОБАВИТЬ ТИПА ЗАГРУЗКУ ДАННЫХ С ПРОГРЕСС БАРОМ
             await RefreshPeriod();
             TotalSpend = BudgetCategories.Count > 0 ? BudgetCategories.Sum(cat => cat.SpendByPeriod) ?? 0 : 0;
             var userFinance = await GetUserFinanceAsync();
@@ -170,78 +182,57 @@ namespace My_money.ViewModel
             return (from, to);
         }
 
+        // Узел DI, внутри NavigationService происходит инъекция нужной VM в зависимости от переданного ViewID
         #region NAVIGATION
 
-        private UserControl currentView;
-        public UserControl CurrentView
+        private ViewModelBase currentView;
+        public ViewModelBase CurrentView
         {
             get { return currentView; }
-            set
-            {
-                SetProperty(ref currentView, value);
-            }
+            set { SetProperty(ref currentView, value); }
         }
 
-        #region Views
-        private DashboardView dashboardView = new DashboardView();
-        private AddView addView = new AddView();
-        private HistoryView historyView = new HistoryView();
-        private PlanView planView = new PlanView();
-        private MoneyBoxView moneyBoxView = new MoneyBoxView();
-        #endregion
-
-        #region ViewModel
-        private AddViewModel addViewModel;
-        private HistoryViewModel historyViewModel;
-        private PlanViewModel planViewModel;
-        private MoneyBoxViewModel moneyBoxViewModel;
-        #endregion
-
-        private void OnNav(string destination)
+        private async Task NavigateToDashboardView(object o)
         {
-            switch (destination)
-            {
-                case "Dashboard":
-                    CurrentView = dashboardView;
-                    break;
+            _navigationService.Navigate(CurrentView, ViewID.DashboardView);
+        }
 
-                case "AddRecord":
-                    CurrentView = addView;
-                    addView.DataContext = addViewModel;
-                    break;
+        private async Task NavigateToAddView(object o)
+        {
+            _navigationService.Navigate(CurrentView, ViewID.AddView);
+        }
 
-                case "History":
-                    CurrentView = historyView;
-                    historyView.DataContext = historyViewModel;
-                    historyViewModel.SortingRecords();
-                    break;
+        private async Task NavigateToHistoryView(object o)
+        {
+            _navigationService.Navigate(CurrentView, ViewID.HistoryView);
+        }
 
-                case "Plan":
-                    CurrentView = planView;
-                    planView.DataContext = planViewModel;
-                    break;
+        private async Task NavigateToPlanView(object o)
+        {
+            _navigationService.Navigate(CurrentView, ViewID.PlanView);
+        }
 
-                case "Moneybox":
-                    CurrentView = moneyBoxView;
-                    moneyBoxView.DataContext = moneyBoxViewModel;
-                    break;
-            }
+        private async Task NavigateToBoxView(object o)
+        {
+            _navigationService.Navigate(CurrentView, ViewID.MoneyBoxView);
         }
         #endregion
 
 
         #region Exit
-        private void OnExit(object param)
+        private Task OnExit(object param)
         {
             Application.Current.Shutdown();
+            return Task.CompletedTask;
         }
         #endregion
 
 
         #region Minimize Window
-        private void MinimizeWindow(object par)
+        private Task MinimizeWindow(object par)
         {
             SystemCommands.MinimizeWindow(Application.Current.MainWindow);
+            return Task.CompletedTask;
         }
         #endregion
 
