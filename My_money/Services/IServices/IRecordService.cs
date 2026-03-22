@@ -9,6 +9,10 @@ namespace My_money.Services.IServices
     {
         Task<List<Record>> GetAllRecordsAsync();
         Task<Record?> GetRecordByIdAsync(int id);
+
+        /// <summary>
+        /// Apply the expense to the user's balance before adding the record to ensure data consistency!!!
+        /// </summary>
         Task<int> AddRecordAsync(Record record);
         Task UpdateRecordAsync(Record record);
         Task DeleteRecordAsync(int id);

@@ -40,7 +40,7 @@ namespace My_money.ViewModel
             #endregion
 
             // Initialize data
-            UpdateDashboardData();
+            _ = UpdateDashboardData();
 
             #region Commands
             NavigateToDashboard = new MyICommand<object>(NavigateToDashboardView);
@@ -69,7 +69,7 @@ namespace My_money.ViewModel
 
 
         private ObservableCollection<BudgetCategory> budgetCategories;
-        public ObservableCollection<BudgetCategory> BudgetCategories { get { return budgetCategories; } set { budgetCategories = value; } }
+        public ObservableCollection<BudgetCategory> BudgetCategories { get { return budgetCategories; } set { SetProperty(ref budgetCategories, value); ; } }
 
         #region Period for sorting
         private int selectedSortPeriod = 1; //0 - day, 1 - month, 2 - year
@@ -79,7 +79,7 @@ namespace My_money.ViewModel
             set
             {
                 selectedSortPeriod = value;
-                RefreshPeriod();
+                _ = RefreshPeriod();
             }
         }
 
@@ -90,7 +90,7 @@ namespace My_money.ViewModel
             set
             {
                 selectedDate = value;
-                RefreshPeriod();
+                _ = RefreshPeriod();
             }
         }
         #endregion
@@ -136,7 +136,7 @@ namespace My_money.ViewModel
 
         #endregion
 
-        private async void UpdateDashboardData()
+        private async Task UpdateDashboardData()
         {
             // TODO: UI ТУТ МОЖНО БУДЕТ ДОБАВИТЬ ТИПА ЗАГРУЗКУ ДАННЫХ С ПРОГРЕСС БАРОМ
             await RefreshPeriod();
@@ -194,27 +194,27 @@ namespace My_money.ViewModel
 
         private async Task NavigateToDashboardView(object o)
         {
-            _navigationService.Navigate(CurrentView, ViewID.DashboardView);
+            _navigationService.Navigate(ViewID.DashboardView);
         }
 
         private async Task NavigateToAddView(object o)
         {
-            _navigationService.Navigate(CurrentView, ViewID.AddView);
+            _navigationService.Navigate(ViewID.AddView);
         }
 
         private async Task NavigateToHistoryView(object o)
         {
-            _navigationService.Navigate(CurrentView, ViewID.HistoryView);
+            _navigationService.Navigate(ViewID.HistoryView);
         }
 
         private async Task NavigateToPlanView(object o)
         {
-            _navigationService.Navigate(CurrentView, ViewID.PlanView);
+            _navigationService.Navigate(ViewID.PlanView);
         }
 
         private async Task NavigateToBoxView(object o)
         {
-            _navigationService.Navigate(CurrentView, ViewID.MoneyBoxView);
+            _navigationService.Navigate(ViewID.MoneyBoxView);
         }
         #endregion
 

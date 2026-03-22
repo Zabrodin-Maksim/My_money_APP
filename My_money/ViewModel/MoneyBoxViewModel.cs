@@ -1,16 +1,16 @@
 ﻿using My_money.Model;
+using My_money.Services.IServices;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace My_money.ViewModel
 {
     public class MoneyBoxViewModel : ViewModelBase
     {
-        public event Action<float> DeleteGoal;
-
-
+        #region Properties
         private ObservableCollection<SavingsGoal> savingsGoals;
         public ObservableCollection<SavingsGoal> SavingsGoals
         {
@@ -18,80 +18,80 @@ namespace My_money.ViewModel
             set { SetProperty(ref savingsGoals, value); }
         }
 
-        private float savings; //from Dashboard
-        public float Savings { get { return savings; } set { SetProperty(ref savings, value); CalculNotUsedMoney(); } }
+        public decimal savingsAmount;
 
-        private float notUsedMoney;
-        public float NotUsedMoney
+        private decimal notUsedMoney;
+        public decimal NotUsedMoney
         {
             get { return notUsedMoney; }
             set { SetProperty(ref notUsedMoney, value); }
         }
 
-        public SavingsGoal selectedItem
-        {
-            get;
-            set;
-        }
+        public SavingsGoal selectedItem { get; set; }
+        #endregion
 
+        #region Commands
         public MyICommand<object> AddCommand { get; set; }
         public MyICommand<object> DeleteCommand { get; set; }
+        #endregion
 
+        #region Dependency Injection Services
+        private readonly ISavingsGoalService _savingsGoalService;
+        private readonly IUserFinanceService _userFinanceService;
+        #endregion
 
-        public MoneyBoxViewModel(ObservableCollection<SavingsGoal> _savingsGoals, float _savings)
+        public MoneyBoxViewModel(
+            ISavingsGoalService savingsGoalService,
+            IUserFinanceService userFinanceService
+            )
         {
-            savings = _savings;
-            SavingsGoals = _savingsGoals;
+            #region DI Services
+            _savingsGoalService = savingsGoalService;
+            _userFinanceService = userFinanceService;
+            #endregion
+
+            _ = UpdateData();
 
             AddCommand = new MyICommand<object>(OnAdd);
             DeleteCommand = new MyICommand<object>(OnDelete);
+        }
+
+        private async Task UpdateData()
+        {
+            var userFinance = await _userFinanceService.GetUserFinanceAsync();
+            var savingsGoals = await _savingsGoalService.GetAllSavingsGoals();
+
+            savingsAmount = userFinance.Savings;
+            SavingsGoals = new ObservableCollection<SavingsGoal>(savingsGoals);
 
             CalculNotUsedMoney();
-
-            SubscribeToPropertyChangeEvents();
         }
 
-        private void SubscribeToPropertyChangeEvents()
+        private async Task OnAdd(object par)
         {
-            if (SavingsGoals.Count > 0)
-            {
-                foreach (var goal in SavingsGoals)
-                {
-                    goal.PropertyChanged += Goal_PropertyChanged;
-                }
-            }
+            await _savingsGoalService.AddSavingsGoal(new SavingsGoal("Enter Name", 0, 0));
+            await UpdateData();
         }
 
-        private void Goal_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "Have")
-            {
-                CalculNotUsedMoney();
-            }
-        }
-
-
-        private void OnAdd(object par)
-        {
-            SavingsGoals.Add(new SavingsGoal("Enter Name", 0, 0));
-
-            SubscribeToPropertyChangeEvents();
-        }
-
-        private void OnDelete(object par)
+        private async Task OnDelete(object par)
         {
             if (selectedItem != null)
             {
-                if (selectedItem.Percent >= 100.0f)
+                try
                 {
-                    savings -= selectedItem.Have;
-                    DeleteGoal.Invoke(selectedItem.Have);
+                    if (selectedItem.Have == selectedItem.Need)
+                    {
+                        await _userFinanceService.AddToSavingsAsync(-selectedItem.Have);
+                        await _savingsGoalService.DeleteSavingsGoal(selectedItem.Id);
+                    }
+
+                    await UpdateData();
                 }
-                selectedItem.PropertyChanged -= Goal_PropertyChanged;
-
-                SavingsGoals.Remove(selectedItem);
-
-                CalculNotUsedMoney();
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error occurred while deleting the savings goal: " + ex.Message, "Error Detected in Delete Savings Goal", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
             }
             else
             {
@@ -99,13 +99,11 @@ namespace My_money.ViewModel
             }
         }
 
-
-
         private void CalculNotUsedMoney()
         {
             if (SavingsGoals != null)
             {
-                NotUsedMoney = savings - SavingsGoals.Sum(goal => goal.Have);
+                NotUsedMoney = savingsAmount - SavingsGoals.Sum(goal => goal.Have);
             }
         }
     }

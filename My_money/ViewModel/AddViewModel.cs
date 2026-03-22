@@ -1,17 +1,19 @@
 ﻿using My_money.Model;
+using My_money.Services.IServices;
+using My_money.Views;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace My_money.ViewModel
 {
     public class AddViewModel : ViewModelBase
     {
-        public event Action<Record> RecordAdded;
-        public event Action<float> SavingsAdded;
-        public event Action<float> BalanceAdded;
-        public event Action<string> Back;
+        // TODO: Add Discription TextBox and indicator for secsessful add
 
+        #region Visivility & Check Boxes
         // Visibility for Type and Date/
         private Visibility visibilityMainInform;
         public Visibility VisibilityMainInform { get { return visibilityMainInform; } set { visibilityMainInform = value; } }
@@ -47,16 +49,15 @@ namespace My_money.ViewModel
                 UpdateVisibility();
             }
         }
+        #endregion
 
-
-        //Properties
-        private string costTextProperty;
-        public string CostTextProperty
+        #region Properties
+        private string amountTextProperty;
+        public string AmountTextProperty
         {
-            get { return costTextProperty; }
+            get { return amountTextProperty; }
             set { CheckNumericInput(value); }
         }
-
 
         private DateTime? selectedDate = DateTime.Now;
         public DateTime? SelectedDate
@@ -65,36 +66,51 @@ namespace My_money.ViewModel
             set { selectedDate = value; }
         }
 
-
-        private ObservableCollection<string> types;
-        public ObservableCollection<string> Types
+        private ObservableCollection<BudgetCategory> categories;
+        public ObservableCollection<BudgetCategory> Categories
         {
-            get { return types; }
+            get { return categories; }
 
             set
             {
-                SetProperty(ref types, value);
+                SetProperty(ref categories, value);
             }
         }
 
-
-        private string selectedType;
-        public string SelectedType
+        private BudgetCategory selectedCategory;
+        public BudgetCategory SelectedCategory
         {
-            get { return selectedType; }
-            set { selectedType = value; }
+            get { return selectedCategory; }
+            set { selectedCategory = value; }
         }
+        #endregion
 
+        #region Dependency Injection Services
+        private readonly IBudgetCategoryService _budgetCategoryService;
+        private readonly IUserFinanceService _userFinanceService;
+        private readonly IRecordService _recordService;
+        private readonly Services.NavigationService _navigationService;
+        #endregion
 
-
-        public AddViewModel()
+        public AddViewModel(IBudgetCategoryService budgetCategoryService, IUserFinanceService userFinanceService, IRecordService recordService, Services.NavigationService navigationService)
         {
+            #region DI Services
+            _budgetCategoryService = budgetCategoryService;
+            _userFinanceService = userFinanceService;
+            _recordService = recordService;
+            _navigationService = navigationService;
+            #endregion
+
             AddCommand = new MyICommand<object>(OnAdd);
             BackCommand = new MyICommand<string>(OnBack);
 
-            Types = TypesName.Values;
+            InitData();
+        }
 
-            SelectedType = Types[0];
+        private async void InitData()
+        {
+            Categories = new ObservableCollection<BudgetCategory>(await _budgetCategoryService.GetAllBudgetCategoriesAsync());
+            SelectedCategory = Categories[0];
         }
 
         #region Commands
@@ -103,50 +119,44 @@ namespace My_money.ViewModel
         #endregion
 
         #region ADD
-        private void OnAdd(object parametr)
+        private async Task OnAdd(object parametr)
         {
             try
             {
+                if (!decimal.TryParse(amountTextProperty, out var amount))
+                {
+                    throw new FormatException();
+                }
+
+                if (!CheckAddInput(amountTextProperty))
+                {
+                    return;
+                }
+
                 // Add in Savings
                 if (isSavingsChecked)
                 {
-                    if (!CheckAddInput(costTextProperty))
-                    {
-                        return;
-                    }
-
-                    SavingsAdded?.Invoke(float.Parse(costTextProperty));
+                    await _userFinanceService.AddToSavingsAsync(amount);
                 }
                 // Add in Balance
                 else if (isBalanceChecked)
                 {
-                    if (!CheckAddInput(costTextProperty))
-                    {
-                        return;
-                    }
-
-                    BalanceAdded?.Invoke(float.Parse(costTextProperty));
+                    await _userFinanceService.AddToBalanceAsync(amount);
                 }
                 // Add in Records
                 else
                 {
-                    if (!CheckAddInput(costTextProperty))
-                    {
-                        return;
-                    }
-                    if (costTextProperty[0] == '-')
+                    if (amount < 0)
                     {
                         throw new FormatException();
                     }
-                    Record newRecord = new Record(float.Parse(costTextProperty), selectedDate, selectedType);
-
-                    RecordAdded?.Invoke(newRecord);
+                    await _recordService.AddRecordAsync(new Record(amount, selectedCategory.Id, selectedDate, ""));
                 }
                 Clear();
             }
-            catch (FormatException ex)
+            catch (Exception)
             {
-                MessageBox.Show("Please, enter a valid cost.", "Warning: Error Detected in Input cost", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please, enter a valid amount.", "Warning: Error Detected in Input amount", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
         #endregion
@@ -181,10 +191,9 @@ namespace My_money.ViewModel
         #endregion
 
         #region Back
-        private void OnBack(string param)
+        private async Task OnBack(string param)
         {
-            Clear();
-            Back?.Invoke(param);
+            _navigationService.Navigate(ViewID.DashboardView);
         }
         #endregion
 
@@ -202,14 +211,14 @@ namespace My_money.ViewModel
                     }
                 }
             }
-            costTextProperty = input;
+            amountTextProperty = input;
         }
 
-        private bool CheckAddInput(string cost)
+        private bool CheckAddInput(string amount)
         {
-            if (string.IsNullOrEmpty(cost))
+            if (string.IsNullOrEmpty(amount))
             {
-                MessageBox.Show("Please, enter a valid cost.", "Warning: Error Detected in Input cost", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please, enter a valid amount.", "Warning: Error Detected in Input amount", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
             if (!isSavingsChecked && !isBalanceChecked)
@@ -219,7 +228,7 @@ namespace My_money.ViewModel
                     MessageBox.Show("Please, select the date of your record", "Warning: Error Detected in Input Date", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return false;
                 }
-                if (SelectedType == null)
+                if (SelectedCategory == null)
                 {
                     MessageBox.Show("Please, select the type of your record", "Warning: Error Detected in Input Type", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return false;
@@ -234,11 +243,11 @@ namespace My_money.ViewModel
         {
             IsSavingsChecked = false;
             IsBalanceChecked = false;
-            CostTextProperty = "0";
-            SelectedType = Types[0];
+            AmountTextProperty = "0";
+            SelectedCategory = Categories[0];
 
-            OnPropertyChanged(nameof(SelectedType));
-            OnPropertyChanged(nameof(CostTextProperty));
+            OnPropertyChanged(nameof(SelectedCategory));
+            OnPropertyChanged(nameof(AmountTextProperty));
         }
         #endregion
     }

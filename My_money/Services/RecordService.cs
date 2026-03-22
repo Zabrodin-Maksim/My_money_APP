@@ -10,13 +10,15 @@ namespace My_money.Services
     public class RecordService : IRecordService
     {
         private readonly IRecordRepository _recordRepository;
+        private readonly IUserFinanceService _userFinanceService;
 
-        public RecordService(IRecordRepository recordRepository)
+        public RecordService(IRecordRepository recordRepository, IUserFinanceService userFinanceService)
         {
             _recordRepository = recordRepository;
+            _userFinanceService = userFinanceService;
         }
 
-        //TODO: Add validation and error handling as needed
+        // TODO: Add validation and error handling as needed
 
         public async Task<List<Record>> GetAllRecordsAsync()
         {
@@ -28,8 +30,12 @@ namespace My_money.Services
             return await _recordRepository.GetByIdAsync(id);
         }
 
+        /// <summary>
+        /// Apply the expense to the user's balance before adding the record to ensure data consistency.
+        /// </summary>
         public async Task<int> AddRecordAsync(Record record)
         {
+            await _userFinanceService.ApplyExpenseAsync(record.Cost);
             return await _recordRepository.AddAsync(record);
         }
 
@@ -40,6 +46,8 @@ namespace My_money.Services
 
         public async Task DeleteRecordAsync(int id)
         {
+            // TODO: Consider whether we need to reverse the expense impact on the user's balance when deleting a record.
+            // This would require fetching the record first to get its cost before deletion.
             await _recordRepository.DeleteAsync(id);
         }
 

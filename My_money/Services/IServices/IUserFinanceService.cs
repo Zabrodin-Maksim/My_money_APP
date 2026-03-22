@@ -7,7 +7,10 @@ namespace My_money.Services.IServices
     {
         Task<UserFinance> GetUserFinanceAsync();
         Task<int> AddUserFinanceAsync(UserFinance userFinance);
-        Task UpdateUserFinanceAsync(decimal savings, decimal balance);
+        Task AddToBalanceAsync(decimal amount);
+        Task AddToSavingsAsync(decimal amount);
+        Task ApplyExpenseAsync(decimal cost);
+        Task UpdateUserFinanceAsync(decimal? savings, decimal? balance);
         Task<UserFinance> AddDefaultUserFinance();
     }
 }

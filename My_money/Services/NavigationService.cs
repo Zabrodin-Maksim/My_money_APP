@@ -24,7 +24,7 @@ namespace My_money.Services
             _moneyBoxViewModel = moneyBoxViewModel;
         }
 
-        public void Navigate(ViewModelBase currentViewModel, ViewID view)
+        public void Navigate(ViewID view)
         {
             switch (view)
             {
