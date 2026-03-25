@@ -12,7 +12,7 @@ namespace My_money.Services.IServices
         Task<BudgetCategory?> GetBudgetCategoryByIdAsync(int id);
         Task<int> AddBudgetCategoryAsync(BudgetCategory category);
         Task UpdateBudgetCategoryAsync(BudgetCategory category);
-        Task DeleteBudgetCategoryAsync(int id);
+        Task DeleteBudgetCategoryAsync(BudgetCategory category);
         Task<BudgetCategory?> GetBudgetCategoryByNameAsync(string name);
     }
 }

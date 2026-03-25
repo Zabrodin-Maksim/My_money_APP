@@ -47,7 +47,7 @@ namespace My_money.Services
         public async Task DeleteRecordAsync(int id)
         {
             // TODO: Consider whether we need to reverse the expense impact on the user's balance when deleting a record.
-            // This would require fetching the record first to get its cost before deletion.
+            // This would require fetching the record first to get its cost before deletion (или аргумент принимать сразу Record).
             await _recordRepository.DeleteAsync(id);
         }
 

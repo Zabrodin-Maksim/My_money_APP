@@ -56,13 +56,12 @@ namespace My_money.ViewModel
 
         }
 
-
         #region Properties
         private decimal totalSpend;
         public decimal TotalSpend { get { return totalSpend; } set { SetProperty(ref totalSpend, value); } }
 
-        private decimal balance;
-        public decimal Balance { get { return balance; } set { SetProperty(ref balance, value); } }
+        private decimal? balance;
+        public decimal? Balance { get { return balance; } set { SetProperty(ref balance, value); } }
 
         private decimal savings;
         public decimal Savings { get { return savings; } set { SetProperty(ref savings, value); } }

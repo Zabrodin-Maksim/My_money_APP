@@ -104,10 +104,10 @@ namespace My_money.ViewModel
             AddCommand = new MyICommand<object>(OnAdd);
             BackCommand = new MyICommand<string>(OnBack);
 
-            InitData();
+            _ = InitData();
         }
 
-        private async void InitData()
+        private async Task InitData()
         {
             Categories = new ObservableCollection<BudgetCategory>(await _budgetCategoryService.GetAllBudgetCategoriesAsync());
             SelectedCategory = Categories[0];

@@ -18,10 +18,10 @@ namespace My_money.ViewModel
             set { SetProperty(ref savingsGoals, value); }
         }
 
-        public decimal savingsAmount;
+        public decimal? savingsAmount;
 
-        private decimal notUsedMoney;
-        public decimal NotUsedMoney
+        private decimal? notUsedMoney;
+        public decimal? NotUsedMoney
         {
             get { return notUsedMoney; }
             set { SetProperty(ref notUsedMoney, value); }
@@ -61,7 +61,7 @@ namespace My_money.ViewModel
             var userFinance = await _userFinanceService.GetUserFinanceAsync();
             var savingsGoals = await _savingsGoalService.GetAllSavingsGoals();
 
-            savingsAmount = userFinance.Savings;
+            savingsAmount = userFinance.Savings ?? 0;
             SavingsGoals = new ObservableCollection<SavingsGoal>(savingsGoals);
 
             CalculNotUsedMoney();
