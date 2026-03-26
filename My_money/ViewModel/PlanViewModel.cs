@@ -31,14 +31,13 @@ namespace My_money.ViewModel
         {
             _budgetCategoryService = budgetCategoryService;
 
-            // init data
-            _ = UpdateData();
+            _ = LoadDataAsync();
 
             AddCommand = new MyICommand<object>(OnAdd);
             DeleteCommand = new MyICommand<object>(OnDelete);
         }
 
-        private async Task UpdateData()
+        private async Task LoadDataAsync()
         {
             BudgetCategories = new ObservableCollection<BudgetCategory>(await _budgetCategoryService.GetAllBudgetCategoriesAsync());
         }
@@ -51,7 +50,7 @@ namespace My_money.ViewModel
                 {
                     await _budgetCategoryService.DeleteBudgetCategoryAsync(selectedItem);
                     MessageBox.Show("All records of type " + selectedItem.Name + " have been moved under the 'Other' type.", "Information: Successful deletion of the type" + selectedItem.Name, MessageBoxButton.OK, MessageBoxImage.Information);
-                    await UpdateData();
+                    await LoadDataAsync();
                 }
                 else
                 {
@@ -69,7 +68,7 @@ namespace My_money.ViewModel
             try
             {
                 await _budgetCategoryService.AddBudgetCategoryAsync(new BudgetCategory() { Name = "New category", Plan = 0m, Spend = 0m});
-                await UpdateData();
+                await LoadDataAsync();
             }
             catch (Exception ex) 
             {

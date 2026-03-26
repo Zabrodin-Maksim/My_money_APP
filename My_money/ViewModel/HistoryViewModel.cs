@@ -1,14 +1,17 @@
 ﻿using My_money.Model;
+using My_money.Services.IServices;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace My_money.ViewModel
 {
     public class HistoryViewModel : ViewModelBase
     {
+        #region Properties
         private ObservableCollection<Record> records;
         public ObservableCollection<Record> Records
         {
@@ -18,8 +21,6 @@ namespace My_money.ViewModel
                 SetProperty(ref records, value);
             }
         }
-
-        public event Action<float> BalanceBack;
 
         private Record selectedItem;
         public Record SelectedItem
@@ -31,8 +32,8 @@ namespace My_money.ViewModel
             }
         }
 
-        private float selectedSort;
-        public float SelectedSort
+        private double selectedSort;
+        public double SelectedSort
         {
             get { return selectedSort; }
             set
@@ -41,50 +42,63 @@ namespace My_money.ViewModel
                 SortingRecords();
             }
         }
-
-        List<Record> sortedList;
+        #endregion
 
         public MyICommand<object> DeleteCommand { get; set; }
 
-        public HistoryViewModel(ObservableCollection<Record> Records)
+        #region Dependency Injection Services
+        private readonly IRecordService _recordService;
+        #endregion
+
+        public HistoryViewModel(IRecordService recordService)
         {
-            this.Records = Records;
+            _recordService = recordService;
+
+            _ = LoadDataAsync();
 
             DeleteCommand = new MyICommand<object>(OnDelete);
         }
 
-        private void OnDelete(object obj)
+        private async Task LoadDataAsync()
         {
-            if (selectedItem != null)
+            var recordsFromDb = await _recordService.GetAllRecordsAsync();
+            Records = new ObservableCollection<Record>(recordsFromDb);
+            SortingRecords();
+        }
+
+        private async Task OnDelete(object obj)
+        {
+            try
             {
-                BalanceBack.Invoke(SelectedItem.Cost);
-                Records.Remove(SelectedItem);
+                if (SelectedItem != null)
+                {
+                    await _recordService.DeleteRecordAsync(SelectedItem);
+                    await LoadDataAsync();
+                }
+                else
+                {
+                    throw new InvalidOperationException("No item selected for deletion.");
+                }
+
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Please, select the Item", "Error Detected in Selected Item", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"An error occurred while deleting the record: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+            
         }
 
         public void SortingRecords()
         {
             switch (SelectedSort)
             {
+                /// 0 - sort by date, 1 - sort by cost
                 case 0:
-                    sortedList = Records.OrderByDescending(item => item.DateTimeOccurred).ToList();
-                    Records.Clear();
-                    foreach (var item in sortedList)
-                    {
-                        Records.Add(item);
-                    }
+                    Records = new ObservableCollection<Record>(Records.OrderByDescending(item => item.DateTimeOccurred));
                     break;
                 case 1:
-                    sortedList = Records.OrderByDescending(item => item.Cost).ToList();
-                    Records.Clear();
-                    foreach (var item in sortedList)
-                    {
-                        Records.Add(item);
-                    }
+                    Records = new ObservableCollection<Record>(Records.OrderByDescending(item => item.Cost));
                     break;
             }
 

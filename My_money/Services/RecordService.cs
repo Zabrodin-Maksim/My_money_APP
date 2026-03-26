@@ -44,11 +44,15 @@ namespace My_money.Services
             await _recordRepository.UpdateAsync(record);
         }
 
-        public async Task DeleteRecordAsync(int id)
+        /// <summary>
+        /// Deletes a financial record and restores its cost back to the user's balance.
+        /// </summary>
+        /// <param name="record">The record to be deleted.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task DeleteRecordAsync(Record record)
         {
-            // TODO: Consider whether we need to reverse the expense impact on the user's balance when deleting a record.
-            // This would require fetching the record first to get its cost before deletion (или аргумент принимать сразу Record).
-            await _recordRepository.DeleteAsync(id);
+            await _recordRepository.DeleteAsync(record.Id);
+            await _userFinanceService.AddToBalanceAsync(record.Cost);
         }
 
         public async Task<List<Record>> GetRecordsByCategoryIdAsync(int categoryId)

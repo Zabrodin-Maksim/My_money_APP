@@ -50,13 +50,13 @@ namespace My_money.ViewModel
             _userFinanceService = userFinanceService;
             #endregion
 
-            _ = UpdateData();
+            _ = LoadDataAsync();
 
             AddCommand = new MyICommand<object>(OnAdd);
             DeleteCommand = new MyICommand<object>(OnDelete);
         }
 
-        private async Task UpdateData()
+        private async Task LoadDataAsync()
         {
             var userFinance = await _userFinanceService.GetUserFinanceAsync();
             var savingsGoals = await _savingsGoalService.GetAllSavingsGoals();
@@ -70,7 +70,7 @@ namespace My_money.ViewModel
         private async Task OnAdd(object par)
         {
             await _savingsGoalService.AddSavingsGoal(new SavingsGoal("Enter Name", 0, 0));
-            await UpdateData();
+            await LoadDataAsync();
         }
 
         private async Task OnDelete(object par)
@@ -85,7 +85,7 @@ namespace My_money.ViewModel
                         await _savingsGoalService.DeleteSavingsGoal(selectedItem.Id);
                     }
 
-                    await UpdateData();
+                    await LoadDataAsync();
                 }
                 catch (Exception ex)
                 {

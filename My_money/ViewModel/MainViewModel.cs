@@ -40,7 +40,7 @@ namespace My_money.ViewModel
             #endregion
 
             // Initialize data
-            _ = UpdateDashboardData();
+            _ = LoadDataAsync();
 
             #region Commands
             NavigateToDashboard = new MyICommand<object>(NavigateToDashboardView);
@@ -135,7 +135,7 @@ namespace My_money.ViewModel
 
         #endregion
 
-        private async Task UpdateDashboardData()
+        private async Task LoadDataAsync()
         {
             // TODO: UI ТУТ МОЖНО БУДЕТ ДОБАВИТЬ ТИПА ЗАГРУЗКУ ДАННЫХ С ПРОГРЕСС БАРОМ
             await RefreshPeriod();

@@ -15,7 +15,7 @@ namespace My_money.Services.IServices
         /// </summary>
         Task<int> AddRecordAsync(Record record);
         Task UpdateRecordAsync(Record record);
-        Task DeleteRecordAsync(int id);
+        Task DeleteRecordAsync(Record record);
 
         Task<List<Record>> GetRecordsByCategoryIdAsync(int categoryId);
         Task<List<Record>> GetRecordsByPeriodAsync(DateTime from, DateTime to);
