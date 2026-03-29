@@ -341,8 +341,9 @@
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Date" DisplayMemberBinding="{Binding DateTimeOccurred,StringFormat={}{0:dd.MM.yyyy}}" Width="150" />
-                    <GridViewColumn Header="Category" DisplayMemberBinding="{Binding CategoryName}" Width="150" />
+                    <GridViewColumn Header="Category" DisplayMemberBinding="{Binding CategoryName}" Width="180" />
                     <GridViewColumn Header="Amount" DisplayMemberBinding="{Binding Cost,StringFormat={}{0:c1}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150"/>
+                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="450"/>
                 </GridView>
             </ListView.View>
         </ListView>

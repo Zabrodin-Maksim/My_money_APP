@@ -573,8 +573,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
-        
+
+
         <!--#endregion-->
 
         <!--#region CheckBox Template-->
@@ -667,7 +667,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
         <!--#endregion-->
 
         <!--#region TextBox Template-->
@@ -690,7 +690,7 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
         <!--#endregion-->
-        
+
     </UserControl.Resources>
 
     <Grid>
@@ -704,20 +704,21 @@
             <RowDefinition Height="0.7*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="163*"/>
+            <ColumnDefinition Width="165*"/>
+            <ColumnDefinition Width="160*"/>
         </Grid.ColumnDefinitions>
 
-        <fa:IconImage Icon="CirclePlus" Width="38" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Top" Margin=" 46, 7, 0, 0" />
-        <TextBlock Text="Add" Style="{StaticResource TextLegend}" FontSize="25" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100 9 0 0"/>
+        <fa:IconImage Icon="CirclePlus" Width="38" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Top" Margin=" 46, 7, 0, 0" Height="38" />
+        <TextBlock Text="Add" Style="{StaticResource TextLegend}" FontSize="25" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100 9 0 0" Height="33" Width="46"/>
 
         <!--#region Column 0 (Legend)-->
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="In balance:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilityBalance}"/>
-        <TextBlock Grid.Row="1" Grid.Column="1" Text="In savings:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilitySavings}"/>
-        <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource TextLegend}" Text="Amount:"/>
-        <TextBlock Grid.Row="3" Grid.Column="0" Text="Category:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilityMainInform}"/>
-        <TextBlock Grid.Row="4" Grid.Column="0" Text="Date:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilityMainInform}"/>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="In balance:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilityBalance}" HorizontalAlignment="Left" Height="33" Margin="207,0,0,0" Width="118"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="In savings:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilitySavings}" HorizontalAlignment="Left" Height="33" Margin="216,0,0,0" Width="114"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource TextLegend}" Text="Amount:" HorizontalAlignment="Left" Height="33" Margin="231,0,0,0" Width="94"/>
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Category:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilityMainInform}" HorizontalAlignment="Left" Height="34" Margin="220,0,0,0" Width="105"/>
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Date:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilityMainInform}" HorizontalAlignment="Left" Height="33" Margin="268,0,0,0" Width="57"/>
+        <TextBlock Grid.Row="5" Grid.Column="0" Text="Description:" Style="{StaticResource TextLegend}" Visibility="{Binding VisibilityMainInform}" HorizontalAlignment="Left" Height="33" Margin="194,0,0,0" Width="131"/>
         <!--#endregion-->
 
         <!--#region Column 1 (to complete)-->
@@ -725,7 +726,8 @@
         <CheckBox Visibility="{Binding VisibilitySavings}" IsChecked="{Binding IsSavingsChecked, Mode=TwoWay}" Style="{DynamicResource CheckBoxStyle1}" Grid.Row="1" Grid.Column="2" />
         <TextBox Template="{DynamicResource TextBoxTemplate}" Text="{Binding AmountTextProperty, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Style="{StaticResource TextBoxCom}"/>
         <ComboBox Visibility="{Binding VisibilityMainInform}" SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" ItemContainerStyle="{DynamicResource ComboBoxItemContainerStyle1}"  Template="{DynamicResource ComboBoxTemplate1}" ItemsSource="{Binding Categories}" DisplayMemberPath="Name" Grid.Row="3" Grid.Column="1" Style="{StaticResource ComboBoxCom}"/>
-        <DatePicker Visibility="{Binding VisibilityMainInform}" CalendarStyle="{DynamicResource DatePickerCalendarStyle1}" Template="{DynamicResource DatePickerTemplate1}" SelectedDate="{Binding SelectedDate, Mode=TwoWay}"  Grid.Row="4" Grid.Column="1" Style="{StaticResource DatePicker}"/>
+        <DatePicker Visibility="{Binding VisibilityMainInform}" CalendarStyle="{DynamicResource DatePickerCalendarStyle1}" Template="{DynamicResource DatePickerTemplate1}" SelectedDate="{Binding SelectedDate, Mode=TwoWay}"  Grid.Row="4" Grid.Column="1" Style="{StaticResource DatePicker}" Margin="40,40,40,0"/>
+        <TextBox Visibility="{Binding VisibilityMainInform}" Text="{Binding DescriptionProperty, UpdateSourceTrigger=PropertyChanged}" Grid.Row="5" Grid.Column="1" Style="{StaticResource TextBoxCom}" Margin="40,35,10,40"/>
         <!--#endregion-->
 
         <!--#region Column 3 (BT)-->

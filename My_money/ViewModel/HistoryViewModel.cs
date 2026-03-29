@@ -9,7 +9,6 @@ using System.Windows;
 
 namespace My_money.ViewModel
 {
-    // TODO: ПРИ ИЗМЕНЕНИИ ЭЛЕМЕНТА В UI обновлять в базе
     public class HistoryViewModel : ViewModelBase
     {
         #region Properties

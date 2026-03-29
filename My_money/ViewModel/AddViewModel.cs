@@ -59,6 +59,13 @@ namespace My_money.ViewModel
             set { CheckNumericInput(value); }
         }
 
+        private string descriptionProperty;
+        public string DescriptionProperty
+        {
+            get { return descriptionProperty; }
+            set { SetProperty(ref descriptionProperty, value); }
+        }
+
         private DateTime? selectedDate = DateTime.Now;
         public DateTime? SelectedDate
         {
@@ -66,7 +73,6 @@ namespace My_money.ViewModel
             set { selectedDate = value; }
         }
 
-        // TODO: ТУТ ДОЛЖНЫ БЫТЬ СТРИНГИ НАЗВАНИЙ, ИЛИ НАЙТИ СПОСОБ КАК ОТОБРАЖАТЬ НАЗВАНИЯ КАТЕГОРИЙ, АДРЕСС
         private ObservableCollection<BudgetCategory> categories;
         public ObservableCollection<BudgetCategory> Categories
         {
@@ -111,6 +117,7 @@ namespace My_money.ViewModel
         private async Task InitData()
         {
             AmountTextProperty = "0";
+            DescriptionProperty = "Enter description here...";
             Categories = new ObservableCollection<BudgetCategory>(await _budgetCategoryService.GetAllBudgetCategoriesAsync());
             SelectedCategory = Categories[0];
         }
@@ -152,7 +159,7 @@ namespace My_money.ViewModel
                     {
                         throw new FormatException();
                     }
-                    await _recordService.AddRecordAsync(new Record(amount, selectedCategory.Id, selectedDate, ""));
+                    await _recordService.AddRecordAsync(new Record(amount, selectedCategory.Id, selectedDate, descriptionProperty));
                 }
                 Clear();
             }
