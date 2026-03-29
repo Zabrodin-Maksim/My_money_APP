@@ -110,6 +110,7 @@ namespace My_money.ViewModel
 
         private async Task InitData()
         {
+            AmountTextProperty = "0";
             Categories = new ObservableCollection<BudgetCategory>(await _budgetCategoryService.GetAllBudgetCategoriesAsync());
             SelectedCategory = Categories[0];
         }

@@ -79,6 +79,13 @@ namespace My_money.Services
 
         public async Task UpdateBudgetCategoryAsync(BudgetCategory category)
         {
+            var originalCategory = await _budgetCategoryRepository.GetByIdAsync(category.Id);
+
+            if (originalCategory.Name == "Other")
+            {
+                throw new InvalidOperationException("You cannot change the 'Other' record type as it is a universal type!");
+            }
+
             await _budgetCategoryRepository.UpdateAsync(category);
         }
 

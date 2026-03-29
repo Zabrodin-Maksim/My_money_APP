@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace My_money.ViewModel
 {
@@ -33,6 +34,7 @@ namespace My_money.ViewModel
         #region Commands
         public MyICommand<object> AddCommand { get; set; }
         public MyICommand<object> DeleteCommand { get; set; }
+        public MyICommand<object> UpdateCommand { get; set; }
         #endregion
 
         #region Dependency Injection Services
@@ -54,6 +56,7 @@ namespace My_money.ViewModel
 
             AddCommand = new MyICommand<object>(OnAdd);
             DeleteCommand = new MyICommand<object>(OnDelete);
+            UpdateCommand = new MyICommand<object>(OnUpdate);
         }
 
         private async Task LoadDataAsync()
@@ -84,12 +87,40 @@ namespace My_money.ViewModel
                         await _userFinanceService.AddToSavingsAsync(-selectedItem.Have);
                         await _savingsGoalService.DeleteSavingsGoal(selectedItem.Id);
                     }
+                    else
+                    {
+                        await _userFinanceService.AddToSavingsAsync(selectedItem.Have);
+                        await _savingsGoalService.DeleteSavingsGoal(selectedItem.Id);
+                    }
 
                     await LoadDataAsync();
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("An error occurred while deleting the savings goal: " + ex.Message, "Error Detected in Delete Savings Goal", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please, select the Item", "Error Detected in Selected Item", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private async Task OnUpdate(object par)
+        {
+            
+            if (selectedItem != null)
+            {
+                try
+                {
+                    await _savingsGoalService.UpdateSavingsGoal(selectedItem);
+                    await LoadDataAsync();
+                }
+                catch (Exception ex)
+                {
+                    await LoadDataAsync();
+                    MessageBox.Show("An error occurred while updating the savings goal: " + ex.Message, "Error Detected in Update Savings Goal", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }

@@ -5,7 +5,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:My_money.Views"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              d:DesignHeight="752.2" d:DesignWidth="976"
     xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp">
     <UserControl.Resources>
@@ -333,9 +334,15 @@
         <TextBlock Text="Plan" Style="{StaticResource TextLegend}" FontSize="25" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100 9 0 0"/>
 
         <DataGrid Grid.Row="1" SelectedItem="{Binding selectedItem}" ItemsSource="{Binding BudgetCategories}" d:ItemsSource="{d:SampleData ItemCount=5}" RowStyle="{DynamicResource DataGridRowStyle1}" RowHeaderStyle="{DynamicResource DataGridRowHeaderStyle1}" ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" CellStyle="{DynamicResource DataGridCellStyle1(TEXT)}" Style="{DynamicResource DataGridStyle1}" Background="Transparent" AutoGenerateColumns="False"  Margin="1,0,0,0" GridLinesVisibility="Horizontal" CanUserDeleteRows="False" CanUserAddRows="False">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="RowEditEnding">
+                    <i:InvokeCommandAction Command="{Binding UpdateCommand}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            
             <DataGrid.Columns>
-                <DataGridTextColumn  Header="Type name" Binding="{Binding Name}" Width="200" FontSize="25"/>
-                <DataGridTextColumn  Header="Budget Amount" Binding="{Binding Plan, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}" Width="200" FontSize="25"/>
+                <DataGridTextColumn  Header="Type name" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="200" FontSize="25"/>
+                <DataGridTextColumn  Header="Budget Amount" Binding="{Binding Plan, UpdateSourceTrigger=PropertyChanged, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}" Width="200" FontSize="25"/>
             </DataGrid.Columns>
         </DataGrid>
 

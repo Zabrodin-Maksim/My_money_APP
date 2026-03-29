@@ -1,4 +1,5 @@
 ﻿using My_money.Model;
+using My_money.Services;
 using My_money.Services.IServices;
 using System;
 using System.Collections.ObjectModel;
@@ -22,6 +23,8 @@ namespace My_money.ViewModel
         #region Commands
         public MyICommand<object> AddCommand { get; set; }
         public MyICommand<object> DeleteCommand { get; set; }
+        public MyICommand<object> UpdateCommand { get; set; }
+
         #endregion
 
         #region Dependency Injection Services
@@ -36,6 +39,7 @@ namespace My_money.ViewModel
 
             AddCommand = new MyICommand<object>(OnAdd);
             DeleteCommand = new MyICommand<object>(OnDelete);
+            UpdateCommand = new MyICommand<object>(OnUpdate);
         }
 
         private async Task LoadDataAsync()
@@ -74,6 +78,29 @@ namespace My_money.ViewModel
             catch (Exception ex) 
             {
                 MessageBox.Show(ex.Message, "Error Detected on Add action", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private async Task OnUpdate(object par)
+        {
+
+            if (selectedItem != null)
+            {
+                try
+                {
+                    await _budgetCategoryService.UpdateBudgetCategoryAsync(selectedItem);
+                    await LoadDataAsync();
+                }
+                catch (Exception ex)
+                {
+                    await LoadDataAsync();
+                    MessageBox.Show("An error occurred while updating the savings goal: " + ex.Message, "Error Detected in Update Savings Goal", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please, select the Item", "Error Detected in Selected Item", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }
