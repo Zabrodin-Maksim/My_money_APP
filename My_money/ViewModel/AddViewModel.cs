@@ -66,6 +66,7 @@ namespace My_money.ViewModel
             set { selectedDate = value; }
         }
 
+        // TODO: ТУТ ДОЛЖНЫ БЫТЬ СТРИНГИ НАЗВАНИЙ, ИЛИ НАЙТИ СПОСОБ КАК ОТОБРАЖАТЬ НАЗВАНИЯ КАТЕГОРИЙ, АДРЕСС
         private ObservableCollection<BudgetCategory> categories;
         public ObservableCollection<BudgetCategory> Categories
         {

@@ -51,8 +51,9 @@ namespace My_money.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task DeleteRecordAsync(Record record)
         {
-            await _recordRepository.DeleteAsync(record.Id);
             await _userFinanceService.AddToBalanceAsync(record.Cost);
+            await _recordRepository.DeleteAsync(record.Id);
+            
         }
 
         public async Task<List<Record>> GetRecordsByCategoryIdAsync(int categoryId)

@@ -1,51 +1,43 @@
-﻿using My_money.ViewModel;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
+using My_money.ViewModel;
 using My_money.Views;
 
 namespace My_money.Services
 {
     public class NavigationService
     {
-        private readonly MainViewModel _mainViewModel;
-        private readonly AddViewModel _addViewModel;
-        private readonly HistoryViewModel _historyViewModel;
-        private readonly PlanViewModel _planViewModel;
-        private readonly MoneyBoxViewModel _moneyBoxViewModel;
+        private readonly IServiceProvider _serviceProvider;
 
-        public NavigationService(MainViewModel mainViewModel,
-                                 AddViewModel addViewModel,
-                                 HistoryViewModel historyViewModel,
-                                 PlanViewModel planViewModel,
-                                 MoneyBoxViewModel moneyBoxViewModel)
+        public NavigationService(IServiceProvider serviceProvider)
         {
-            _mainViewModel = mainViewModel;
-            _addViewModel = addViewModel;
-            _historyViewModel = historyViewModel;
-            _planViewModel = planViewModel;
-            _moneyBoxViewModel = moneyBoxViewModel;
+            _serviceProvider = serviceProvider;
         }
 
         public void Navigate(ViewID view)
         {
+            var mainViewModel = _serviceProvider.GetRequiredService<MainViewModel>();
+
             switch (view)
             {
                 case ViewID.DashboardView:
-                    _mainViewModel.CurrentView = _mainViewModel;
+                    mainViewModel.CurrentView = _serviceProvider.GetRequiredService<DashboardViewModel>();
                     break;
 
                 case ViewID.AddView:
-                    _mainViewModel.CurrentView = _addViewModel;
+                    mainViewModel.CurrentView = _serviceProvider.GetRequiredService<AddViewModel>();
                     break;
-                
+
                 case ViewID.HistoryView:
-                    _mainViewModel.CurrentView = _historyViewModel;
+                    mainViewModel.CurrentView = _serviceProvider.GetRequiredService<HistoryViewModel>();
                     break;
 
                 case ViewID.PlanView:
-                    _mainViewModel.CurrentView = _planViewModel;
+                    mainViewModel.CurrentView = _serviceProvider.GetRequiredService<PlanViewModel>();
                     break;
 
                 case ViewID.MoneyBoxView:
-                    _mainViewModel.CurrentView = _moneyBoxViewModel;
+                    mainViewModel.CurrentView = _serviceProvider.GetRequiredService<MoneyBoxViewModel>();
                     break;
             }
         }

@@ -9,6 +9,7 @@ using System.Xml.Linq;
 
 namespace My_money.ViewModel
 {
+    // TODO: ПРИ ИЗМЕНЕНИИ ЭЛЕМЕНТА В UI обновлять в базе
     public class PlanViewModel : ViewModelBase
     {
         #region Properties

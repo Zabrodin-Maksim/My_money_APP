@@ -316,7 +316,7 @@
         <!--#endregion-->
 
     </UserControl.Resources>
-325967Zabrodin
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.1*"/>

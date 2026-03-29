@@ -118,7 +118,7 @@
 
         <!--#region Navigation-->
 
-        <DataTemplate DataType="{x:Type vm:MainViewModel}">
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
             <views:DashboardView/>
         </DataTemplate>
 

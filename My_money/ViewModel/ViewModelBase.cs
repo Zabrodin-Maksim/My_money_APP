@@ -7,17 +7,17 @@ namespace My_money.ViewModel
     {
         static public bool flagStartProg = false;
         protected virtual void SetProperty<T>(ref T member, T val,
-         [CallerMemberName] string propertyName = null)
+         [CallerMemberName] string? propertyName = null)
         {
             if (Equals(member, val)) return;
 
             member = val;
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            OnPropertyChanged(propertyName);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        protected virtual void OnPropertyChanged(string? propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

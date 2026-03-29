@@ -7,6 +7,8 @@
         public decimal Have { get; set; }
         public decimal Need { get; set; }
 
+        //ToDO: ADD Percent
+
         public SavingsGoal() { }
         public SavingsGoal(string goalName, decimal have, decimal need)
         {

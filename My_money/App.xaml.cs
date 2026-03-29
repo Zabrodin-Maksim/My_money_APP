@@ -4,6 +4,7 @@ using My_money.Data.Repositories.IRepositories;
 using My_money.Services;
 using My_money.Services.IServices;
 using My_money.ViewModel;
+using My_money.Views;
 using System;
 using System.IO;
 using System.Windows;
@@ -54,16 +55,23 @@ namespace My_money
             #endregion
 
             #region ViewModels
-            services.AddTransient<MainViewModel>();
+            services.AddSingleton<MainViewModel>();
+            services.AddTransient<DashboardViewModel>();
             services.AddTransient<AddViewModel>();
             services.AddTransient<HistoryViewModel>();
             services.AddTransient<MoneyBoxViewModel>();
             services.AddTransient<PlanViewModel>();
             #endregion
 
+            services.AddSingleton<MainWindow>();
+
             _serviceProvider = services.BuildServiceProvider();
 
             var window = _serviceProvider.GetRequiredService<MainWindow>();
+
+            // Start with DashboardView
+            _serviceProvider.GetRequiredService<NavigationService>().Navigate(ViewID.DashboardView);
+
             window.Show();
         }
 
