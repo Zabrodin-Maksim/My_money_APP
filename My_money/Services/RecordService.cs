@@ -3,6 +3,7 @@ using My_money.Model;
 using My_money.Services.IServices;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace My_money.Services
@@ -11,23 +12,40 @@ namespace My_money.Services
     {
         private readonly IRecordRepository _recordRepository;
         private readonly IUserFinanceService _userFinanceService;
+        private readonly IBudgetCategoryRepository _budgetCategoryRepository;
 
-        public RecordService(IRecordRepository recordRepository, IUserFinanceService userFinanceService)
+        public RecordService(IRecordRepository recordRepository, IUserFinanceService userFinanceService, IBudgetCategoryRepository budgetCategoryRepository)
         {
             _recordRepository = recordRepository;
             _userFinanceService = userFinanceService;
+            _budgetCategoryRepository = budgetCategoryRepository;
         }
 
         // TODO: Add validation and error handling as needed
 
         public async Task<List<Record>> GetAllRecordsAsync()
         {
-            return await _recordRepository.GetAllAsync();
+            var records = await _recordRepository.GetAllAsync();
+            var categories = await _budgetCategoryRepository.GetAllAsync();
+
+            var categoryDict = categories.ToDictionary(c => c.Id);
+
+            foreach (var record in records)
+            {
+                if (categoryDict.TryGetValue(record.CategoryId, out var category))
+                {
+                    record.CategoryName = category.Name;
+                }
+            }
+
+            return records;
         }
 
         public async Task<Record?> GetRecordByIdAsync(int id)
         {
-            return await _recordRepository.GetByIdAsync(id);
+            var record = await _recordRepository.GetByIdAsync(id);
+            record!.CategoryName = (await _budgetCategoryRepository.GetByIdAsync(record.CategoryId))?.Name;
+            return record;
         }
 
         /// <summary>

@@ -7,6 +7,7 @@ namespace My_money.Model
         public int Id { get; set; }
         public decimal Cost { get; set; }
         public int CategoryId { get; set; }
+        public string? CategoryName { get; set; }
         public DateTime? DateTimeOccurred { get; set; }
         public string? Description { get; set; }
 
