@@ -1,10 +1,16 @@
-﻿using My_money.Model;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using My_money.Model;
 using My_money.Services.IServices;
 using My_money.Views;
+using SkiaSharp;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace My_money.ViewModel
 {
@@ -18,55 +24,101 @@ namespace My_money.ViewModel
 
         #region Properties
         private decimal totalSpend;
-        public decimal TotalSpend { get { return totalSpend; } set { SetProperty(ref totalSpend, value); } }
+        public decimal TotalSpend
+        {
+            get => totalSpend;
+            set => SetProperty(ref totalSpend, value);
+        }
 
         private decimal? balance;
-        public decimal? Balance { get { return balance; } set { SetProperty(ref balance, value); } }
+        public decimal? Balance
+        {
+            get => balance;
+            set => SetProperty(ref balance, value);
+        }
 
         private decimal savings;
-        public decimal Savings { get { return savings; } set { SetProperty(ref savings, value); } }
+        public decimal Savings
+        {
+            get => savings;
+            set => SetProperty(ref savings, value);
+        }
 
+        private ObservableCollection<BudgetCategory> budgetCategories = new();
+        public ObservableCollection<BudgetCategory> BudgetCategories
+        {
+            get => budgetCategories;
+            set => SetProperty(ref budgetCategories, value);
+        }
 
-        private ObservableCollection<BudgetCategory> budgetCategories;
-        public ObservableCollection<BudgetCategory> BudgetCategories { get { return budgetCategories; } set { SetProperty(ref budgetCategories, value); ; } }
+        private IEnumerable<ISeries> expenseBreakdownSeries = Array.Empty<ISeries>();
+        public IEnumerable<ISeries> ExpenseBreakdownSeries
+        {
+            get => expenseBreakdownSeries;
+            set => SetProperty(ref expenseBreakdownSeries, value);
+        }
 
-        #region Period for sorting
-        private int selectedSortPeriod = 1; //0 - day, 1 - month, 2 - year
+        private string selectedPeriodLabel = string.Empty;
+        public string SelectedPeriodLabel
+        {
+            get => selectedPeriodLabel;
+            set => SetProperty(ref selectedPeriodLabel, value);
+        }
+
+        private string budgetStatusText = "Overview";
+        public string BudgetStatusText
+        {
+            get => budgetStatusText;
+            set => SetProperty(ref budgetStatusText, value);
+        }
+
+        private int selectedSortPeriod = 1; // 0 - day, 1 - month, 2 - year
         public int SelectedSortPeriod
         {
-            get { return selectedSortPeriod; }
+            get => selectedSortPeriod;
             set
             {
+                if (selectedSortPeriod == value)
+                {
+                    return;
+                }
+
                 selectedSortPeriod = value;
-                _ = RefreshPeriod();
+                OnPropertyChanged(nameof(SelectedSortPeriod));
+                _ = RefreshDashboardAsync();
             }
         }
 
         private DateTime selectedDate = DateTime.Now;
         public DateTime SelectedDate
         {
-            get { return selectedDate; }
+            get => selectedDate;
             set
             {
+                if (selectedDate == value)
+                {
+                    return;
+                }
+
                 selectedDate = value;
-                _ = RefreshPeriod();
+                OnPropertyChanged(nameof(SelectedDate));
+                _ = RefreshDashboardAsync();
             }
         }
         #endregion
 
-        #endregion
-
         #region Commands
-        public MyICommand<object> NavigateToAdd { get; private set; }
+        public MyICommand<object> NavigateToAdd { get; }
         #endregion
 
-        public DashboardViewModel(IBudgetCategoryService budgetCategoryService, IUserFinanceService userFinanceService, Services.NavigationService navigationService) 
+        public DashboardViewModel(
+            IBudgetCategoryService budgetCategoryService,
+            IUserFinanceService userFinanceService,
+            Services.NavigationService navigationService)
         {
-            #region DI Services
             _budgetCategoryService = budgetCategoryService;
             _userFinanceService = userFinanceService;
             _navigationService = navigationService;
-            #endregion
 
             NavigateToAdd = new MyICommand<object>(NavigateToAddView);
 
@@ -74,73 +126,91 @@ namespace My_money.ViewModel
         }
 
         #region Data Service Methods
-
-        #region Budget Category
         private async Task GetAllBudgetCategoriesByPeriodAsync(DateTime from, DateTime to)
         {
-            BudgetCategories = new ObservableCollection<BudgetCategory>(await _budgetCategoryService.GetAllBudgetCategoriesByPeriodAsync(from, to));
+            BudgetCategories = new ObservableCollection<BudgetCategory>(
+                await _budgetCategoryService.GetAllBudgetCategoriesByPeriodAsync(from, to));
         }
 
-        #endregion
-
-        #region User Finance
-        private async Task<UserFinance> GetUserFinanceAsync()
+        private Task<UserFinance> GetUserFinanceAsync()
         {
-            return await _userFinanceService.GetUserFinanceAsync();
+            return _userFinanceService.GetUserFinanceAsync();
         }
-        #endregion
-
         #endregion
 
         private async Task LoadDataAsync()
         {
-            // TODO: UI ТУТ МОЖНО БУДЕТ ДОБАВИТЬ ТИПА ЗАГРУЗКУ ДАННЫХ С ПРОГРЕСС БАРОМ
-            await RefreshPeriod();
-            TotalSpend = BudgetCategories.Count > 0 ? BudgetCategories.Sum(cat => cat.SpendByPeriod) ?? 0 : 0;
-            var userFinance = await GetUserFinanceAsync();
-            Balance = userFinance.Balance ?? 0;
-            Savings = userFinance.Savings ?? 0;
+            await RefreshDashboardAsync();
         }
 
-        private async Task RefreshPeriod()
+        private async Task RefreshDashboardAsync()
         {
             var (from, to) = GetPeriodRange(SelectedDate, SelectedSortPeriod);
+            SelectedPeriodLabel = BuildPeriodLabel(from, to, SelectedSortPeriod);
+
             await GetAllBudgetCategoriesByPeriodAsync(from, to);
+
+            TotalSpend = BudgetCategories.Sum(cat => cat.SpendByPeriod ?? 0m);
+
+            var userFinance = await GetUserFinanceAsync();
+            Balance = userFinance.Balance ?? 0m;
+            Savings = userFinance.Savings ?? 0m;
+
+            UpdateBudgetStatus();
         }
 
-        private (DateTime from, DateTime to) GetPeriodRange(DateTime selectedDate, int selectedSortPeriod)
+        private void UpdateBudgetStatus()
         {
-            DateTime from, to;
+            var totalPlanned = BudgetCategories.Sum(cat => cat.PlanByPeriod ?? cat.Plan ?? 0m);
 
-            switch (selectedSortPeriod)
+            if (totalPlanned <= 0m)
             {
-                case 0: // day
-                    from = selectedDate.Date;
-                    to = selectedDate.Date.AddDays(1).AddTicks(-1);
-                    break;
-
-                case 1: // mounth
-                    from = new DateTime(selectedDate.Year, selectedDate.Month, 1);
-                    to = from.AddMonths(1).AddTicks(-1);
-                    break;
-
-                case 2: // year
-                    from = new DateTime(selectedDate.Year, 1, 1);
-                    to = new DateTime(selectedDate.Year + 1, 1, 1).AddTicks(-1);
-                    break;
-
-                default:
-                    from = selectedDate.Date;
-                    to = selectedDate.Date.AddDays(1).AddTicks(-1);
-                    break;
+                BudgetStatusText = "No budget target";
+                return;
             }
 
-            return (from, to);
+            var usage = TotalSpend / totalPlanned;
+
+            if (usage < 0.65m)
+            {
+                BudgetStatusText = "Comfortable pace";
+            }
+            else if (usage <= 1m)
+            {
+                BudgetStatusText = "Close to plan";
+            }
+            else
+            {
+                BudgetStatusText = "Over plan";
+            }
         }
 
-        private async Task NavigateToAddView(object o)
+        private static string BuildPeriodLabel(DateTime from, DateTime to, int selectedSortPeriod)
+        {
+            return selectedSortPeriod switch
+            {
+                0 => from.ToString("dd MMMM yyyy"),
+                1 => from.ToString("MMMM yyyy"),
+                2 => from.ToString("yyyy"),
+                _ => $"{from:dd MMM yyyy} - {to:dd MMM yyyy}"
+            };
+        }
+
+        private static (DateTime from, DateTime to) GetPeriodRange(DateTime date, int period)
+        {
+            return period switch
+            {
+                0 => (date.Date, date.Date.AddDays(1).AddTicks(-1)),
+                1 => (new DateTime(date.Year, date.Month, 1), new DateTime(date.Year, date.Month, 1).AddMonths(1).AddTicks(-1)),
+                2 => (new DateTime(date.Year, 1, 1), new DateTime(date.Year + 1, 1, 1).AddTicks(-1)),
+                _ => (date.Date, date.Date.AddDays(1).AddTicks(-1))
+            };
+        }
+
+        private Task NavigateToAddView(object _)
         {
             _navigationService.Navigate(ViewID.AddView);
+            return Task.CompletedTask;
         }
     }
 }

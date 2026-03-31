@@ -117,9 +117,12 @@ namespace My_money.ViewModel
         private async Task InitData()
         {
             AmountTextProperty = "0";
-            DescriptionProperty = "Enter description here...";
+            DescriptionProperty = string.Empty;
             Categories = new ObservableCollection<BudgetCategory>(await _budgetCategoryService.GetAllBudgetCategoriesAsync());
-            SelectedCategory = Categories[0];
+            if (Categories.Count > 0)
+            {
+                SelectedCategory = Categories[0];
+            }
         }
 
         #region Commands
@@ -253,10 +256,18 @@ namespace My_money.ViewModel
             IsSavingsChecked = false;
             IsBalanceChecked = false;
             AmountTextProperty = "0";
-            SelectedCategory = Categories[0];
+            DescriptionProperty = string.Empty;
+            SelectedDate = DateTime.Now;
+
+            if (Categories.Count > 0)
+            {
+                SelectedCategory = Categories[0];
+            }
 
             OnPropertyChanged(nameof(SelectedCategory));
             OnPropertyChanged(nameof(AmountTextProperty));
+            OnPropertyChanged(nameof(DescriptionProperty));
+            OnPropertyChanged(nameof(SelectedDate));
         }
         #endregion
     }

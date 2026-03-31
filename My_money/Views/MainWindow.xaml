@@ -1,284 +1,175 @@
-﻿<Window x:Class="My_money.MainWindow"
+<Window x:Class="My_money.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:My_money"
         xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
         xmlns:vm="clr-namespace:My_money.ViewModel"
         xmlns:views="clr-namespace:My_money.Views"
         mc:Ignorable="d"
-        
-        Title="My Money" 
-        Height="740" 
-        Width="1220" 
-        
-        WindowStartupLocation="CenterScreen" 
-        
-        WindowStyle="None" ResizeMode="NoResize" Background="Transparent" AllowsTransparency="True"
-        
-        >
-    <!--WindowStyle="ThreeDBorderWindow" ResizeMode="NoResize" Background="Transparent"-->
-    <!--WindowStyle="None" ResizeMode="NoResize" Background="Transparent" AllowsTransparency="True"-->
+        Title="My Money"
+        Height="860"
+        Width="1440"
+        MinHeight="760"
+        MinWidth="1200"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        Background="Transparent"
+        AllowsTransparency="True">
 
     <Window.Resources>
-
-        <!--#region Style -->
-        <Style x:Key="IconText">
-            <Setter Property="Control.Foreground" Value="White"/>
-            <Setter Property="Control.FontFamily" Value="ISOCpeur"/>
-            <Setter Property="Control.FontSize" Value="30"/>
-            <Setter Property="Control.Margin" Value="10,0,0,0"/>
-        </Style>
-        <Style x:Key="IconBox">
-            <Setter Property="Control.Background">
-                <Setter.Value>
-                    <LinearGradientBrush>
-                        <LinearGradientBrush.GradientStops>
-                            <GradientStop Color="#7F7CF1" Offset="0" />
-                            <GradientStop Color="#D3B7FF" Offset="1"/>
-                        </LinearGradientBrush.GradientStops>
-                    </LinearGradientBrush>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="ButtonsMenu" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
-            <!--background-->
-            <Setter Property="Margin" Value="20"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="FontSize" Value="20"/>
-
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" >
-                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="20,0,0,0"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="White"/>
-                    <Setter Property="Background">
-                        <Setter.Value>
-                            <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
-                                <GradientStop Color="#6132DB" Offset="-0.5"/>
-                                <GradientStop Color="#6441a5" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}" BorderThickness="0 0 0 0"  BorderBrush="#FB539B" CornerRadius="20">
-                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="30,0,0,0"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="ExitButton" BasedOn="{StaticResource ButtonsMenu}" TargetType="Button">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,0,0,0"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="White"/>
-                    <Setter Property="Background" Value="Transparent"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}" CornerRadius="20">
-                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-        <!--#endregion-->
-
-        <!--#region Navigation-->
-
         <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
-            <views:DashboardView/>
+            <views:DashboardView />
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type vm:AddViewModel}">
-            <views:AddView/>
+            <views:AddView />
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type vm:HistoryViewModel}">
-            <views:HistoryView/>
+            <views:HistoryView />
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type vm:MoneyBoxViewModel}">
-            <views:MoneyBoxView/>
+            <views:MoneyBoxView />
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type vm:PlanViewModel}">
-            <views:PlanView/>
+            <views:PlanView />
         </DataTemplate>
-        <!--#endregion-->
-        
     </Window.Resources>
 
-    <!-- back grid -->
-    <Grid MouseLeftButtonDown="Grid_MouseLeftButtonDown">
-        <!--#region Background -->
-        <Border Background="#1C1D31" CornerRadius="20">
-            <!--#endregion-->
+    <Grid Background="Transparent" MouseLeftButtonDown="Grid_MouseLeftButtonDown">
+        <Border Margin="0"
+                Background="{StaticResource AppChromeGradientBrush}"
+                BorderBrush="{StaticResource BorderBrushStrong}"
+                BorderThickness="1"
+                CornerRadius="34">
+            <Grid Margin="18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="280" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-            <!--#region Main-->
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="0.02*"/>
-                </Grid.RowDefinitions>
-                <Border Grid.Row="1" CornerRadius="0,0,20,20">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
-                            <GradientStop Color="#FB539B" Offset="0"/>
-                            <GradientStop Color="#6D2FFF" Offset="0.9"/>
-                        </LinearGradientBrush>
-                    </Border.Background>
+                <Border Style="{StaticResource SidebarPanelStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel>
+                            <Border Width="68"
+                                    Height="68"
+                                    Background="{StaticResource AccentButtonBrush}"
+                                    CornerRadius="22"
+                                    HorizontalAlignment="Left">
+                                <fa:IconImage Icon="Wallet"
+                                              Width="30"
+                                              Height="30"
+                                              Foreground="{StaticResource TextPrimaryBrush}"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Center" />
+                            </Border>
+
+                            <TextBlock Text="My Money"
+                                       Style="{StaticResource PageTitleTextStyle}"
+                                       Margin="0,18,0,0" />
+                            <TextBlock Text="Cleaner tracking, smarter planning, and a dashboard that finally feels modern."
+                                       Style="{StaticResource PageSubtitleTextStyle}"
+                                       Margin="0,8,0,0" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Margin="0,28,0,0">
+                            <Button Command="{Binding NavigateToDashboard}" Style="{StaticResource NavButtonStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <fa:IconImage Icon="ChartPie" Width="18" Height="18" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                    <TextBlock Text="Dashboard" Margin="14,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding NavigateToMoneyBox}" Style="{StaticResource NavButtonStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <fa:IconImage Icon="PiggyBank" Width="18" Height="18" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                    <TextBlock Text="Moneybox" Margin="14,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding NavigateToPlan}" Style="{StaticResource NavButtonStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <fa:IconImage Icon="ListCheck" Width="18" Height="18" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                    <TextBlock Text="Plan" Margin="14,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding NavigateToHistory}" Style="{StaticResource NavButtonStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <fa:IconImage Icon="ClockRotateLeft" Width="18" Height="18" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                    <TextBlock Text="History" Margin="14,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <Border Grid.Row="2"
+                                Style="{StaticResource MutedCardStyle}"
+                                Padding="16"
+                                Margin="0,16,0,0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="By Maksim Zabrodin"
+                                           Style="{StaticResource SectionTitleTextStyle}" />
+                                <TextBlock Grid.Row="1"
+                                           Text="Quick access to your monthly budget, savings goals, and record history."
+                                           Style="{StaticResource PageSubtitleTextStyle}"
+                                           Margin="0,8,0,14" />
+
+                                <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                    <Button Command="{Binding MinimizeWindowCommand}" Style="{StaticResource IconButtonStyle}">
+                                        <fa:IconImage Icon="WindowMinimize" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
+                                    </Button>
+
+                                    <Button Command="{Binding ExitCommand}" Style="{StaticResource IconButtonStyle}" Margin="10,0,0,0">
+                                        <fa:IconImage Icon="Xmark" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
                 </Border>
 
-                <!--#region menu - usefull -->
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.25*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                <Grid Grid.Column="1" Margin="20,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
 
-                    <!--#region Menu -->
-                    <Border CornerRadius="20,0,0,0">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0.75,0" EndPoint="0,1">
-                                <GradientStop Color="#77529E" Offset="0"/>
-                                <GradientStop Color="#5547A2" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="0.5*"/>
-                                <RowDefinition Height="0.5*"/>
-                                <RowDefinition Height="0.5*"/>
-                                <RowDefinition Height="0.5*"/>
-                                <RowDefinition Height="0.5*"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
+                    <DockPanel Margin="4,0,4,18">
+                        <StackPanel DockPanel.Dock="Left">
+                            <TextBlock Text="Personal finance workspace"
+                                       Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Overview, planning, savings, and history in one continuous flow."
+                                       Style="{StaticResource PageSubtitleTextStyle}"
+                                       Margin="0,4,0,0" />
+                        </StackPanel>
+                    </DockPanel>
 
-                            <!--#region ICON-->
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
-                                <Border Style="{StaticResource IconBox}" Height="65" Width="65" CornerRadius="20,20,20,20">
-                                    <fa:IconImage Icon="UserAstronaut" Height="50" Width="50" Foreground="White"/>
-                                    <!-- Icon -->
-                                </Border>
-                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="MY MONEY" Grid.Row="0" Style="{StaticResource IconText}"/>
-                                    <TextBlock Text="v1.0.1" Grid.Row="0" Margin="10,0,0,0"/>
-                                    <!-- Version -->
-                                </StackPanel>
-                            </StackPanel>
-                            <!--#endregion-->
-
-                            <Separator Grid.Row="1" Height="1" Margin="20 0" VerticalAlignment="Top" Background="White"/>
-
-                            <!--#region Buttons-->
-
-                            <!--#region Dashboard -->
-                            <Button Command="{Binding NavigateToDashboard}" Grid.Row="1" Style="{StaticResource ButtonsMenu}">
-                                <StackPanel Orientation="Horizontal">
-                                    <fa:IconImage Icon="ChartPie" Height="40" Width="43" Foreground="White"/>
-                                    <TextBlock Text="Dashboard" Margin="10, 10, 10, 10"/>
-                                </StackPanel>
-                            </Button>
-                            <!--#endregion-->
-
-                            <!--#region moneybox  -->
-                            <Button Command="{Binding NavigateToMoneyBox}" Grid.Row="2" Style="{StaticResource ButtonsMenu}">
-                                <StackPanel Orientation="Horizontal">
-                                    <fa:IconImage Icon="PiggyBank" Height="40" Width="40" Foreground="White"/>
-                                    <TextBlock Text="Moneybox " Margin="10, 15, 10, 10"/>
-                                </StackPanel>
-                            </Button>
-                            <!--#endregion-->
-
-                            <!--#region Plan -->
-                            <Button Command="{Binding NavigateToPlan}" Grid.Row="3" Style="{StaticResource ButtonsMenu}">
-                                <StackPanel Orientation="Horizontal">
-                                    <fa:IconImage Icon="ScaleBalanced" Height="40" Width="40" Foreground="White"/>
-                                    <TextBlock Text="Plan" Margin="10, 15, 10, 10"/>
-                                </StackPanel>
-                            </Button>
-                            <!--#endregion-->
-
-                            <!--#region History -->
-                            <Button Command="{Binding NavigateToHistory}" Grid.Row="4" Style="{StaticResource ButtonsMenu}">
-                                <StackPanel Orientation="Horizontal">
-                                    <fa:IconImage Icon="ClockRotateLeft" Height="35" Width="40" Foreground="White"/>
-                                    <TextBlock Text="History" Margin="10, 13, 10, 10"/>
-                                </StackPanel>
-                            </Button>
-                            <!--#endregion-->
-
-                            <!--#region Exit-->
-                            <Button Grid.Row="5" Command="{Binding ExitCommand}" Style="{StaticResource ExitButton}" Height="35" Width="35" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15 0 0 15">
-                                <fa:IconImage Icon="RightFromBracket" Height="35" Width="30" Foreground="White"/>
-                            </Button>
-
-
-                            <!--#endregion-->
-
-                            <!--#region Minimize-->
-                            <Button Command="{Binding MinimizeWindowCommand}" Grid.Row="5" Style="{StaticResource ExitButton}" Height="35" Width="35" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="75 0 0 15">
-                                <fa:IconImage Icon="WindowMinimize" Height="35" Width="30" Foreground="White" VerticalAlignment="Bottom" Margin="0 0 0 5"/>
-                            </Button>
-                            <!--#endregion-->
-
-
-                            <!--#region Maximize-->
-                            <!--
-                            <Button Command="{Binding MaximizeWindowCommand}" Grid.Row="5" Style="{StaticResource ExitButton}" Height="35" Width="35" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="75 0 0 15">
-                                <fa:IconImage Icon="WindowMinimize" Height="35" Width="30" Foreground="White" VerticalAlignment="Bottom" Margin="0 0 0 5"/>
-                            </Button>
-                            -->
-                            <!--#endregion-->
-
-
-                            <!--#endregion-->
-                        </Grid>
+                    <Border Grid.Row="1"
+                            Background="{StaticResource ContentSurfaceBrush}"
+                            BorderBrush="{StaticResource BorderBrushStrong}"
+                            BorderThickness="1"
+                            CornerRadius="30"
+                            Padding="12">
+                        <ContentControl Content="{Binding CurrentView}" />
                     </Border>
-                    <!--#endregion-->
-
-                    <!--#region Main Usefull -->
-                    <Grid Grid.Column="1">
-                        <ContentControl Content="{Binding CurrentView}" Background="#1C1D31"/>
-                    </Grid>
-                    <!--#endregion-->
                 </Grid>
-                <!--#endregion-->
             </Grid>
-            <!--#endregion-->
         </Border>
     </Grid>
 </Window>

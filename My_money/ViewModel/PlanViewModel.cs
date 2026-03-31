@@ -16,6 +16,13 @@ namespace My_money.ViewModel
         #region Properties
         private ObservableCollection<BudgetCategory> budgetCategories;
         public ObservableCollection<BudgetCategory> BudgetCategories { get { return budgetCategories; } set { SetProperty(ref budgetCategories, value); } }
+
+        private decimal totalPlannedBudget;
+        public decimal TotalPlannedBudget
+        {
+            get { return totalPlannedBudget; }
+            set { SetProperty(ref totalPlannedBudget, value); }
+        }
         #endregion
 
         public BudgetCategory selectedItem { get; set; }
@@ -45,6 +52,7 @@ namespace My_money.ViewModel
         private async Task LoadDataAsync()
         {
             BudgetCategories = new ObservableCollection<BudgetCategory>(await _budgetCategoryService.GetAllBudgetCategoriesAsync());
+            TotalPlannedBudget = BudgetCategories.Sum(category => category.Plan ?? 0m);
         }
 
         private async Task OnDelete(object par)
@@ -94,7 +102,7 @@ namespace My_money.ViewModel
                 catch (Exception ex)
                 {
                     await LoadDataAsync();
-                    MessageBox.Show("An error occurred while updating the savings goal: " + ex.Message, "Error Detected in Update Savings Goal", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("An error occurred while updating the savings goal: " + ex.Message, "Error Detected in Update Savings Goal", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
             }
