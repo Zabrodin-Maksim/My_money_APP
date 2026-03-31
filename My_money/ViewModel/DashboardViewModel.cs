@@ -1,10 +1,6 @@
-using LiveChartsCore;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
 using My_money.Model;
 using My_money.Services.IServices;
 using My_money.Views;
-using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -49,13 +45,6 @@ namespace My_money.ViewModel
         {
             get => budgetCategories;
             set => SetProperty(ref budgetCategories, value);
-        }
-
-        private IEnumerable<ISeries> expenseBreakdownSeries = Array.Empty<ISeries>();
-        public IEnumerable<ISeries> ExpenseBreakdownSeries
-        {
-            get => expenseBreakdownSeries;
-            set => SetProperty(ref expenseBreakdownSeries, value);
         }
 
         private string selectedPeriodLabel = string.Empty;

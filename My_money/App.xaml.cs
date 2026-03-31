@@ -28,11 +28,9 @@ namespace My_money
             string dbPath = Path.Combine(appDir, "DB.db");
             string connectionString = $"Data Source={dbPath};Version=3;";
 
-            string seedPath = Path.Combine(AppContext.BaseDirectory, "Data", "DB.db");
-            if (!File.Exists(dbPath) && File.Exists(seedPath))
+            if (!File.Exists(dbPath))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
-                File.Copy(seedPath, dbPath);
+                InitializeDatabase(connectionString); 
             }
 
             #endregion
@@ -73,6 +71,53 @@ namespace My_money
             _serviceProvider.GetRequiredService<NavigationService>().Navigate(ViewID.DashboardView);
 
             window.Show();
+        }
+
+        private void InitializeDatabase(string connectionString)
+        {
+            using (var connection = new System.Data.SQLite.SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+                    CREATE TABLE ""BudgetCategories"" (
+	                    ""ID""	INTEGER,
+	                    ""Name""	TEXT NOT NULL,
+	                    ""Plan""	NUMERIC(10, 3),
+	                    ""Spend""	NUMERIC(10, 3),
+	                    PRIMARY KEY(""ID"" AUTOINCREMENT)
+                    );
+
+                    CREATE TABLE ""Records"" (
+	                    ""ID""	INTEGER,
+	                    ""Cost""	NUMERIC(10, 3) NOT NULL,
+	                    ""CategoryId""	INTEGER,
+	                    ""DateTimeOccured""	TEXT,
+	                    ""Description""	TEXT,
+	                    PRIMARY KEY(""ID"" AUTOINCREMENT),
+	                    FOREIGN KEY(""CategoryId"") REFERENCES ""BudgetCategories""(""ID"")
+                    );
+
+                    CREATE TABLE ""SavingsGoals"" (
+	                    ""ID""	INTEGER,
+	                    ""GoalName""	TEXT NOT NULL,
+	                    ""Have""	NUMERIC(10, 3),
+	                    ""Need""	NUMERIC(10, 3),
+	                    PRIMARY KEY(""ID"" AUTOINCREMENT)
+                    );
+
+                    CREATE TABLE ""UserFinances"" (
+	                    ""ID""	INTEGER,
+	                    ""Savings""	NUMERIC(10, 3),
+	                    ""Balance""	NUMERIC(10, 3),
+	                    PRIMARY KEY(""ID"" AUTOINCREMENT)
+                    );
+                    ";
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         protected override void OnExit(ExitEventArgs e)
