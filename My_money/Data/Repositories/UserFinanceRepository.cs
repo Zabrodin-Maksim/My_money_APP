@@ -39,9 +39,10 @@ namespace My_money.Data.Repositories
             {
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
-                    "INSERT INTO UserFinances (Savings, Balance) VALUES (@savings, @balance)", connection);
+                    "INSERT INTO UserFinances (Savings, Balance, UserId) VALUES (@savings, @balance, @userId)", connection);
                 command.Parameters.AddWithValue("@savings", userFinance.Savings);
                 command.Parameters.AddWithValue("@balance", userFinance.Balance);
+                command.Parameters.AddWithValue("@userId", userFinance.UserId);
                 return Convert.ToInt32(await command.ExecuteScalarAsync());
             }
         }
@@ -52,10 +53,11 @@ namespace My_money.Data.Repositories
             {
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
-                    "UPDATE UserFinances SET Savings = @savings, Balance = @balance WHERE ID = @id", connection);
+                    "UPDATE UserFinances SET Savings = @savings, Balance = @balance, UserId = @userId WHERE ID = @id", connection);
+                command.Parameters.AddWithValue("@id", userFinance.Id);
                 command.Parameters.AddWithValue("@savings", userFinance.Savings);
                 command.Parameters.AddWithValue("@balance", userFinance.Balance);
-                command.Parameters.AddWithValue("@id", userFinance.Id);
+                command.Parameters.AddWithValue("@userId", userFinance.UserId);
                 await command.ExecuteNonQueryAsync();
             }
         }
@@ -77,8 +79,9 @@ namespace My_money.Data.Repositories
             return new UserFinance
             {
                 Id = reader["ID"] is DBNull ? 0 : Convert.ToInt32(reader["ID"]),
-                Savings = reader["Savings"] is DBNull ? 0 : Convert.ToDecimal(reader["Savings"]),
-                Balance = reader["Balance"] is DBNull ? 0 : Convert.ToDecimal(reader["Balance"])
+                Savings = Convert.ToDecimal(reader["Savings"]),
+                Balance = Convert.ToDecimal(reader["Balance"]),
+                UserId = Convert.ToInt32(reader["UserId"])
             };
         }
     }

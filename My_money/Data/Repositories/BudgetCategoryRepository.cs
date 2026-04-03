@@ -73,10 +73,14 @@ namespace My_money.Data.Repositories
             {
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
-                    "INSERT INTO BudgetCategories (Name, Plan, Spend) VALUES (@name, @plan, @spend)", connection);
+                    "INSERT INTO BudgetCategories (Name, Plan, HouseholdId, OwnerUserId, Scope, CreatedByUserId) " +
+                    "VALUES (@name, @plan, @householdId, @ownerUserId, @scope, @createdByUserId)", connection);
                 command.Parameters.AddWithValue("@name", category.Name);
                 command.Parameters.AddWithValue("@plan", category.Plan);
-                command.Parameters.AddWithValue("@spend", category.Spend);
+                command.Parameters.AddWithValue("@householdId", category.HouseholdId);
+                command.Parameters.AddWithValue("@ownerUserId", category.OwnerUserId);
+                command.Parameters.AddWithValue("@scope", category.Scope);
+                command.Parameters.AddWithValue("@createdByUserId", category.CreatedByUserId);
                 return Convert.ToInt32(await command.ExecuteScalarAsync());
             }
         }
@@ -87,10 +91,14 @@ namespace My_money.Data.Repositories
             {
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
-                    "UPDATE BudgetCategories SET Name = @name, Plan = @plan, Spend = @spend WHERE ID = @id", connection);
+                    "UPDATE BudgetCategories SET Name = @name, Plan = @plan, HouseholdId = @householdId, OwnerUserId = @ownerUserId, " +
+                    "Scope = @scope, CreatedByUserId = @createdByUserId WHERE ID = @id", connection);
                 command.Parameters.AddWithValue("@name", category.Name);
                 command.Parameters.AddWithValue("@plan", category.Plan);
-                command.Parameters.AddWithValue("@spend", category.Spend);
+                command.Parameters.AddWithValue("@householdId", category.HouseholdId);
+                command.Parameters.AddWithValue("@ownerUserId", category.OwnerUserId);
+                command.Parameters.AddWithValue("@scope", category.Scope);
+                command.Parameters.AddWithValue("@createdByUserId", category.CreatedByUserId);
                 command.Parameters.AddWithValue("@id", category.Id);
                 await command.ExecuteNonQueryAsync();
             }
@@ -113,9 +121,12 @@ namespace My_money.Data.Repositories
             return new BudgetCategory
             {
                 Id = Convert.ToInt32(reader["ID"]),
-                Name = reader["Name"].ToString(),
-                Plan = reader["Plan"] is DBNull ? 0 : Convert.ToDecimal(reader["Plan"]),
-                Spend = reader["Spend"] is DBNull ? 0 : Convert.ToDecimal(reader["Spend"])
+                Name = reader["Name"].ToString()!,
+                Plan = Convert.ToDecimal(reader["Plan"]),
+                HouseholdId = Convert.ToInt32(reader["HouseholdId"]),
+                OwnerUserId = Convert.ToInt32(reader["OwnerUserId"]),
+                Scope = reader["Scope"].ToString(),
+                CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"])
             };
         }
     }

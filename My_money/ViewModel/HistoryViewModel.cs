@@ -98,7 +98,7 @@ namespace My_money.ViewModel
                     Records = new ObservableCollection<Record>(Records.OrderByDescending(item => item.DateTimeOccurred));
                     break;
                 case 1:
-                    Records = new ObservableCollection<Record>(Records.OrderByDescending(item => item.Cost));
+                    Records = new ObservableCollection<Record>(Records.OrderByDescending(item => item.Amount));
                     break;
             }
 

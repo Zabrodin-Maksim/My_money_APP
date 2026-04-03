@@ -57,12 +57,18 @@ namespace My_money.Data.Repositories
             {
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
-                    "INSERT INTO Records (Cost, CategoryId, DateTimeOccured, Description) VALUES (@cost, @categoryId, @dateTimeOccured, @description); SELECT last_insert_rowid();",
+                    "INSERT INTO Records (Amount, CategoryId, DateTimeOccured, Description, HouseholdId, OwnerUserId, CreatedByUserId, Scope, Type) " +
+                    "VALUES (@amount, @categoryId, @dateTimeOccured, @description, @householdId, @ownerUserId, @createdByUserId, @scope, @type); SELECT last_insert_rowid();",
                     connection);
-                command.Parameters.AddWithValue("@cost", record.Cost);
+                command.Parameters.AddWithValue("@amount", record.Amount);
                 command.Parameters.AddWithValue("@categoryId", record.CategoryId);
                 command.Parameters.AddWithValue("@dateTimeOccured", record.DateTimeOccurred?.ToString("yyyy-MM-dd HH:mm:ss"));
                 command.Parameters.AddWithValue("@description", record.Description ?? "");
+                command.Parameters.AddWithValue("@householdId", record.HouseholdId);
+                command.Parameters.AddWithValue("@ownerUserId", record.OwnerUserId);
+                command.Parameters.AddWithValue("@createdByUserId", record.CreatedByUserId);
+                command.Parameters.AddWithValue("@scope", record.Scope);
+                command.Parameters.AddWithValue("@type", record.Type);
                 return Convert.ToInt32(await command.ExecuteScalarAsync());
             }
         }
@@ -73,11 +79,17 @@ namespace My_money.Data.Repositories
             {
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
-                    "UPDATE Records SET Cost = @cost, CategoryId = @categoryId, DateTimeOccured = @dateTimeOccured, Description = @description WHERE ID = @id", connection);
-                command.Parameters.AddWithValue("@cost", record.Cost);
+                    "UPDATE Records SET Amount = @amount, CategoryId = @categoryId, DateTimeOccured = @dateTimeOccured, Description = @description, " +
+                    "HouseholdId = @householdId, OwnerUserId = @ownerUserId, CreatedByUserId = @createdByUserId, Scope = @scope, Type = @type WHERE ID = @id", connection);
+                command.Parameters.AddWithValue("@amount", record.Amount);
                 command.Parameters.AddWithValue("@categoryId", record.CategoryId);
                 command.Parameters.AddWithValue("@dateTimeOccured", record.DateTimeOccurred?.ToString("yyyy-MM-dd HH:mm:ss"));
                 command.Parameters.AddWithValue("@description", record.Description ?? "");
+                command.Parameters.AddWithValue("@householdId", record.HouseholdId);
+                command.Parameters.AddWithValue("@ownerUserId", record.OwnerUserId);
+                command.Parameters.AddWithValue("@createdByUserId", record.CreatedByUserId);
+                command.Parameters.AddWithValue("@scope", record.Scope);
+                command.Parameters.AddWithValue("@type", record.Type);
                 command.Parameters.AddWithValue("@id", record.Id);
                 await command.ExecuteNonQueryAsync();
             }
@@ -139,10 +151,15 @@ namespace My_money.Data.Repositories
             return new Record
             {
                 Id = Convert.ToInt32(reader["ID"]),
-                Cost = Convert.ToDecimal(reader["Cost"]),
+                Amount = Convert.ToDecimal(reader["Cost"]),
                 CategoryId = Convert.ToInt32(reader["CategoryId"]),
                 DateTimeOccurred = reader["DateTimeOccured"] != DBNull.Value ? DateTime.Parse(reader["DateTimeOccured"].ToString()) : (DateTime?)null,
-                Description = reader["Description"]?.ToString()
+                Description = reader["Description"]?.ToString(),
+                HouseholdId = Convert.ToInt32(reader["HouseholdId"]),
+                OwnerUserId = Convert.ToInt32(reader["OwnerUserId"]),
+                CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"]),
+                Scope = reader["Scope"]!.ToString()!,
+                Type = reader["Type"]!.ToString()!
             };
         }
     }

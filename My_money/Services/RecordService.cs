@@ -53,7 +53,7 @@ namespace My_money.Services
         /// </summary>
         public async Task<int> AddRecordAsync(Record record)
         {
-            await _userFinanceService.ApplyExpenseAsync(record.Cost);
+            await _userFinanceService.ApplyExpenseAsync(record.Amount);
             return await _recordRepository.AddAsync(record);
         }
 
@@ -69,7 +69,7 @@ namespace My_money.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task DeleteRecordAsync(Record record)
         {
-            await _userFinanceService.AddToBalanceAsync(record.Cost);
+            await _userFinanceService.AddToBalanceAsync(record.Amount);
             await _recordRepository.DeleteAsync(record.Id);
             
         }

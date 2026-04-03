@@ -80,7 +80,7 @@ namespace My_money.ViewModel
         {
             try
             {
-                await _budgetCategoryService.AddBudgetCategoryAsync(new BudgetCategory() { Name = "New category", Plan = 0m, Spend = 0m});
+                await _budgetCategoryService.AddBudgetCategoryAsync(new BudgetCategory() { Name = "New category", Plan = 0m});
                 await LoadDataAsync();
             }
             catch (Exception ex) 

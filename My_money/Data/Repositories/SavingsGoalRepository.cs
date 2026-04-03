@@ -59,10 +59,15 @@ namespace My_money.Data.Repositories
             {
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
-                    "INSERT INTO SavingsGoals (GoalName, Have, Need) VALUES (@name, @have, @need); SELECT last_insert_rowid();", connection);
+                    "INSERT INTO SavingsGoals (GoalName, Have, Need, HouseholdId, OwnerUserId, CreatedByUserId, Scope) " +
+                    "VALUES (@name, @have, @need, @householdId, @ownerUserId, @createdByUserId, @scope); SELECT last_insert_rowid();", connection);
                 command.Parameters.AddWithValue("@name", goal.GoalName);
                 command.Parameters.AddWithValue("@have", goal.Have);
                 command.Parameters.AddWithValue("@need", goal.Need);
+                command.Parameters.AddWithValue("@householdId", goal.HouseholdId);
+                command.Parameters.AddWithValue("@ownerUserId", goal.OwnerUserId);
+                command.Parameters.AddWithValue("@createdByUserId", goal.CreatedByUserId);
+                command.Parameters.AddWithValue("@scope", goal.Scope);
                 return Convert.ToInt32(await command.ExecuteScalarAsync());
             }
         }
@@ -73,10 +78,15 @@ namespace My_money.Data.Repositories
             {
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
-                    "UPDATE SavingsGoals SET GoalName = @name, Have = @have, Need = @need WHERE ID = @id", connection);
+                    "UPDATE SavingsGoals SET GoalName = @name, Have = @have, Need = @need, HouseholdId = @householdId, OwnerUserId = @ownerUserId, " +
+                    "CreatedByUserId = @createdByUserId, Scope = @scope WHERE ID = @id", connection);
                 command.Parameters.AddWithValue("@name", goal.GoalName);
                 command.Parameters.AddWithValue("@have", goal.Have);
                 command.Parameters.AddWithValue("@need", goal.Need);
+                command.Parameters.AddWithValue("@householdId", goal.HouseholdId);
+                command.Parameters.AddWithValue("@ownerUserId", goal.OwnerUserId);
+                command.Parameters.AddWithValue("@createdByUserId", goal.CreatedByUserId);
+                command.Parameters.AddWithValue("@scope", goal.Scope);
                 command.Parameters.AddWithValue("@id", goal.Id);
                 await command.ExecuteNonQueryAsync();
             }
@@ -99,9 +109,13 @@ namespace My_money.Data.Repositories
             return new SavingsGoal
             {
                 Id = Convert.ToInt32(reader["ID"]),
-                GoalName = reader["GoalName"].ToString(),
+                GoalName = reader["GoalName"].ToString()!,
                 Have = Convert.ToDecimal(reader["Have"]),
-                Need = Convert.ToDecimal(reader["Need"])
+                Need = Convert.ToDecimal(reader["Need"]),
+                HouseholdId = Convert.ToInt32(reader["HouseholdId"]),
+                OwnerUserId = Convert.ToInt32(reader["OwnerUserId"]),
+                CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"]),
+                Scope = reader["Scope"].ToString()!
             };
         }
     }

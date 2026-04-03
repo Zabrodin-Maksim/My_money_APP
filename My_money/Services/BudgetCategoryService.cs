@@ -41,7 +41,7 @@ namespace My_money.Services
 
             var spendByCategory = recordsByPeriod
                 .GroupBy(r => r.CategoryId)
-                .ToDictionary(g => g.Key, g => g.Sum(r => r.Cost));
+                .ToDictionary(g => g.Key, g => g.Sum(r => r.Amount));
 
             foreach (var category in categories)
             {

@@ -2,11 +2,9 @@ using My_money.Model;
 using My_money.Services.IServices;
 using My_money.Views;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Media;
 
 namespace My_money.ViewModel
 {
