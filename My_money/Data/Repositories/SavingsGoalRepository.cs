@@ -113,7 +113,7 @@ namespace My_money.Data.Repositories
                 Have = Convert.ToDecimal(reader["Have"]),
                 Need = Convert.ToDecimal(reader["Need"]),
                 HouseholdId = Convert.ToInt32(reader["HouseholdId"]),
-                OwnerUserId = Convert.ToInt32(reader["OwnerUserId"]),
+                OwnerUserId = reader["OwnerUserId"] == DBNull.Value ? null : Convert.ToInt32(reader["OwnerUserId"]),
                 CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"]),
                 Scope = reader["Scope"].ToString()!
             };

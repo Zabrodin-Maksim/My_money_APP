@@ -7,7 +7,7 @@
         public decimal Have { get; set; }
         public decimal Need { get; set; }
         public int HouseholdId { get; set; }
-        public int OwnerUserId { get; set; }
+        public int? OwnerUserId { get; set; }
         public int CreatedByUserId { get; set; }
         public required string Scope { get; set; }
 

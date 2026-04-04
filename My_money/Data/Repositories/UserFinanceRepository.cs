@@ -1,6 +1,7 @@
 ﻿using My_money.Data.Repositories.IRepositories;
 using My_money.Model;
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SQLite;
 using System.Threading.Tasks;
@@ -14,6 +15,42 @@ namespace My_money.Data.Repositories
         public UserFinanceRepository(string connectionString)
         {
             _connectionString = connectionString;
+        }
+
+        public async Task<List<UserFinance>> GetAllAsync()
+        {
+            var userFinances = new List<UserFinance>();
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new SQLiteCommand("SELECT * FROM UserFinances", connection);
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        userFinances.Add(ReadUserFinance(reader));
+                    }
+                }
+            }
+            return userFinances;
+        }
+
+        public async Task<UserFinance?> GetByIdAsync(int id)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new SQLiteCommand("SELECT * FROM UserFinances WHERE ID = @id", connection);
+                command.Parameters.AddWithValue("@id", id);
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return ReadUserFinance(reader);
+                    }
+                }
+            }
+            return null;
         }
 
         public async Task<UserFinance?> GetAsync()
@@ -39,7 +76,7 @@ namespace My_money.Data.Repositories
             {
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
-                    "INSERT INTO UserFinances (Savings, Balance, UserId) VALUES (@savings, @balance, @userId)", connection);
+                    "INSERT INTO UserFinances (Savings, Balance, UserId) VALUES (@savings, @balance, @userId); SELECT last_insert_rowid();", connection);
                 command.Parameters.AddWithValue("@savings", userFinance.Savings);
                 command.Parameters.AddWithValue("@balance", userFinance.Balance);
                 command.Parameters.AddWithValue("@userId", userFinance.UserId);

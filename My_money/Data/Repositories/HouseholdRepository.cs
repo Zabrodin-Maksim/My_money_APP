@@ -24,7 +24,7 @@ namespace My_money.Data.Repositories
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
                     "INSERT INTO Households (Name, CreatedByUserId) " +
-                    "VALUES (@name, @createdByUserId)", connection);
+                    "VALUES (@name, @createdByUserId); SELECT last_insert_rowid();", connection);
                 command.Parameters.AddWithValue("@name", household.Name);
                 command.Parameters.AddWithValue("@createdByUserId", household.CreatedByUserId);
                 return Convert.ToInt32(await command.ExecuteScalarAsync());

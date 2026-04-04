@@ -24,7 +24,7 @@ namespace My_money.Data.Repositories
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
                     "INSERT INTO Users (Username, PasswordHash, DisplayName, IsActive) " +
-                    "VALUES (@username, @passwordHash, @displayName, @isActive)", connection);
+                    "VALUES (@username, @passwordHash, @displayName, @isActive); SELECT last_insert_rowid();", connection);
                 command.Parameters.AddWithValue("@username", user.Username);
                 command.Parameters.AddWithValue("@passwordHash", user.PasswordHash);
                 command.Parameters.AddWithValue("@displayName", user.DisplayName);

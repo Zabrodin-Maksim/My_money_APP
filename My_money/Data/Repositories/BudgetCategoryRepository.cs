@@ -51,13 +51,17 @@ namespace My_money.Data.Repositories
             return null;
         }
 
-        public async Task<BudgetCategory?> GetByNameAsync(string name)
+        public async Task<BudgetCategory?> GetByNameAsync(string name, int householdId, int? ownerUserId, string scope)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new SQLiteCommand("SELECT * FROM BudgetCategories WHERE Name = @name", connection);
+                var command = new SQLiteCommand("SELECT * FROM BudgetCategories WHERE Name = @name AND HouseholdId = @householdId AND Scope = @scope " +
+                    "AND ((@ownerUserId IS NULL AND OwnerUserId IS NULL) OR OwnerUserId = @ownerUserId)", connection);
                 command.Parameters.AddWithValue("@name", name);
+                command.Parameters.AddWithValue("@householdId", householdId);
+                command.Parameters.AddWithValue("@ownerUserId", ownerUserId.HasValue ? ownerUserId.Value : DBNull.Value);
+                command.Parameters.AddWithValue("@scope", scope);
                 using (var reader = await command.ExecuteReaderAsync())
                 {
                     if (await reader.ReadAsync())
@@ -74,7 +78,7 @@ namespace My_money.Data.Repositories
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
                     "INSERT INTO BudgetCategories (Name, Plan, HouseholdId, OwnerUserId, Scope, CreatedByUserId) " +
-                    "VALUES (@name, @plan, @householdId, @ownerUserId, @scope, @createdByUserId)", connection);
+                    "VALUES (@name, @plan, @householdId, @ownerUserId, @scope, @createdByUserId); SELECT last_insert_rowid();", connection);
                 command.Parameters.AddWithValue("@name", category.Name);
                 command.Parameters.AddWithValue("@plan", category.Plan);
                 command.Parameters.AddWithValue("@householdId", category.HouseholdId);
@@ -124,8 +128,8 @@ namespace My_money.Data.Repositories
                 Name = reader["Name"].ToString()!,
                 Plan = Convert.ToDecimal(reader["Plan"]),
                 HouseholdId = Convert.ToInt32(reader["HouseholdId"]),
-                OwnerUserId = Convert.ToInt32(reader["OwnerUserId"]),
-                Scope = reader["Scope"].ToString(),
+                OwnerUserId = reader["OwnerUserId"] == DBNull.Value ? null : Convert.ToInt32(reader["OwnerUserId"]),
+                Scope = reader["Scope"].ToString()!,
                 CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"])
             };
         }

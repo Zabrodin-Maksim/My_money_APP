@@ -24,7 +24,7 @@ namespace My_money.Data.Repositories
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
                     "INSERT INTO HouseholdFinances (HouseholdId, Savings, Balance) " +
-                    "VALUES (@householdId, @savings, @balance)", connection);
+                    "VALUES (@householdId, @savings, @balance); SELECT last_insert_rowid();", connection);
                 command.Parameters.AddWithValue("@householdId", category.HouseholdId);
                 command.Parameters.AddWithValue("@savings", category.Savings);
                 command.Parameters.AddWithValue("@balance", category.Balance);

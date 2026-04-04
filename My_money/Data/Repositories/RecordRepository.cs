@@ -151,12 +151,12 @@ namespace My_money.Data.Repositories
             return new Record
             {
                 Id = Convert.ToInt32(reader["ID"]),
-                Amount = Convert.ToDecimal(reader["Cost"]),
-                CategoryId = Convert.ToInt32(reader["CategoryId"]),
-                DateTimeOccurred = reader["DateTimeOccured"] != DBNull.Value ? DateTime.Parse(reader["DateTimeOccured"].ToString()) : (DateTime?)null,
+                Amount = Convert.ToDecimal(reader["Amount"]),
+                CategoryId = reader["CategoryId"] == DBNull.Value ? null : Convert.ToInt32(reader["CategoryId"]),
+                DateTimeOccurred = reader["DateTimeOccured"] != DBNull.Value ? DateTime.Parse(reader["DateTimeOccured"].ToString()!) : (DateTime?)null,
                 Description = reader["Description"]?.ToString(),
                 HouseholdId = Convert.ToInt32(reader["HouseholdId"]),
-                OwnerUserId = Convert.ToInt32(reader["OwnerUserId"]),
+                OwnerUserId = reader["OwnerUserId"] == DBNull.Value ? null : Convert.ToInt32(reader["OwnerUserId"]),
                 CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"]),
                 Scope = reader["Scope"]!.ToString()!,
                 Type = reader["Type"]!.ToString()!
