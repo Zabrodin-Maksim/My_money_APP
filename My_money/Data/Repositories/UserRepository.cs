@@ -23,9 +23,9 @@ namespace My_money.Data.Repositories
             {
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
-                    "INSERT INTO Users (Username, PasswordHash, DisplayName, IsActive) " +
-                    "VALUES (@username, @passwordHash, @displayName, @isActive); SELECT last_insert_rowid();", connection);
-                command.Parameters.AddWithValue("@username", user.Username);
+                    "INSERT INTO Users (Email, PasswordHash, DisplayName, IsActive) " +
+                    "VALUES (@email, @passwordHash, @displayName, @isActive); SELECT last_insert_rowid();", connection);
+                command.Parameters.AddWithValue("@email", user.Email);
                 command.Parameters.AddWithValue("@passwordHash", user.PasswordHash);
                 command.Parameters.AddWithValue("@displayName", user.DisplayName);
                 command.Parameters.AddWithValue("@isActive", user.IsActive);
@@ -64,6 +64,22 @@ namespace My_money.Data.Repositories
             return users;
         }
 
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new SQLiteCommand("SELECT * FROM Users WHERE Email = @email", connection);
+                command.Parameters.AddWithValue("@email", email);
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                        return ReadUser(reader);
+                }
+            }
+            return null;
+        }
+
         public async Task<User?> GetByIdAsync(int id)
         {
             using (var connection = new SQLiteConnection(_connectionString))
@@ -80,20 +96,20 @@ namespace My_money.Data.Repositories
             return null;
         }
 
-        public async Task<int> UpdateAsync(User user)
+        public async Task UpdateAsync(User user)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
-                    "UPDATE Users SET Username = @username, PasswordHash = @passwordHash, " +
+                    "UPDATE Users SET Email = @email, PasswordHash = @passwordHash, " +
                     "DisplayName = @displayName, IsActive = @isActive WHERE ID = @id", connection);
-                command.Parameters.AddWithValue("@username", user.Username);
+                command.Parameters.AddWithValue("@email", user.Email);
                 command.Parameters.AddWithValue("@passwordHash", user.PasswordHash);
                 command.Parameters.AddWithValue("@displayName", user.DisplayName);
                 command.Parameters.AddWithValue("@isActive", user.IsActive);
                 command.Parameters.AddWithValue("@id", user.Id);
-                return await command.ExecuteNonQueryAsync();
+                await command.ExecuteNonQueryAsync();
             }
         }
 
@@ -102,7 +118,7 @@ namespace My_money.Data.Repositories
             return new User
             {
                 Id = Convert.ToInt32(reader["ID"]),
-                Username = reader["Username"].ToString()!,
+                Email = reader["Email"].ToString()!,
                 PasswordHash = reader["PasswordHash"].ToString()!,
                 DisplayName = reader["DisplayName"].ToString()!,
                 IsActive = Convert.ToInt32(reader["IsActive"])

@@ -6,10 +6,10 @@ namespace My_money.Data.Repositories.IRepositories
 {
     public interface IHouseholdFinanceRepository
     {
-        Task<List<HouseholdFinance>> GetAllAsync();
         Task<HouseholdFinance?> GetByIdAsync(int id);
-        Task<int> AddAsync(HouseholdFinance category);
-        Task UpdateAsync(HouseholdFinance category);
+        Task<HouseholdFinance?> GetByHouseholdIdAsync(int householdId);
+        Task<int> AddAsync(HouseholdFinance finance);
+        Task UpdateAsync(HouseholdFinance finance);
         Task DeleteAsync(int id);
     }
 }

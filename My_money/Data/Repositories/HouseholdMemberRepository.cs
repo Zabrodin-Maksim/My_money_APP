@@ -47,13 +47,14 @@ namespace My_money.Data.Repositories
             }
         }
 
-        public async Task<List<HouseholdMember>> GetAllAsync()
+        public async Task<List<HouseholdMember>> GetAllByHouseholdIdAsync(int householdId)
         {
             var members = new List<HouseholdMember>();
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new SQLiteCommand("SELECT * FROM HouseholdMembers", connection);
+                var command = new SQLiteCommand("SELECT * FROM HouseholdMembers WHERE HouseholdId = @householdId", connection);
+                command.Parameters.AddWithValue("@householdId", householdId);
                 using (var reader = await command.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
@@ -72,6 +73,24 @@ namespace My_money.Data.Repositories
                 await connection.OpenAsync();
                 var command = new SQLiteCommand("SELECT * FROM HouseholdMembers WHERE ID = @id", connection);
                 command.Parameters.AddWithValue("@id", id);
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return ReadHouseholdMember(reader);
+                    }
+                }
+                return null;
+            }
+        }
+
+        public async Task<HouseholdMember?> GetByUserIdAsync(int userId)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new SQLiteCommand("SELECT * FROM HouseholdMembers WHERE UserId = @userId", connection);
+                command.Parameters.AddWithValue("@userId", userId);
                 using (var reader = await command.ExecuteReaderAsync())
                 {
                     if (await reader.ReadAsync())

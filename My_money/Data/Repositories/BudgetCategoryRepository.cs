@@ -17,13 +17,56 @@ namespace My_money.Data.Repositories
             _connectionString = connectionString;
         }
 
-        public async Task<List<BudgetCategory>> GetAllAsync()
+        // Get list for household member type Child in personal finances
+        public async Task<List<BudgetCategory>> GetAllByHouseholdAndCreatedByAsync(int householdId, int createdByUserId)
         {
             var categories = new List<BudgetCategory>();
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new SQLiteCommand("SELECT * FROM BudgetCategories", connection);
+                var command = new SQLiteCommand("SELECT * FROM BudgetCategories WHERE HouseholdId = @householdId AND CreatedByUserId = @createdByUserId", connection);
+                command.Parameters.AddWithValue("@householdId", householdId);
+                command.Parameters.AddWithValue("@createdByUserId", createdByUserId);
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        categories.Add(ReadCategory(reader));
+                    }
+                }
+            }
+            return categories;
+        }
+
+        // Get list for Household in shared finances
+        public async Task<List<BudgetCategory>> GetAllByHouseholdIdAsync(int householdId)
+        {
+            var categories = new List<BudgetCategory>();
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new SQLiteCommand("SELECT * FROM BudgetCategories WHERE HouseholdId = @householdId AND Scope = 'Shared'", connection);
+                command.Parameters.AddWithValue("@householdId", householdId);
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        categories.Add(ReadCategory(reader));
+                    }
+                }
+            }
+            return categories;
+        }
+
+        // Get list in personal finances
+        public async Task<List<BudgetCategory>> GetAllByOwnerAsync(int ownerUserId)
+        {
+            var categories = new List<BudgetCategory>();
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new SQLiteCommand("SELECT * FROM BudgetCategories WHERE OwnerUserId = @ownerUserId AND Scope = 'Personal'", connection);
+                command.Parameters.AddWithValue("@ownerUserId", ownerUserId);
                 using (var reader = await command.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())

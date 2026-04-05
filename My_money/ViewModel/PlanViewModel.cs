@@ -52,7 +52,7 @@ namespace My_money.ViewModel
         private async Task LoadDataAsync()
         {
             BudgetCategories = new ObservableCollection<BudgetCategory>(await _budgetCategoryService.GetAllBudgetCategoriesAsync());
-            TotalPlannedBudget = BudgetCategories.Sum(category => category.Plan ?? 0m);
+            TotalPlannedBudget = BudgetCategories.Sum(category => category.Plan);
         }
 
         private async Task OnDelete(object par)

@@ -17,7 +17,7 @@ namespace My_money.Data.Repositories
             _connectionString = connectionString;
         }
 
-        public async Task<int> AddAsync(HouseholdFinance category)
+        public async Task<int> AddAsync(HouseholdFinance finance)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
@@ -25,9 +25,9 @@ namespace My_money.Data.Repositories
                 var command = new SQLiteCommand(
                     "INSERT INTO HouseholdFinances (HouseholdId, Savings, Balance) " +
                     "VALUES (@householdId, @savings, @balance); SELECT last_insert_rowid();", connection);
-                command.Parameters.AddWithValue("@householdId", category.HouseholdId);
-                command.Parameters.AddWithValue("@savings", category.Savings);
-                command.Parameters.AddWithValue("@balance", category.Balance);
+                command.Parameters.AddWithValue("@householdId", finance.HouseholdId);
+                command.Parameters.AddWithValue("@savings", finance.Savings);
+                command.Parameters.AddWithValue("@balance", finance.Balance);
                 var result = await command.ExecuteScalarAsync();
                 return Convert.ToInt32(result);
             }
@@ -43,24 +43,6 @@ namespace My_money.Data.Repositories
                 command.Parameters.AddWithValue("@id", id);
                 await command.ExecuteNonQueryAsync();
             }
-        }
-
-        public async Task<List<HouseholdFinance>> GetAllAsync()
-        {
-            var finances = new List<HouseholdFinance>();
-            using (var connection = new SQLiteConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                var command = new SQLiteCommand("SELECT * FROM HouseholdFinances", connection);
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
-                    {
-                        finances.Add(ReadHouseholdFinance(reader));
-                    }
-                }
-            }
-            return finances;
         }
 
         public async Task<HouseholdFinance?> GetByIdAsync(int id)
@@ -79,17 +61,33 @@ namespace My_money.Data.Repositories
             return null;
         }
 
-        public async Task UpdateAsync(HouseholdFinance category)
+        public async Task<HouseholdFinance?> GetByHouseholdIdAsync(int householdId)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new SQLiteCommand("SELECT * FROM HouseholdFinances WHERE HouseholdId = @householdId", connection);
+                command.Parameters.AddWithValue("@householdId", householdId);
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                        return ReadHouseholdFinance(reader);
+                }
+            }
+            return null;
+        }
+
+        public async Task UpdateAsync(HouseholdFinance finance)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
                     "UPDATE HouseholdFinances SET HouseholdId = @householdId, Savings = @savings, Balance = @balance WHERE ID = @id", connection);
-                command.Parameters.AddWithValue("@id", category.Id);
-                command.Parameters.AddWithValue("@householdId", category.HouseholdId);
-                command.Parameters.AddWithValue("@savings", category.Savings);
-                command.Parameters.AddWithValue("@balance", category.Balance);
+                command.Parameters.AddWithValue("@id", finance.Id);
+                command.Parameters.AddWithValue("@householdId", finance.HouseholdId);
+                command.Parameters.AddWithValue("@savings", finance.Savings);
+                command.Parameters.AddWithValue("@balance", finance.Balance);
                 await command.ExecuteNonQueryAsync();
             }
         }

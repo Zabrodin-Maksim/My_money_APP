@@ -140,15 +140,15 @@ namespace My_money.ViewModel
             TotalSpend = BudgetCategories.Sum(cat => cat.SpendByPeriod ?? 0m);
 
             var userFinance = await GetUserFinanceAsync();
-            Balance = userFinance.Balance ?? 0m;
-            Savings = userFinance.Savings ?? 0m;
+            Balance = userFinance.Balance;
+            Savings = userFinance.Savings;
 
             UpdateBudgetStatus();
         }
 
         private void UpdateBudgetStatus()
         {
-            var totalPlanned = BudgetCategories.Sum(cat => cat.PlanByPeriod ?? cat.Plan ?? 0m);
+            var totalPlanned = BudgetCategories.Sum(cat => cat.PlanByPeriod ?? cat.Plan);
 
             if (totalPlanned <= 0m)
             {

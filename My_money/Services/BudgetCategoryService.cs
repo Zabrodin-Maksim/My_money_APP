@@ -1,4 +1,5 @@
 ﻿using My_money.Data.Repositories.IRepositories;
+using My_money.Enums;
 using My_money.Model;
 using My_money.Services.IServices;
 using System;
@@ -12,34 +13,65 @@ namespace My_money.Services
     {
         private readonly IBudgetCategoryRepository _budgetCategoryRepository;
         private readonly IRecordService _recordService;
+        private readonly IUserSessionService _userSessionService;
 
-        private static readonly BudgetCategory defaultBudgetCategory = new BudgetCategory() { Name = "Other" };
-
-        public BudgetCategoryService(IBudgetCategoryRepository budgetCategoryRepository, IRecordService recordService)
+        public BudgetCategoryService(IBudgetCategoryRepository budgetCategoryRepository, IRecordService recordService, IUserSessionService userSessionService)
         {
             _budgetCategoryRepository = budgetCategoryRepository;
             _recordService = recordService;
+            _userSessionService = userSessionService;
         }
 
-        // TODO: Add validation and error handling as needed
+        private int GetAuthenticatedUserId()
+        {
+            if (!_userSessionService.IsAuthenticated)
+                throw new InvalidOperationException("User is not authenticated.");
+
+            return _userSessionService.CurrentUser!.Id;
+        }
 
         /// <summary>
-        /// Gets all budget categories and enriches them with financial data for a specified period,
-        /// including total spend, planned budget for the period, and remaining balance.
+        /// Retrieves budget categories based on the specified filter
+        /// and enriches them with financial data for the given period.
         /// </summary>
         /// <param name="from">The start date of the period (inclusive).</param>
         /// <param name="to">The end date of the period (inclusive).</param>
+        /// <param name="categoryFilterType">The category source/filter to apply.</param>
+        /// <param name="householdId">
+        /// The household ID required for household-related filters.
+        /// </param>
         /// <returns>
-        /// A list of <see cref="BudgetCategory"/> objects with calculated period-based metrics.
+        /// A list of <see cref="BudgetCategory"/> objects with calculated spending,
+        /// planned amount, and remaining balance for the specified period.
         /// </returns>
-        public async Task<List<BudgetCategory>> GetAllBudgetCategoriesByPeriodAsync(DateTime from, DateTime to)
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="householdId"/> is required but not provided.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown when an invalid <paramref name="categoryFilterType"/> is specified.
+        /// </exception>
+        public async Task<List<BudgetCategory>> GetAllBudgetCategoriesByPeriodAsync(DateTime from, DateTime to, CategoryFilterType categoryFilterType, int? householdId)
         {
-            var categories = await GetAllBudgetCategoriesAsync();
+            List<BudgetCategory> categories = categoryFilterType switch
+            {
+                CategoryFilterType.Household => householdId.HasValue
+                    ? await GetAllByHouseholdIdAsync(householdId.Value)
+                    : throw new ArgumentNullException(nameof(householdId)),
+
+                CategoryFilterType.Personal => await GetAllByOwnerAsync(),
+
+                CategoryFilterType.Child => householdId.HasValue
+                    ? await GetAllByHouseholdAndCreatedByAsync(householdId.Value)
+                    : throw new ArgumentNullException(nameof(householdId)),
+
+                _ => throw new ArgumentException($"Invalid source: {categoryFilterType}", nameof(categoryFilterType))
+            };
+
             var recordsByPeriod = await _recordService.GetRecordsByPeriodAsync(from, to);
 
             int periodLengthInDays = (to.Date - from.Date).Days + 1;
 
-            var spendByCategory = recordsByPeriod
+            var spendByCategory = recordsByPeriod.Where(r => r.Type == "Expense")
                 .GroupBy(r => r.CategoryId)
                 .ToDictionary(g => g.Key, g => g.Sum(r => r.Amount));
 
@@ -47,7 +79,7 @@ namespace My_money.Services
             {
                 decimal totalSpend = spendByCategory.TryGetValue(category.Id, out var spend) ? spend : 0;
 
-                decimal monthlyPlan = category.Plan ?? 0;
+                decimal monthlyPlan = category.Plan;
                 decimal dailyPlan = monthlyPlan / 30m;
                 decimal planForPeriod = dailyPlan * periodLengthInDays;
 
@@ -59,12 +91,37 @@ namespace My_money.Services
             return categories;
         }
 
-        public async Task<List<BudgetCategory>> GetAllBudgetCategoriesAsync()
+        /// <summary>
+        /// Get list for household member type Child in personal finances
+        /// </summary>
+        /// <param name="householdId">The ID of the household.</param>
+        /// <returns>A list of <see cref="BudgetCategory"/> objects created by the authenticated user within the specified household.</returns>
+        public async Task<List<BudgetCategory>> GetAllByHouseholdAndCreatedByAsync(int householdId)
         {
-            var categories = await _budgetCategoryRepository.GetAllAsync();
-            if (categories.Count == 0) await AddBudgetCategoryAsync(defaultBudgetCategory);
+            var userId = GetAuthenticatedUserId();
+            return await _budgetCategoryRepository.GetAllByHouseholdAndCreatedByAsync(householdId, userId);
+        }
+
+        /// <summary>
+        /// Get list for Household in shared finances
+        /// </summary>
+        /// <param name="householdId">The ID of the household.</param>
+        /// <returns>A list of <see cref="BudgetCategory"/> objects associated with the specified household.</returns>
+        public async Task<List<BudgetCategory>> GetAllByHouseholdIdAsync(int householdId)
+        {
+            var categories = await _budgetCategoryRepository.GetAllByHouseholdIdAsync(householdId);
 
             return categories;
+        }
+
+        /// <summary>
+        /// Get list in personal finances
+        /// </summary>
+        /// <returns>A list of <see cref="BudgetCategory"/> objects associated with the authenticated user.</returns>
+        public async Task<List<BudgetCategory>> GetAllByOwnerAsync()
+        {
+            var userId = GetAuthenticatedUserId();
+            return await _budgetCategoryRepository.GetAllByOwnerAsync(userId);
         }
 
         public async Task<BudgetCategory?> GetBudgetCategoryByIdAsync(int id)
@@ -72,21 +129,26 @@ namespace My_money.Services
             return await _budgetCategoryRepository.GetByIdAsync(id);
         }
 
-        public async Task<int> AddBudgetCategoryAsync(BudgetCategory category)
+        public async Task<BudgetCategory?> GetBudgetCategoryByNameAsync(string name, int householdId, int? ownerUserId, string scope)
         {
-            return await _budgetCategoryRepository.AddAsync(category);
+            return await _budgetCategoryRepository.GetByNameAsync(name, householdId, ownerUserId, scope);
         }
 
         public async Task UpdateBudgetCategoryAsync(BudgetCategory category)
         {
             var originalCategory = await _budgetCategoryRepository.GetByIdAsync(category.Id);
 
-            if (originalCategory.Name == "Other")
+            if (originalCategory!.Name == "Other")
             {
                 throw new InvalidOperationException("You cannot change the 'Other' record type as it is a universal type!");
             }
 
             await _budgetCategoryRepository.UpdateAsync(category);
+        }
+
+        public async Task<int> AddBudgetCategoryAsync(BudgetCategory category)
+        {
+            return await _budgetCategoryRepository.AddAsync(category);
         }
 
         /// <summary>
@@ -103,7 +165,7 @@ namespace My_money.Services
                 throw new InvalidOperationException("You cannot delete the 'Other' record type as it is a universal type!");
             }
 
-            var defaultCategory = await _budgetCategoryRepository.GetByNameAsync("Other");
+            var defaultCategory = await _budgetCategoryRepository.GetByNameAsync("Other", category.HouseholdId, category.OwnerUserId, category.Scope);
 
             if (defaultCategory is null)
             {
@@ -119,11 +181,5 @@ namespace My_money.Services
 
             await _budgetCategoryRepository.DeleteAsync(category.Id);
         }
-
-        public async Task<BudgetCategory?> GetBudgetCategoryByNameAsync(string name)
-        {
-            return await _budgetCategoryRepository.GetByNameAsync(name);
-        }
-
     }
 }

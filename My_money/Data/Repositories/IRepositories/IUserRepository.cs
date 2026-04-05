@@ -8,8 +8,9 @@ namespace My_money.Data.Repositories.IRepositories
     {
         Task<List<User>> GetAllAsync();
         Task<User?> GetByIdAsync(int id);
+        Task<User?> GetByEmailAsync(string email);
         Task<int> AddAsync(User user);
-        Task<int> UpdateAsync(User user);
+        Task UpdateAsync(User user);
         Task DeleteAsync(int id);
     }
 }

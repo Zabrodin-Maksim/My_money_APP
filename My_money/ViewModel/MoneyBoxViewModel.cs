@@ -71,7 +71,7 @@ namespace My_money.ViewModel
             var userFinance = await _userFinanceService.GetUserFinanceAsync();
             var savingsGoals = await _savingsGoalService.GetAllSavingsGoals();
 
-            savingsAmount = userFinance.Savings ?? 0;
+            savingsAmount = userFinance.Savings;
             TotalSavings = savingsAmount;
             SavingsGoals = new ObservableCollection<SavingsGoal>(savingsGoals);
 
