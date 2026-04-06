@@ -75,7 +75,7 @@ namespace My_money.Services
             }
             else
             {
-                await _userRepository.AddAsync(new User { DisplayName = username, Email = email, PasswordHash = PasswordHasher.HashPassword(password), IsActive = 0 });
+                await _userRepository.AddAsync(new User { DisplayName = username, Email = email, PasswordHash = PasswordHasher.HashPassword(password), IsActive = 1 });
             }
 
             var user = await _userRepository.GetByEmailAsync(email);
@@ -116,7 +116,6 @@ namespace My_money.Services
                     });
                     break;
             }
-            
         }
     }
 }
