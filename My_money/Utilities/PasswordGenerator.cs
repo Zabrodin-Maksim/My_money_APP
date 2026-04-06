@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace My_money.Services
+namespace My_money.Utilities
 {
     public class PasswordGenerator
     {
@@ -25,5 +25,4 @@ namespace My_money.Services
             return new string(result);
         }
     }
-}
 }

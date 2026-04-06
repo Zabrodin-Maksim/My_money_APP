@@ -3,6 +3,7 @@ using My_money.Enums;
 using My_money.Model;
 using My_money.Services.IServices;
 using My_money.Templates;
+using My_money.Utilities;
 using System;
 using System.Threading.Tasks;
 
@@ -36,20 +37,19 @@ namespace My_money.Services
             var password = PasswordGenerator.Generate();
             var passwordHash = PasswordHasher.HashPassword(password);
 
-            await _userRepository.AddAsync(new User { DisplayName = username, Email = email , PasswordHash = passwordHash, IsActive = 0 });
-            var user = await _userRepository.GetByEmailAsync(email);
-            await _userFinanceRepository.AddAsync(new UserFinance { UserId = (user!).Id });
+            var userId = await _userRepository.AddAsync(new User { DisplayName = username, Email = email , PasswordHash = passwordHash, IsActive = 0 });
+            await _userFinanceRepository.AddAsync(new UserFinance { UserId = userId });
 
-            await _householdRepository.AddAsync(household);
+            var householdId = await _householdRepository.AddAsync(household);
             await _householdMemberRepository.AddAsync(new HouseholdMember
             {
-                HouseholdId = household.Id,
-                UserId = (user!).Id,
+                HouseholdId = householdId,
+                UserId = userId,
                 Role = nameof(HouseholdMemberRole.Admin),
                 CanManageBudget = 1,
                 CanManageMembers = 1
             });
-            await _householdFinanceRepository.AddAsync(new HouseholdFinance { HouseholdId = household.Id });
+            await _householdFinanceRepository.AddAsync(new HouseholdFinance { HouseholdId = householdId });
 
 
             await EmailService.SendAsync(email, "Password Reset", EmailTemplates.NewUser(password));
@@ -66,16 +66,15 @@ namespace My_money.Services
             if (await _userRepository.GetByEmailAsync(email) != null)
                 throw new InvalidOperationException("Email is already registered.");
 
-            var password = PasswordGenerator.Generate();
-
             if (passwordHash != null && role == HouseholdMemberRole.Child)
             {
-                await _userRepository.AddAsync(new User { DisplayName = username, Email = email, PasswordHash = passwordHash, IsActive = 0 });
-                await EmailService.SendAsync(email, "Password Reset", EmailTemplates.NewUser(password));
+                await _userRepository.AddAsync(new User { DisplayName = username, Email = email, PasswordHash = passwordHash, IsActive = 1 });
             }
             else
             {
-                await _userRepository.AddAsync(new User { DisplayName = username, Email = email, PasswordHash = PasswordHasher.HashPassword(password), IsActive = 1 });
+                var password = PasswordGenerator.Generate();
+                await _userRepository.AddAsync(new User { DisplayName = username, Email = email, PasswordHash = PasswordHasher.HashPassword(password), IsActive = 0 });
+                await EmailService.SendAsync(email, "Password Reset", EmailTemplates.NewUser(password));
             }
 
             var user = await _userRepository.GetByEmailAsync(email);

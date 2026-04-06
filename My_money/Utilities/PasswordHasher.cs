@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 
-namespace My_money.Services
+namespace My_money.Utilities
 {
     public static class PasswordHasher
     {
