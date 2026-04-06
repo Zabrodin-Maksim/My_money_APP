@@ -2,7 +2,7 @@
 {
     public enum HouseholdMemberRole
     {
-        Parent,
+        Admin,
         Partner,
         Child
     }

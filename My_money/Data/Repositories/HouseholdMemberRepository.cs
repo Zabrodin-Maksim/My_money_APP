@@ -23,12 +23,11 @@ namespace My_money.Data.Repositories
             {
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
-                    "INSERT INTO HouseholdMembers (HouseholdId, UserId, Role, CanViewShared, CanManageBudget, CanManageMembers) " +
-                    "VALUES (@householdId, @userId, @role, @canViewShared, @canManageBudget, @canManageMembers); SELECT last_insert_rowid();", connection);
+                    "INSERT INTO HouseholdMembers (HouseholdId, UserId, Role, CanManageBudget, CanManageMembers) " +
+                    "VALUES (@householdId, @userId, @role, @canManageBudget, @canManageMembers); SELECT last_insert_rowid();", connection);
                 command.Parameters.AddWithValue("@householdId", member.HouseholdId);
                 command.Parameters.AddWithValue("@userId", member.UserId);
                 command.Parameters.AddWithValue("@role", member.Role);
-                command.Parameters.AddWithValue("@canViewShared", member.CanViewShared);
                 command.Parameters.AddWithValue("@canManageBudget", member.CanManageBudget);
                 command.Parameters.AddWithValue("@canManageMembers", member.CanManageMembers);
                 return Convert.ToInt32(await command.ExecuteScalarAsync());
@@ -109,12 +108,11 @@ namespace My_money.Data.Repositories
                 await connection.OpenAsync();
                 var command = new SQLiteCommand(
                     "UPDATE HouseholdMembers SET HouseholdId = @householdId, UserId = @userId, Role = @role, " +
-                    "CanViewShared = @canViewShared, CanManageBudget = @canManageBudget, CanManageMembers = @canManageMembers " +
+                    "CanManageBudget = @canManageBudget, CanManageMembers = @canManageMembers " +
                     "WHERE ID = @id", connection);
                 command.Parameters.AddWithValue("@householdId", member.HouseholdId);
                 command.Parameters.AddWithValue("@userId", member.UserId);
                 command.Parameters.AddWithValue("@role", member.Role);
-                command.Parameters.AddWithValue("@canViewShared", member.CanViewShared);
                 command.Parameters.AddWithValue("@canManageBudget", member.CanManageBudget);
                 command.Parameters.AddWithValue("@canManageMembers", member.CanManageMembers);
                 command.Parameters.AddWithValue("@id", member.Id);
@@ -130,7 +128,6 @@ namespace My_money.Data.Repositories
                 HouseholdId = Convert.ToInt32(reader["HouseholdId"]),
                 UserId = Convert.ToInt32(reader["UserId"]),
                 Role = reader["Role"].ToString()!,
-                CanViewShared = Convert.ToInt32(reader["CanViewShared"]),
                 CanManageBudget = Convert.ToInt32(reader["CanManageBudget"]),
                 CanManageMembers = Convert.ToInt32(reader["CanManageMembers"])
             };
