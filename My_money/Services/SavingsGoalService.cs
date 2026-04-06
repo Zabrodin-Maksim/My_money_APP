@@ -1,4 +1,6 @@
-﻿using My_money.Data.Repositories.IRepositories;
+﻿using My_money.Constants;
+using My_money.Data.Repositories.IRepositories;
+using My_money.Enums;
 using My_money.Model;
 using My_money.Services.IServices;
 using System;
@@ -48,6 +50,11 @@ namespace My_money.Services
 
         public async Task<int> AddSavingsGoal(SavingsGoal goal)
         {
+            if (!_userSessionService.IsAuthenticated) throw new InvalidOperationException("User is not authenticated.");
+
+            if (_userSessionService.CurrentHouseholdMember!.Role == nameof(HouseholdMemberRole.Child) && goal.Scope == RecordConstants.Scopes.Personal)
+                throw new InvalidOperationException("Children cannot create personal goal.");
+
             return await _savingsGoalRepository.AddAsync(goal);
         }
 

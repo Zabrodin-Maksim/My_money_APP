@@ -146,6 +146,12 @@ namespace My_money.Services
 
         public async Task<int> AddBudgetCategoryAsync(BudgetCategory category)
         {
+            if(!_userSessionService.IsAuthenticated)
+                throw new InvalidOperationException("User is not authenticated.");
+
+            if (_userSessionService.CurrentHouseholdMember!.Role == nameof(HouseholdMemberRole.Child) && category.Scope == RecordConstants.Scopes.Personal)
+                throw new InvalidOperationException("Children cannot create personal budget category.");
+
             return await _budgetCategoryRepository.AddAsync(category);
         }
 

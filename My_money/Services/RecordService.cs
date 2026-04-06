@@ -101,13 +101,15 @@ namespace My_money.Services
 
         public async Task<int> AddRecordAsync(Record record, BudgetCategory category)
         {
+            var userId = GetAuthenticatedUserId();
+            if (_userSessionService.CurrentHouseholdMember!.Role == nameof(HouseholdMemberRole.Child) && record.Scope == RecordConstants.Scopes.Personal)
+                throw new InvalidOperationException("Children cannot create personal records.");
             if (record.Amount <= 0)
                 throw new ArgumentOutOfRangeException(nameof(record.Amount), "Amount must be greater than zero.");
 
             if (record.Scope != category.Scope)
                 throw new InvalidOperationException("Record scope does not match category scope.");
 
-            var userId = GetAuthenticatedUserId();
             record.CreatedByUserId = userId;
 
             using var connection = new SQLiteConnection(_recordRepository.ConnectionString);

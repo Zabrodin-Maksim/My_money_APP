@@ -31,9 +31,12 @@ namespace My_money.Services
 
         public async Task<List<HouseholdMember>> GetAllHouseholdMembersByHouseholdIdAsync()
         {
-            var member = await GetHouseholdMemberByAuthenticatedUserAsync();
-
-            return await _householdMemberRepository.GetAllByHouseholdIdAsync(member!.HouseholdId);
+            if (_userSessionService.IsAuthenticated)
+            {
+                var member = _userSessionService.CurrentHouseholdMember;
+                return await _householdMemberRepository.GetAllByHouseholdIdAsync(member!.HouseholdId);
+            }
+            throw new InvalidOperationException("User is not authenticated.");
         }
 
         public async Task<HouseholdMember?> GetHouseholdMemberByIdAsync(int id)
@@ -48,6 +51,11 @@ namespace My_money.Services
                 return await _householdMemberRepository.GetByUserIdAsync(_userSessionService.CurrentUser!.Id);
             }
             throw new InvalidOperationException("User is not authenticated.");
+        }
+
+        public async Task<HouseholdMember?> GetHouseholdMemberByUserIdAsync(int userId)
+        {
+            return await _householdMemberRepository.GetByUserIdAsync(userId);
         }
 
         public async Task UpdateHouseholdMemberAsync(HouseholdMember member)
