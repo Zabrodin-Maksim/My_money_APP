@@ -1,7 +1,6 @@
-﻿using My_money.Data.Repositories.IRepositories;
+using My_money.Data.Repositories.IRepositories;
 using My_money.Model;
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SQLite;
 using System.Threading.Tasks;
@@ -66,14 +65,25 @@ namespace My_money.Data.Repositories
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new SQLiteCommand("SELECT * FROM HouseholdFinances WHERE HouseholdId = @householdId", connection);
-                command.Parameters.AddWithValue("@householdId", householdId);
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    if (await reader.ReadAsync())
-                        return ReadHouseholdFinance(reader);
-                }
+                return await GetByHouseholdIdAsync(householdId, connection, null!);
             }
+        }
+
+        public async Task<HouseholdFinance?> GetByHouseholdIdAsync(int householdId, SQLiteConnection connection, SQLiteTransaction transaction)
+        {
+            var command = new SQLiteCommand("SELECT * FROM HouseholdFinances WHERE HouseholdId = @householdId", connection);
+            if (transaction is not null)
+            {
+                command.Transaction = transaction;
+            }
+
+            command.Parameters.AddWithValue("@householdId", householdId);
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                if (await reader.ReadAsync())
+                    return ReadHouseholdFinance(reader);
+            }
+
             return null;
         }
 
@@ -82,14 +92,25 @@ namespace My_money.Data.Repositories
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new SQLiteCommand(
-                    "UPDATE HouseholdFinances SET HouseholdId = @householdId, Savings = @savings, Balance = @balance WHERE ID = @id", connection);
-                command.Parameters.AddWithValue("@id", finance.Id);
-                command.Parameters.AddWithValue("@householdId", finance.HouseholdId);
-                command.Parameters.AddWithValue("@savings", finance.Savings);
-                command.Parameters.AddWithValue("@balance", finance.Balance);
-                await command.ExecuteNonQueryAsync();
+                await UpdateAsync(finance, connection, null!);
             }
+        }
+
+        public async Task UpdateAsync(HouseholdFinance finance, SQLiteConnection connection, SQLiteTransaction transaction)
+        {
+            var command = new SQLiteCommand(
+                "UPDATE HouseholdFinances SET HouseholdId = @householdId, Savings = @savings, Balance = @balance WHERE ID = @id",
+                connection);
+            if (transaction is not null)
+            {
+                command.Transaction = transaction;
+            }
+
+            command.Parameters.AddWithValue("@id", finance.Id);
+            command.Parameters.AddWithValue("@householdId", finance.HouseholdId);
+            command.Parameters.AddWithValue("@savings", finance.Savings);
+            command.Parameters.AddWithValue("@balance", finance.Balance);
+            await command.ExecuteNonQueryAsync();
         }
 
         private HouseholdFinance ReadHouseholdFinance(DbDataReader reader)

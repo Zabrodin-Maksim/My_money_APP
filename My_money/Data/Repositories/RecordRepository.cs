@@ -1,4 +1,4 @@
-﻿using My_money.Data.Repositories.IRepositories;
+using My_money.Data.Repositories.IRepositories;
 using My_money.Model;
 using System;
 using System.Collections.Generic;
@@ -11,13 +11,13 @@ namespace My_money.Data.Repositories
     public class RecordRepository : IRecordRepository
     {
         private readonly string _connectionString;
+        public string ConnectionString => _connectionString;
 
         public RecordRepository(string connectionString)
         {
             _connectionString = connectionString;
         }
 
-        // Get list for household member type Child in personal finances
         public async Task<List<Record>> GetAllByHouseholdAndCreatedByAsync(int householdId, int createdByUserId)
         {
             var records = new List<Record>();
@@ -38,7 +38,6 @@ namespace My_money.Data.Repositories
             return records;
         }
 
-        // Get list for Household in shared finances
         public async Task<List<Record>> GetAllByHouseholdIdAsync(int householdId)
         {
             var records = new List<Record>();
@@ -58,7 +57,6 @@ namespace My_money.Data.Repositories
             return records;
         }
 
-        // Get list in personal finances
         public async Task<List<Record>> GetAllByOwnerAsync(int ownerUserId)
         {
             var records = new List<Record>();
@@ -99,22 +97,23 @@ namespace My_money.Data.Repositories
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new SQLiteCommand(
-                    "INSERT INTO Records (Amount, CategoryId, DateTimeOccured, Description, HouseholdId, OwnerUserId, CreatedByUserId, Scope, Type, IncomeTarget) " +
-                    "VALUES (@amount, @categoryId, @dateTimeOccured, @description, @householdId, @ownerUserId, @createdByUserId, @scope, @type, @incomeTarget); SELECT last_insert_rowid();",
-                    connection);
-                command.Parameters.AddWithValue("@amount", record.Amount);
-                command.Parameters.AddWithValue("@categoryId", record.CategoryId);
-                command.Parameters.AddWithValue("@dateTimeOccured", record.DateTimeOccurred?.ToString("yyyy-MM-dd HH:mm:ss"));
-                command.Parameters.AddWithValue("@description", record.Description ?? "");
-                command.Parameters.AddWithValue("@householdId", record.HouseholdId);
-                command.Parameters.AddWithValue("@ownerUserId", record.OwnerUserId);
-                command.Parameters.AddWithValue("@createdByUserId", record.CreatedByUserId);
-                command.Parameters.AddWithValue("@scope", record.Scope);
-                command.Parameters.AddWithValue("@type", record.Type);
-                command.Parameters.AddWithValue("@incomeTarget", record.IncomeTarget);
-                return Convert.ToInt32(await command.ExecuteScalarAsync());
+                return await AddAsync(record, connection, null!);
             }
+        }
+
+        public async Task<int> AddAsync(Record record, SQLiteConnection connection, SQLiteTransaction transaction)
+        {
+            var command = new SQLiteCommand(
+                "INSERT INTO Records (Amount, CategoryId, DateTimeOccured, Description, HouseholdId, OwnerUserId, CreatedByUserId, Scope, Type, IncomeTarget) " +
+                "VALUES (@amount, @categoryId, @dateTimeOccured, @description, @householdId, @ownerUserId, @createdByUserId, @scope, @type, @incomeTarget); SELECT last_insert_rowid();",
+                connection);
+            if (transaction is not null)
+            {
+                command.Transaction = transaction;
+            }
+
+            FillRecordParameters(command, record);
+            return Convert.ToInt32(await command.ExecuteScalarAsync());
         }
 
         public async Task UpdateAsync(Record record)
@@ -126,16 +125,7 @@ namespace My_money.Data.Repositories
                     "UPDATE Records SET Amount = @amount, CategoryId = @categoryId, DateTimeOccured = @dateTimeOccured, Description = @description, " +
                     "HouseholdId = @householdId, OwnerUserId = @ownerUserId, CreatedByUserId = @createdByUserId, Scope = @scope, Type = @type, IncomeTarget = @incomeTarget WHERE ID = @id",
                     connection);
-                command.Parameters.AddWithValue("@amount", record.Amount);
-                command.Parameters.AddWithValue("@categoryId", record.CategoryId);
-                command.Parameters.AddWithValue("@dateTimeOccured", record.DateTimeOccurred?.ToString("yyyy-MM-dd HH:mm:ss"));
-                command.Parameters.AddWithValue("@description", record.Description ?? "");
-                command.Parameters.AddWithValue("@householdId", record.HouseholdId);
-                command.Parameters.AddWithValue("@ownerUserId", record.OwnerUserId);
-                command.Parameters.AddWithValue("@createdByUserId", record.CreatedByUserId);
-                command.Parameters.AddWithValue("@scope", record.Scope);
-                command.Parameters.AddWithValue("@type", record.Type);
-                command.Parameters.AddWithValue("@incomeTarget", record.IncomeTarget);
+                FillRecordParameters(command, record);
                 command.Parameters.AddWithValue("@id", record.Id);
                 await command.ExecuteNonQueryAsync();
             }
@@ -146,10 +136,20 @@ namespace My_money.Data.Repositories
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new SQLiteCommand("DELETE FROM Records WHERE ID = @id", connection);
-                command.Parameters.AddWithValue("@id", id);
-                await command.ExecuteNonQueryAsync();
+                await DeleteAsync(id, connection, null!);
             }
+        }
+
+        public async Task DeleteAsync(int id, SQLiteConnection connection, SQLiteTransaction transaction)
+        {
+            var command = new SQLiteCommand("DELETE FROM Records WHERE ID = @id", connection);
+            if (transaction is not null)
+            {
+                command.Transaction = transaction;
+            }
+
+            command.Parameters.AddWithValue("@id", id);
+            await command.ExecuteNonQueryAsync();
         }
 
         public async Task<List<Record>> GetByCategoryIdAsync(int categoryId)
@@ -171,49 +171,10 @@ namespace My_money.Data.Repositories
             return records;
         }
 
-        public async Task<List<Record>> GetByPeriodAsync(DateTime from, DateTime to, int? householdId, int? ownerUserId)
-        {
-            if (!householdId.HasValue && !ownerUserId.HasValue)
-                throw new ArgumentException("Either householdId or ownerUserId must be provided.");
-
-            var records = new List<Record>();
-            using (var connection = new SQLiteConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-
-                SQLiteCommand command;
-                if (householdId.HasValue)
-                {
-                    command = new SQLiteCommand(
-                    "SELECT * FROM Records WHERE DateTimeOccured >= @from AND DateTimeOccured <= @to AND HouseholdId = @householdId", connection);
-                    command.Parameters.AddWithValue("@from", from.ToString("yyyy-MM-dd HH:mm:ss"));
-                    command.Parameters.AddWithValue("@to", to.ToString("yyyy-MM-dd HH:mm:ss"));
-                    command.Parameters.AddWithValue("@householdId", householdId.Value);
-                }
-                else
-                {
-                    command = new SQLiteCommand(
-                    "SELECT * FROM Records WHERE DateTimeOccured >= @from AND DateTimeOccured <= @to AND OwnerUserId = @ownerUserId", connection);
-                    command.Parameters.AddWithValue("@from", from.ToString("yyyy-MM-dd HH:mm:ss"));
-                    command.Parameters.AddWithValue("@to", to.ToString("yyyy-MM-dd HH:mm:ss"));
-                    command.Parameters.AddWithValue("@ownerUserId", ownerUserId.Value);
-                }
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
-                    {
-                        records.Add(ReadRecord(reader));
-                    }
-                }
-            }
-            return records;
-        }
-
         public async Task<List<Record>> GetHouseholdByPeriodAsync(DateTime from, DateTime to, int householdId)
         {
             return await GetByPeriodInternalAsync(
-                "SELECT * FROM Records WHERE DateTimeOccured >= @from AND DateTimeOccured <= @to " +
-                "AND HouseholdId = @householdId AND Scope = 'Shared'",
+                "SELECT * FROM Records WHERE DateTimeOccured >= @from AND DateTimeOccured <= @to AND HouseholdId = @householdId AND Scope = 'Shared'",
                 from,
                 to,
                 ("@householdId", householdId));
@@ -222,8 +183,7 @@ namespace My_money.Data.Repositories
         public async Task<List<Record>> GetPersonalByPeriodAsync(DateTime from, DateTime to, int ownerUserId)
         {
             return await GetByPeriodInternalAsync(
-                "SELECT * FROM Records WHERE DateTimeOccured >= @from AND DateTimeOccured <= @to " +
-                "AND OwnerUserId = @ownerUserId AND Scope = 'Personal'",
+                "SELECT * FROM Records WHERE DateTimeOccured >= @from AND DateTimeOccured <= @to AND OwnerUserId = @ownerUserId AND Scope = 'Personal'",
                 from,
                 to,
                 ("@ownerUserId", ownerUserId));
@@ -232,8 +192,7 @@ namespace My_money.Data.Repositories
         public async Task<List<Record>> GetChildByPeriodAsync(DateTime from, DateTime to, int householdId, int createdByUserId)
         {
             return await GetByPeriodInternalAsync(
-                "SELECT * FROM Records WHERE DateTimeOccured >= @from AND DateTimeOccured <= @to " +
-                "AND HouseholdId = @householdId AND CreatedByUserId = @createdByUserId AND Scope = 'Shared'",
+                "SELECT * FROM Records WHERE DateTimeOccured >= @from AND DateTimeOccured <= @to AND HouseholdId = @householdId AND CreatedByUserId = @createdByUserId AND Scope = 'Shared'",
                 from,
                 to,
                 ("@householdId", householdId),
@@ -280,8 +239,22 @@ namespace My_money.Data.Repositories
                 CreatedByUserId = Convert.ToInt32(reader["CreatedByUserId"]),
                 Scope = reader["Scope"]!.ToString()!,
                 Type = reader["Type"]!.ToString()!,
-                IncomeTarget = reader["IncomeTarget"]?.ToString()
+                IncomeTarget = reader["IncomeTarget"] == DBNull.Value ? null : reader["IncomeTarget"]?.ToString()
             };
+        }
+
+        private static void FillRecordParameters(SQLiteCommand command, Record record)
+        {
+            command.Parameters.AddWithValue("@amount", record.Amount);
+            command.Parameters.AddWithValue("@categoryId", (object?)record.CategoryId ?? DBNull.Value);
+            command.Parameters.AddWithValue("@dateTimeOccured", record.DateTimeOccurred?.ToString("yyyy-MM-dd HH:mm:ss"));
+            command.Parameters.AddWithValue("@description", record.Description ?? "");
+            command.Parameters.AddWithValue("@householdId", record.HouseholdId);
+            command.Parameters.AddWithValue("@ownerUserId", (object?)record.OwnerUserId ?? DBNull.Value);
+            command.Parameters.AddWithValue("@createdByUserId", record.CreatedByUserId);
+            command.Parameters.AddWithValue("@scope", record.Scope);
+            command.Parameters.AddWithValue("@type", record.Type);
+            command.Parameters.AddWithValue("@incomeTarget", (object?)record.IncomeTarget ?? DBNull.Value);
         }
     }
 }

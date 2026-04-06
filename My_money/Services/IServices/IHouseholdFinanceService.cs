@@ -1,6 +1,6 @@
-﻿using My_money.Enums;
+using My_money.Enums;
 using My_money.Model;
-using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Threading.Tasks;
 
 namespace My_money.Services.IServices
@@ -12,7 +12,9 @@ namespace My_money.Services.IServices
         Task<int> AddHouseholdFinanceAsync(HouseholdFinance finance);
         Task UpdateHouseholdFinanceAsync(decimal? savings, decimal? balance);
         Task ApplyExpenseAsync(decimal amount, IncomeTarget target);
+        Task ApplyExpenseAsync(decimal amount, IncomeTarget target, int householdId, SQLiteConnection connection, SQLiteTransaction transaction);
         Task ApplyIncomeAsync(decimal amount, IncomeTarget target);
+        Task ApplyIncomeAsync(decimal amount, IncomeTarget target, int householdId, SQLiteConnection connection, SQLiteTransaction transaction);
         Task DeleteHouseholdFinanceAsync(int id);
     }
 }

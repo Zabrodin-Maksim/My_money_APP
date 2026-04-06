@@ -1,8 +1,9 @@
-﻿using My_money.Data.Repositories.IRepositories;
+using My_money.Data.Repositories.IRepositories;
 using My_money.Enums;
 using My_money.Model;
 using My_money.Services.IServices;
 using System;
+using System.Data.SQLite;
 using System.Threading.Tasks;
 
 namespace My_money.Services
@@ -38,14 +39,44 @@ namespace My_money.Services
             switch (target)
             {
                 case IncomeTarget.Balance:
-                    await UpdateHouseholdFinanceAsync(null, actualHouseholdFinance.Balance - amount);
+                    actualHouseholdFinance.Balance -= amount;
                     break;
                 case IncomeTarget.Savings:
-                    await UpdateHouseholdFinanceAsync(actualHouseholdFinance.Savings - amount, null);
+                    actualHouseholdFinance.Savings -= amount;
                     break;
                 default:
                     throw new ArgumentException("Invalid income target", nameof(target));
             }
+
+            if (actualHouseholdFinance.Savings < 0)
+                throw new ArgumentOutOfRangeException(nameof(amount), "Savings cannot be negative.");
+
+            await _householdFinanceRepository.UpdateAsync(actualHouseholdFinance);
+        }
+
+        public async Task ApplyExpenseAsync(decimal amount, IncomeTarget target, int householdId, SQLiteConnection connection, SQLiteTransaction transaction)
+        {
+            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), "Amount cannot be negative.");
+
+            var actualHouseholdFinance = await _householdFinanceRepository.GetByHouseholdIdAsync(householdId, connection, transaction)
+                ?? throw new InvalidOperationException("Household finance not found.");
+
+            switch (target)
+            {
+                case IncomeTarget.Balance:
+                    actualHouseholdFinance.Balance -= amount;
+                    break;
+                case IncomeTarget.Savings:
+                    actualHouseholdFinance.Savings -= amount;
+                    break;
+                default:
+                    throw new ArgumentException("Invalid income target", nameof(target));
+            }
+
+            if (actualHouseholdFinance.Savings < 0)
+                throw new ArgumentOutOfRangeException(nameof(amount), "Savings cannot be negative.");
+
+            await _householdFinanceRepository.UpdateAsync(actualHouseholdFinance, connection, transaction);
         }
 
         public async Task ApplyIncomeAsync(decimal amount, IncomeTarget target)
@@ -57,14 +88,38 @@ namespace My_money.Services
             switch (target)
             {
                 case IncomeTarget.Balance:
-                    await UpdateHouseholdFinanceAsync(null, actualHouseholdFinance.Balance + amount);
+                    actualHouseholdFinance.Balance += amount;
                     break;
                 case IncomeTarget.Savings:
-                    await UpdateHouseholdFinanceAsync(actualHouseholdFinance.Savings + amount, null);
+                    actualHouseholdFinance.Savings += amount;
                     break;
                 default:
                     throw new ArgumentException("Invalid income target", nameof(target));
             }
+
+            await _householdFinanceRepository.UpdateAsync(actualHouseholdFinance);
+        }
+
+        public async Task ApplyIncomeAsync(decimal amount, IncomeTarget target, int householdId, SQLiteConnection connection, SQLiteTransaction transaction)
+        {
+            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), "Amount cannot be negative.");
+
+            var actualHouseholdFinance = await _householdFinanceRepository.GetByHouseholdIdAsync(householdId, connection, transaction)
+                ?? throw new InvalidOperationException("Household finance not found.");
+
+            switch (target)
+            {
+                case IncomeTarget.Balance:
+                    actualHouseholdFinance.Balance += amount;
+                    break;
+                case IncomeTarget.Savings:
+                    actualHouseholdFinance.Savings += amount;
+                    break;
+                default:
+                    throw new ArgumentException("Invalid income target", nameof(target));
+            }
+
+            await _householdFinanceRepository.UpdateAsync(actualHouseholdFinance, connection, transaction);
         }
 
         public async Task DeleteHouseholdFinanceAsync(int id)
@@ -91,8 +146,8 @@ namespace My_money.Services
 
             var actualHouseholdFinance = await GetActualHouseholdFinanceAsync();
 
-            await _householdFinanceRepository.UpdateAsync(new HouseholdFinance 
-            { 
+            await _householdFinanceRepository.UpdateAsync(new HouseholdFinance
+            {
                 Id = actualHouseholdFinance.Id,
                 HouseholdId = actualHouseholdFinance.HouseholdId,
                 Savings = savings ?? actualHouseholdFinance.Savings,

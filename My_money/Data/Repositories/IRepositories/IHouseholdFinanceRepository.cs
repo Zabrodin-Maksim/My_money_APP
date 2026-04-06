@@ -1,5 +1,5 @@
-﻿using My_money.Model;
-using System.Collections.Generic;
+using My_money.Model;
+using System.Data.SQLite;
 using System.Threading.Tasks;
 
 namespace My_money.Data.Repositories.IRepositories
@@ -8,8 +8,10 @@ namespace My_money.Data.Repositories.IRepositories
     {
         Task<HouseholdFinance?> GetByIdAsync(int id);
         Task<HouseholdFinance?> GetByHouseholdIdAsync(int householdId);
+        Task<HouseholdFinance?> GetByHouseholdIdAsync(int householdId, SQLiteConnection connection, SQLiteTransaction transaction);
         Task<int> AddAsync(HouseholdFinance finance);
         Task UpdateAsync(HouseholdFinance finance);
+        Task UpdateAsync(HouseholdFinance finance, SQLiteConnection connection, SQLiteTransaction transaction);
         Task DeleteAsync(int id);
     }
 }
