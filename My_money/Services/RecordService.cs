@@ -240,5 +240,10 @@ namespace My_money.Services
         {
             return await _recordRepository.GetByPeriodAsync(from, to, householdId, GetAuthenticatedUserId());
         }
+
+        public async Task UpdateRecordAsync(Record record)
+        {
+            await _recordRepository.UpdateAsync(record);
+        }
     }
 }

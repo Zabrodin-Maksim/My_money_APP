@@ -56,6 +56,8 @@ namespace My_money.Services.IServices
         /// </exception>
         Task DeleteRecordAsync(Record record);
 
+        Task UpdateRecordAsync(Record record);
+
         Task<List<Record>> GetRecordsByCategoryIdAsync(int categoryId);
         Task<List<Record>> GetRecordsByPeriodAsync(DateTime from, DateTime to, int? householdId);
     }

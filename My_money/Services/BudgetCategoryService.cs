@@ -175,6 +175,7 @@ namespace My_money.Services
             foreach (Record record in records)
             {
                 record.CategoryId = defaultCategory.Id;
+                await _recordService.UpdateRecordAsync(record);
             }
 
             await _budgetCategoryRepository.DeleteAsync(category.Id);

@@ -17,67 +17,6 @@ namespace My_money.Data.Repositories
             _connectionString = connectionString;
         }
 
-        // Get list for household member type Child in personal finances
-        public async Task<List<UserFinance>> GetAllByHouseholdAndCreatedByAsync(int householdId, int createdByUserId)
-        {
-            var userFinances = new List<UserFinance>();
-            using (var connection = new SQLiteConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                var command = new SQLiteCommand("SELECT * FROM UserFinances WHERE HouseholdId = @householdId AND CreatedByUserId = @createdByUserId", connection);
-                command.Parameters.AddWithValue("@householdId", householdId);
-                command.Parameters.AddWithValue("@createdByUserId", createdByUserId);
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
-                    {
-                        userFinances.Add(ReadUserFinance(reader));
-                    }
-                }
-            }
-            return userFinances;
-        }
-
-        // Get list for Household in shared finances
-        public async Task<List<UserFinance>> GetAllByHouseholdIdAsync(int householdId)
-        {
-            var userFinances = new List<UserFinance>();
-            using (var connection = new SQLiteConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                var command = new SQLiteCommand("SELECT * FROM UserFinances WHERE HouseholdId = @householdId AND Scope = 'Shared'", connection);
-                command.Parameters.AddWithValue("@householdId", householdId);
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
-                    {
-                        userFinances.Add(ReadUserFinance(reader));
-                    }
-                }
-            }
-            return userFinances;
-        }
-
-        // Get list in personal finances
-        public async Task<List<UserFinance>> GetAllByOwnerAsync(int ownerUserId)
-        {
-            var userFinances = new List<UserFinance>();
-            using (var connection = new SQLiteConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                var command = new SQLiteCommand("SELECT * FROM UserFinances WHERE OwnerUserId = @ownerUserId AND Scope = 'Personal'", connection);
-                command.Parameters.AddWithValue("@ownerUserId", ownerUserId);
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
-                    {
-                        userFinances.Add(ReadUserFinance(reader));
-                    }
-                }
-            }
-            return userFinances;
-        }
-
         public async Task<UserFinance?> GetByUserIdAsync(int userId)
         {
             using (var connection = new SQLiteConnection(_connectionString))

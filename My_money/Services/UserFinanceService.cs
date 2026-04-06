@@ -27,21 +27,6 @@ namespace My_money.Services
             return _userSessionService.CurrentUser!.Id;
         }
 
-        public async Task<List<UserFinance>> GetAllByHouseholdAndCreatedByAsync(int householdId)
-        {
-            return await _userFinanceRepository.GetAllByHouseholdAndCreatedByAsync(householdId, GetAuthenticatedUserId());
-        }
-
-        public async Task<List<UserFinance>> GetAllByHouseholdIdAsync(int householdId)
-        {
-            return await _userFinanceRepository.GetAllByHouseholdIdAsync(householdId);
-        }
-
-        public async Task<List<UserFinance>> GetAllByOwnerAsync()
-        {
-            return await _userFinanceRepository.GetAllByOwnerAsync(GetAuthenticatedUserId());
-        }
-
         public async Task<UserFinance?> GetByUserIdAsync(int userId)
         {
             return await _userFinanceRepository.GetByUserIdAsync(userId);
