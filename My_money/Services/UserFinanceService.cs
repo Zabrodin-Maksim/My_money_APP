@@ -1,7 +1,9 @@
 ﻿using My_money.Data.Repositories.IRepositories;
+using My_money.Enums;
 using My_money.Model;
 using My_money.Services.IServices;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace My_money.Services
@@ -9,10 +11,40 @@ namespace My_money.Services
     public class UserFinanceService : IUserFinanceService
     {
         private readonly IUserFinanceRepository _userFinanceRepository;
+        private readonly IUserSessionService _userSessionService;
 
-        public UserFinanceService(IUserFinanceRepository userFinanceRepository)
+        public UserFinanceService(IUserFinanceRepository userFinanceRepository, IUserSessionService userSessionService)
         {
             _userFinanceRepository = userFinanceRepository;
+            _userSessionService = userSessionService;
+        }
+
+        private int GetAuthenticatedUserId()
+        {
+            if (!_userSessionService.IsAuthenticated)
+                throw new InvalidOperationException("User is not authenticated.");
+
+            return _userSessionService.CurrentUser!.Id;
+        }
+
+        public async Task<List<UserFinance>> GetAllByHouseholdAndCreatedByAsync(int householdId)
+        {
+            return await _userFinanceRepository.GetAllByHouseholdAndCreatedByAsync(householdId, GetAuthenticatedUserId());
+        }
+
+        public async Task<List<UserFinance>> GetAllByHouseholdIdAsync(int householdId)
+        {
+            return await _userFinanceRepository.GetAllByHouseholdIdAsync(householdId);
+        }
+
+        public async Task<List<UserFinance>> GetAllByOwnerAsync()
+        {
+            return await _userFinanceRepository.GetAllByOwnerAsync(GetAuthenticatedUserId());
+        }
+
+        public async Task<UserFinance?> GetByUserIdAsync(int userId)
+        {
+            return await _userFinanceRepository.GetByUserIdAsync(userId);
         }
 
         public async Task<int> AddUserFinanceAsync(UserFinance userFinance)
@@ -22,55 +54,42 @@ namespace My_money.Services
             return await _userFinanceRepository.AddAsync(userFinance);
         }
 
-        public async Task<UserFinance> GetUserFinanceAsync()
+        public async Task ApplyExpenseAsync(decimal amount, IncomeTarget target)
         {
-            return await _userFinanceRepository.GetAsync() ?? await AddDefaultUserFinance();
-        }
+            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), "Amount cannot be negative.");
 
-        public async Task AddToSavingsAsync(decimal amount)
-        {
-            var actualUserFinance = await GetUserFinanceAsync();
-            await UpdateUserFinanceAsync(actualUserFinance.Savings + amount, null);
-        }
-
-        public async Task AddToBalanceAsync(decimal amount)
-        {
-            var actualUserFinance = await GetUserFinanceAsync();
-            await UpdateUserFinanceAsync(null, actualUserFinance.Balance + amount);
-        }
-
-        /// <summary>
-        /// Applies an expense to the user's balance.
-        /// </summary>
-        /// <param name="cost">
-        /// The expense amount to deduct from the current balance.
-        /// </param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Thrown when <paramref name="cost"/> is negative.
-        /// </exception>
-        public async Task ApplyExpenseAsync(decimal amount)
-        {
-            if (amount < 0)
+            var actualUserFinance = await GetByUserIdAsync(GetAuthenticatedUserId()) ?? throw new InvalidOperationException("User finance not found.");
+            switch (target)
             {
-                throw new ArgumentOutOfRangeException(nameof(amount), "Cost cannot be negative.");
+                case IncomeTarget.Balance:
+                    await UpdateUserFinanceAsync(null, actualUserFinance.Balance - amount);
+                    break;
+                case IncomeTarget.Savings:
+                    await UpdateUserFinanceAsync(actualUserFinance.Savings - amount, null);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(target), "Invalid income target.");
             }
-
-            var actualUserFinance = await GetUserFinanceAsync();
-            await UpdateUserFinanceAsync(null, actualUserFinance.Balance - amount);
         }
 
-        /// <summary>
-        /// Updates the user's financial information.
-        /// </summary>
-        /// <param name="savings">
-        /// The new savings amount. If null, the current value is preserved.
-        /// </param>
-        /// <param name="balance">
-        /// The new balance amount. If null, the current value is preserved.
-        /// </param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentOutOfRangeException">savings < 0</exception>
+        public async Task ApplyIncomeAsync(decimal amount, IncomeTarget target)
+        {
+            if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount), "Amount cannot be negative.");
+
+            var actualUserFinance = await GetByUserIdAsync(GetAuthenticatedUserId()) ?? throw new InvalidOperationException("User finance not found.");
+            switch (target)
+            {
+                case IncomeTarget.Balance:
+                    await UpdateUserFinanceAsync(null, actualUserFinance.Balance + amount);
+                    break;
+                case IncomeTarget.Savings:
+                    await UpdateUserFinanceAsync(actualUserFinance.Savings + amount, null);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(target), "Invalid income target.");
+            }
+        }
+
         public async Task UpdateUserFinanceAsync(decimal? savings, decimal? balance)
         {
             if (savings is < 0)
@@ -78,25 +97,19 @@ namespace My_money.Services
                 throw new ArgumentOutOfRangeException(nameof(savings), "Savings cannot be negative");
             }
 
-            var actualUserFinance = await GetUserFinanceAsync();
+            var actualUserFinance = await GetByUserIdAsync(GetAuthenticatedUserId()) ?? throw new InvalidOperationException("User finance not found.");
             await _userFinanceRepository.UpdateAsync(new UserFinance
             {
                 Id = actualUserFinance.Id,
+                UserId = actualUserFinance.UserId,
                 Savings = savings ?? actualUserFinance.Savings,
                 Balance = balance ?? actualUserFinance.Balance
             });
         }
 
-        public async Task<UserFinance> AddDefaultUserFinance()
+        public async Task DeleteUserFinance(int id)
         {
-            var defaultFinance = new UserFinance
-            {
-                Savings = 0,
-                Balance = 0
-            };
-
-            await _userFinanceRepository.AddAsync(defaultFinance);
-            return await _userFinanceRepository.GetAsync() ?? throw new Exception();
+            await _userFinanceRepository.DeleteAsync(id);
         }
     }
 }

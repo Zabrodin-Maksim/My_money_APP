@@ -15,6 +15,7 @@ namespace My_money.Model
         public int CreatedByUserId { get; set; }
         public required string Scope { get; set; }
         public required string Type { get; set; }
+        public string? IncomeTarget { get; set; }
 
         public Record() { }
         public Record(decimal amount, int categoryId, DateTime? occurredAt, string? description, string scope, string type) 

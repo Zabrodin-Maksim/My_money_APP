@@ -1,4 +1,5 @@
-﻿using My_money.Data.Repositories.IRepositories;
+﻿using My_money.Constants;
+using My_money.Data.Repositories.IRepositories;
 using My_money.Enums;
 using My_money.Model;
 using My_money.Services.IServices;
@@ -67,12 +68,12 @@ namespace My_money.Services
                 _ => throw new ArgumentException($"Invalid source: {categoryFilterType}", nameof(categoryFilterType))
             };
 
-            var recordsByPeriod = await _recordService.GetRecordsByPeriodAsync(from, to);
+            var recordsByPeriod = await _recordService.GetRecordsByPeriodAsync(from, to, householdId);
 
             int periodLengthInDays = (to.Date - from.Date).Days + 1;
 
-            var spendByCategory = recordsByPeriod.Where(r => r.Type == "Expense")
-                .GroupBy(r => r.CategoryId)
+            var spendByCategory = recordsByPeriod.Where(r => r.Type == RecordConstants.Types.Expense && r.CategoryId.HasValue)
+                .GroupBy(r => r.CategoryId!.Value)
                 .ToDictionary(g => g.Key, g => g.Sum(r => r.Amount));
 
             foreach (var category in categories)
@@ -98,8 +99,7 @@ namespace My_money.Services
         /// <returns>A list of <see cref="BudgetCategory"/> objects created by the authenticated user within the specified household.</returns>
         public async Task<List<BudgetCategory>> GetAllByHouseholdAndCreatedByAsync(int householdId)
         {
-            var userId = GetAuthenticatedUserId();
-            return await _budgetCategoryRepository.GetAllByHouseholdAndCreatedByAsync(householdId, userId);
+            return await _budgetCategoryRepository.GetAllByHouseholdAndCreatedByAsync(householdId, GetAuthenticatedUserId());
         }
 
         /// <summary>
@@ -109,9 +109,7 @@ namespace My_money.Services
         /// <returns>A list of <see cref="BudgetCategory"/> objects associated with the specified household.</returns>
         public async Task<List<BudgetCategory>> GetAllByHouseholdIdAsync(int householdId)
         {
-            var categories = await _budgetCategoryRepository.GetAllByHouseholdIdAsync(householdId);
-
-            return categories;
+            return await _budgetCategoryRepository.GetAllByHouseholdIdAsync(householdId);
         }
 
         /// <summary>

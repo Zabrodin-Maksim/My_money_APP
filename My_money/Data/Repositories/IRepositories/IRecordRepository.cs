@@ -7,7 +7,12 @@ namespace My_money.Data.Repositories.IRepositories
 {
     public interface IRecordRepository
     {
-        Task<List<Record>> GetAllAsync();
+        // Get for Child in personal finances
+        Task<List<Record>> GetAllByHouseholdAndCreatedByAsync(int householdId, int createdByUserId);
+        // Get for Household in shared finances
+        Task<List<Record>> GetAllByHouseholdIdAsync(int householdId);
+        // Get in personal finances
+        Task<List<Record>> GetAllByOwnerAsync(int ownerUserId);
         Task<Record?> GetByIdAsync(int id);
         Task<int> AddAsync(Record record);
         Task UpdateAsync(Record record);
@@ -15,6 +20,6 @@ namespace My_money.Data.Repositories.IRepositories
 
         Task<List<Record>> GetByCategoryIdAsync(int categoryId);
 
-        Task<List<Record>> GetByPeriodAsync(DateTime from, DateTime to);
+        Task<List<Record>> GetByPeriodAsync(DateTime from, DateTime to, int? householdId, int? ownerUserId);
     }
 }

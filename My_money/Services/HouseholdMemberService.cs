@@ -31,7 +31,7 @@ namespace My_money.Services
 
         public async Task<List<HouseholdMember>> GetAllHouseholdMembersByHouseholdIdAsync()
         {
-            var member = await GetHouseholdMemberByUserAsync();
+            var member = await GetHouseholdMemberByAuthenticatedUserAsync();
 
             return await _householdMemberRepository.GetAllByHouseholdIdAsync(member!.HouseholdId);
         }
@@ -41,7 +41,7 @@ namespace My_money.Services
             return await _householdMemberRepository.GetByIdAsync(id);
         }
 
-        public async Task<HouseholdMember?> GetHouseholdMemberByUserAsync()
+        public async Task<HouseholdMember?> GetHouseholdMemberByAuthenticatedUserAsync()
         {
             if (_userSessionService.IsAuthenticated)
             {

@@ -73,6 +73,7 @@ namespace My_money
             window.Show();
         }
 
+        // TODO: ПРИ ПЕРВОЙ ИНИЦИАЛИЗАЦИИ ДОБАВИТЬ В BudgetCategories "Other" для Scope = "Personal" И "Shared"
         private void InitializeDatabase(string connectionString)
         {
             using (var connection = new System.Data.SQLite.SQLiteConnection(connectionString))

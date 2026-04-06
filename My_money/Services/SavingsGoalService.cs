@@ -1,6 +1,7 @@
 ﻿using My_money.Data.Repositories.IRepositories;
 using My_money.Model;
 using My_money.Services.IServices;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -9,15 +10,35 @@ namespace My_money.Services
     public class SavingsGoalService : ISavingsGoalService
     {
         private readonly ISavingsGoalRepository _savingsGoalRepository;
+        private readonly IUserSessionService _userSessionService;
 
-        public SavingsGoalService(ISavingsGoalRepository savingsGoalRepository)
+        public SavingsGoalService(ISavingsGoalRepository savingsGoalRepository, IUserSessionService userSessionService)
         {
             _savingsGoalRepository = savingsGoalRepository;
+            _userSessionService = userSessionService;
         }
 
-        public async Task<List<SavingsGoal>> GetAllSavingsGoals()
+        private int GetAuthenticatedUserId()
         {
-            return await _savingsGoalRepository.GetAllAsync();
+            if (!_userSessionService.IsAuthenticated)
+                throw new InvalidOperationException("User is not authenticated.");
+
+            return _userSessionService.CurrentUser!.Id;
+        }
+
+        public async Task<List<SavingsGoal>> GetAllByHouseholdAndCreatedByAsync(int householdId)
+        {
+            return await _savingsGoalRepository.GetAllByHouseholdAndCreatedByAsync(householdId, GetAuthenticatedUserId());
+        }
+
+        public async Task<List<SavingsGoal>> GetAllByHouseholdIdAsync(int householdId)
+        {
+            return await _savingsGoalRepository.GetAllByHouseholdIdAsync(householdId);
+        }
+
+        public async Task<List<SavingsGoal>> GetAllByOwnerAsync()
+        {
+            return await _savingsGoalRepository.GetAllByOwnerAsync(GetAuthenticatedUserId());
         }
 
         public async Task<SavingsGoal?> GetSavingsGoal(int id)

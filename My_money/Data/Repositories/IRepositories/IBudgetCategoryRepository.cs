@@ -9,7 +9,7 @@ namespace My_money.Data.Repositories.IRepositories
         // Get for Child in personal finances
         Task<List<BudgetCategory>> GetAllByHouseholdAndCreatedByAsync(int householdId, int createdByUserId);
         // Get for Household in shared finances
-        Task<List<BudgetCategory>> GetAllByHouseholdIdAsync(int id);
+        Task<List<BudgetCategory>> GetAllByHouseholdIdAsync(int householdId);
         // Get in personal finances
         Task<List<BudgetCategory>> GetAllByOwnerAsync(int ownerUserId);
 

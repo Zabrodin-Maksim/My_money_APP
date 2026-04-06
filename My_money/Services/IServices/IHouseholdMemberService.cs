@@ -8,7 +8,7 @@ namespace My_money.Services.IServices
     {
         Task<List<HouseholdMember>> GetAllHouseholdMembersByHouseholdIdAsync();
         Task<HouseholdMember?> GetHouseholdMemberByIdAsync(int id);
-        Task<HouseholdMember?> GetHouseholdMemberByUserAsync();
+        Task<HouseholdMember?> GetHouseholdMemberByAuthenticatedUserAsync();
         Task<int> AddHouseholdMemberAsync(HouseholdMember member);
         Task UpdateHouseholdMemberAsync(HouseholdMember member);
         Task DeleteHouseholdMemberAsync(int id);
