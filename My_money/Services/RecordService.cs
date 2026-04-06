@@ -236,9 +236,21 @@ namespace My_money.Services
             return await _recordRepository.GetByCategoryIdAsync(categoryId);
         }
 
-        public async Task<List<Record>> GetRecordsByPeriodAsync(DateTime from, DateTime to, int? householdId)
+        public async Task<List<Record>> GetRecordsByPeriodAsync(DateTime from, DateTime to, CategoryFilterType categoryFilterType, int? householdId)
         {
-            return await _recordRepository.GetByPeriodAsync(from, to, householdId, GetAuthenticatedUserId());
+            var userId = GetAuthenticatedUserId();
+
+            return categoryFilterType switch
+            {
+                CategoryFilterType.Household => householdId.HasValue
+                    ? await _recordRepository.GetHouseholdByPeriodAsync(from, to, householdId.Value)
+                    : throw new ArgumentNullException(nameof(householdId)),
+                CategoryFilterType.Personal => await _recordRepository.GetPersonalByPeriodAsync(from, to, userId),
+                CategoryFilterType.Child => householdId.HasValue
+                    ? await _recordRepository.GetChildByPeriodAsync(from, to, householdId.Value, userId)
+                    : throw new ArgumentNullException(nameof(householdId)),
+                _ => throw new ArgumentOutOfRangeException(nameof(categoryFilterType))
+            };
         }
 
         public async Task UpdateRecordAsync(Record record)

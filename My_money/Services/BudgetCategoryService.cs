@@ -68,7 +68,7 @@ namespace My_money.Services
                 _ => throw new ArgumentException($"Invalid source: {categoryFilterType}", nameof(categoryFilterType))
             };
 
-            var recordsByPeriod = await _recordService.GetRecordsByPeriodAsync(from, to, householdId);
+            var recordsByPeriod = await _recordService.GetRecordsByPeriodAsync(from, to, categoryFilterType, householdId);
 
             int periodLengthInDays = (to.Date - from.Date).Days + 1;
 

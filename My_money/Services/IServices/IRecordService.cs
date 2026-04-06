@@ -59,6 +59,6 @@ namespace My_money.Services.IServices
         Task UpdateRecordAsync(Record record);
 
         Task<List<Record>> GetRecordsByCategoryIdAsync(int categoryId);
-        Task<List<Record>> GetRecordsByPeriodAsync(DateTime from, DateTime to, int? householdId);
+        Task<List<Record>> GetRecordsByPeriodAsync(DateTime from, DateTime to, CategoryFilterType categoryFilterType, int? householdId);
     }
 }

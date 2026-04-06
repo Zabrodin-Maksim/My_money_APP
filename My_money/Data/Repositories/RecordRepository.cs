@@ -209,6 +209,63 @@ namespace My_money.Data.Repositories
             return records;
         }
 
+        public async Task<List<Record>> GetHouseholdByPeriodAsync(DateTime from, DateTime to, int householdId)
+        {
+            return await GetByPeriodInternalAsync(
+                "SELECT * FROM Records WHERE DateTimeOccured >= @from AND DateTimeOccured <= @to " +
+                "AND HouseholdId = @householdId AND Scope = 'Shared'",
+                from,
+                to,
+                ("@householdId", householdId));
+        }
+
+        public async Task<List<Record>> GetPersonalByPeriodAsync(DateTime from, DateTime to, int ownerUserId)
+        {
+            return await GetByPeriodInternalAsync(
+                "SELECT * FROM Records WHERE DateTimeOccured >= @from AND DateTimeOccured <= @to " +
+                "AND OwnerUserId = @ownerUserId AND Scope = 'Personal'",
+                from,
+                to,
+                ("@ownerUserId", ownerUserId));
+        }
+
+        public async Task<List<Record>> GetChildByPeriodAsync(DateTime from, DateTime to, int householdId, int createdByUserId)
+        {
+            return await GetByPeriodInternalAsync(
+                "SELECT * FROM Records WHERE DateTimeOccured >= @from AND DateTimeOccured <= @to " +
+                "AND HouseholdId = @householdId AND CreatedByUserId = @createdByUserId AND Scope = 'Shared'",
+                from,
+                to,
+                ("@householdId", householdId),
+                ("@createdByUserId", createdByUserId));
+        }
+
+        private async Task<List<Record>> GetByPeriodInternalAsync(string query, DateTime from, DateTime to, params (string Name, object Value)[] parameters)
+        {
+            var records = new List<Record>();
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new SQLiteCommand(query, connection);
+                command.Parameters.AddWithValue("@from", from.ToString("yyyy-MM-dd HH:mm:ss"));
+                command.Parameters.AddWithValue("@to", to.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                foreach (var parameter in parameters)
+                {
+                    command.Parameters.AddWithValue(parameter.Name, parameter.Value);
+                }
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        records.Add(ReadRecord(reader));
+                    }
+                }
+            }
+            return records;
+        }
+
         private Record ReadRecord(DbDataReader reader)
         {
             return new Record

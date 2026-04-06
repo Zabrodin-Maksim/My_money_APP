@@ -20,6 +20,8 @@ namespace My_money.Data.Repositories.IRepositories
 
         Task<List<Record>> GetByCategoryIdAsync(int categoryId);
 
-        Task<List<Record>> GetByPeriodAsync(DateTime from, DateTime to, int? householdId, int? ownerUserId);
+        Task<List<Record>> GetHouseholdByPeriodAsync(DateTime from, DateTime to, int householdId);
+        Task<List<Record>> GetPersonalByPeriodAsync(DateTime from, DateTime to, int ownerUserId);
+        Task<List<Record>> GetChildByPeriodAsync(DateTime from, DateTime to, int householdId, int createdByUserId);
     }
 }
