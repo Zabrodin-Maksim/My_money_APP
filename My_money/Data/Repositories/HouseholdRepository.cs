@@ -1,4 +1,4 @@
-﻿using My_money.Data.Repositories.IRepositories;
+using My_money.Data.Repositories.IRepositories;
 using My_money.Model;
 using System;
 using System.Collections.Generic;
@@ -22,13 +22,23 @@ namespace My_money.Data.Repositories
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new SQLiteCommand(
-                    "INSERT INTO Households (Name, CreatedByUserId) " +
-                    "VALUES (@name, @createdByUserId); SELECT last_insert_rowid();", connection);
-                command.Parameters.AddWithValue("@name", household.Name);
-                command.Parameters.AddWithValue("@createdByUserId", household.CreatedByUserId);
-                return Convert.ToInt32(await command.ExecuteScalarAsync());
+                return await AddAsync(household, connection, null!);
             }
+        }
+
+        public async Task<int> AddAsync(Household household, SQLiteConnection connection, SQLiteTransaction transaction)
+        {
+            var command = new SQLiteCommand(
+                "INSERT INTO Households (Name, CreatedByUserId) " +
+                "VALUES (@name, @createdByUserId); SELECT last_insert_rowid();", connection);
+            if (transaction is not null)
+            {
+                command.Transaction = transaction;
+            }
+
+            command.Parameters.AddWithValue("@name", household.Name);
+            command.Parameters.AddWithValue("@createdByUserId", household.CreatedByUserId);
+            return Convert.ToInt32(await command.ExecuteScalarAsync());
         }
 
         public async Task DeleteAsync(int id)

@@ -1,4 +1,4 @@
-﻿using My_money.Data.Repositories.IRepositories;
+using My_money.Data.Repositories.IRepositories;
 using My_money.Model;
 using System;
 using System.Collections.Generic;
@@ -22,16 +22,26 @@ namespace My_money.Data.Repositories
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new SQLiteCommand(
-                    "INSERT INTO HouseholdMembers (HouseholdId, UserId, Role, CanManageBudget, CanManageMembers) " +
-                    "VALUES (@householdId, @userId, @role, @canManageBudget, @canManageMembers); SELECT last_insert_rowid();", connection);
-                command.Parameters.AddWithValue("@householdId", member.HouseholdId);
-                command.Parameters.AddWithValue("@userId", member.UserId);
-                command.Parameters.AddWithValue("@role", member.Role);
-                command.Parameters.AddWithValue("@canManageBudget", member.CanManageBudget);
-                command.Parameters.AddWithValue("@canManageMembers", member.CanManageMembers);
-                return Convert.ToInt32(await command.ExecuteScalarAsync());
+                return await AddAsync(member, connection, null!);
             }
+        }
+
+        public async Task<int> AddAsync(HouseholdMember member, SQLiteConnection connection, SQLiteTransaction transaction)
+        {
+            var command = new SQLiteCommand(
+                "INSERT INTO HouseholdMembers (HouseholdId, UserId, Role, CanManageBudget, CanManageMembers) " +
+                "VALUES (@householdId, @userId, @role, @canManageBudget, @canManageMembers); SELECT last_insert_rowid();", connection);
+            if (transaction is not null)
+            {
+                command.Transaction = transaction;
+            }
+
+            command.Parameters.AddWithValue("@householdId", member.HouseholdId);
+            command.Parameters.AddWithValue("@userId", member.UserId);
+            command.Parameters.AddWithValue("@role", member.Role);
+            command.Parameters.AddWithValue("@canManageBudget", member.CanManageBudget);
+            command.Parameters.AddWithValue("@canManageMembers", member.CanManageMembers);
+            return Convert.ToInt32(await command.ExecuteScalarAsync());
         }
 
         public async Task DeleteAsync(int id)

@@ -34,12 +34,25 @@ namespace My_money.Services
             }
 
             string tempPassword = PasswordGenerator.Generate();
+            string previousPasswordHash = user.PasswordHash;
+            int previousIsActive = user.IsActive;
+
             user.PasswordHash = PasswordHasher.HashPassword(tempPassword);
             user.IsActive = 0;
 
             await _userRepository.UpdateAsync(user);
 
-            await EmailService.SendAsync(user.Email, "Password Reset", EmailTemplates.PasswordReset(tempPassword));
+            try
+            {
+                await EmailService.SendAsync(user.Email, "Password Reset", EmailTemplates.PasswordReset(tempPassword));
+            }
+            catch
+            {
+                user.PasswordHash = previousPasswordHash;
+                user.IsActive = previousIsActive;
+                await _userRepository.UpdateAsync(user);
+                throw;
+            }
         }
     }
 }

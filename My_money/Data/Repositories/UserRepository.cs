@@ -1,4 +1,4 @@
-﻿using My_money.Data.Repositories.IRepositories;
+using My_money.Data.Repositories.IRepositories;
 using My_money.Model;
 using System;
 using System.Collections.Generic;
@@ -11,6 +11,7 @@ namespace My_money.Data.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly string _connectionString;
+        public string ConnectionString => _connectionString;
 
         public UserRepository(string connectionString)
         {
@@ -22,16 +23,26 @@ namespace My_money.Data.Repositories
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new SQLiteCommand(
-                    "INSERT INTO Users (Email, PasswordHash, DisplayName, IsActive) " +
-                    "VALUES (@email, @passwordHash, @displayName, @isActive); SELECT last_insert_rowid();", connection);
-                command.Parameters.AddWithValue("@email", user.Email);
-                command.Parameters.AddWithValue("@passwordHash", user.PasswordHash);
-                command.Parameters.AddWithValue("@displayName", user.DisplayName);
-                command.Parameters.AddWithValue("@isActive", user.IsActive);
-                var result = await command.ExecuteScalarAsync();
-                return Convert.ToInt32(result);
+                return await AddAsync(user, connection, null!);
             }
+        }
+
+        public async Task<int> AddAsync(User user, SQLiteConnection connection, SQLiteTransaction transaction)
+        {
+            var command = new SQLiteCommand(
+                "INSERT INTO Users (Email, PasswordHash, DisplayName, IsActive) " +
+                "VALUES (@email, @passwordHash, @displayName, @isActive); SELECT last_insert_rowid();", connection);
+            if (transaction is not null)
+            {
+                command.Transaction = transaction;
+            }
+
+            command.Parameters.AddWithValue("@email", user.Email);
+            command.Parameters.AddWithValue("@passwordHash", user.PasswordHash);
+            command.Parameters.AddWithValue("@displayName", user.DisplayName);
+            command.Parameters.AddWithValue("@isActive", user.IsActive);
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
         }
 
         public async Task DeleteAsync(int id)

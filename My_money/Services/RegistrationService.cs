@@ -1,10 +1,11 @@
-﻿using My_money.Data.Repositories.IRepositories;
+using My_money.Data.Repositories.IRepositories;
 using My_money.Enums;
 using My_money.Model;
 using My_money.Services.IServices;
 using My_money.Templates;
 using My_money.Utilities;
 using System;
+using System.Data.SQLite;
 using System.Threading.Tasks;
 
 namespace My_money.Services
@@ -18,8 +19,13 @@ namespace My_money.Services
         private readonly IUserFinanceRepository _userFinanceRepository;
         private readonly IUserSessionService _userSessionService;
 
-        public RegistrationService(IHouseholdRepository householdRepository, IUserRepository userRepository, IHouseholdMemberRepository householdMemberRepository, 
-            IHouseholdFinanceRepository householdFinanceRepository, IUserFinanceRepository userFinanceRepository, IUserSessionService userSessionService)
+        public RegistrationService(
+            IHouseholdRepository householdRepository,
+            IUserRepository userRepository,
+            IHouseholdMemberRepository householdMemberRepository,
+            IHouseholdFinanceRepository householdFinanceRepository,
+            IUserFinanceRepository userFinanceRepository,
+            IUserSessionService userSessionService)
         {
             _householdRepository = householdRepository;
             _userRepository = userRepository;
@@ -37,83 +43,131 @@ namespace My_money.Services
             var password = PasswordGenerator.Generate();
             var passwordHash = PasswordHasher.HashPassword(password);
 
-            var userId = await _userRepository.AddAsync(new User { DisplayName = username, Email = email , PasswordHash = passwordHash, IsActive = 0 });
-            await _userFinanceRepository.AddAsync(new UserFinance { UserId = userId });
+            using var connection = new SQLiteConnection(_userRepository.ConnectionString);
+            await connection.OpenAsync();
+            using var transaction = connection.BeginTransaction();
 
-            var householdId = await _householdRepository.AddAsync(household);
-            await _householdMemberRepository.AddAsync(new HouseholdMember
+            try
             {
-                HouseholdId = householdId,
-                UserId = userId,
-                Role = nameof(HouseholdMemberRole.Admin),
-                CanManageBudget = 1,
-                CanManageMembers = 1
-            });
-            await _householdFinanceRepository.AddAsync(new HouseholdFinance { HouseholdId = householdId });
+                var userId = await _userRepository.AddAsync(
+                    new User
+                    {
+                        DisplayName = username,
+                        Email = email,
+                        PasswordHash = passwordHash,
+                        IsActive = 0
+                    },
+                    connection,
+                    transaction);
 
+                await _userFinanceRepository.AddAsync(new UserFinance { UserId = userId }, connection, transaction);
+
+                household.CreatedByUserId = userId;
+                var householdId = await _householdRepository.AddAsync(household, connection, transaction);
+
+                await _householdMemberRepository.AddAsync(
+                    new HouseholdMember
+                    {
+                        HouseholdId = householdId,
+                        UserId = userId,
+                        Role = nameof(HouseholdMemberRole.Admin),
+                        CanManageBudget = 1,
+                        CanManageMembers = 1
+                    },
+                    connection,
+                    transaction);
+
+                await _householdFinanceRepository.AddAsync(new HouseholdFinance { HouseholdId = householdId }, connection, transaction);
+
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
 
             await EmailService.SendAsync(email, "Password Reset", EmailTemplates.NewUser(password));
         }
 
         public async Task RegisterUserAsync(string? passwordHash, string username, string email, HouseholdMemberRole role)
         {
-            if(!_userSessionService.IsAuthenticated)
+            if (!_userSessionService.IsAuthenticated)
                 throw new InvalidOperationException("User is not authenticated.");
 
-            if(_userSessionService.CurrentHouseholdMember!.Role != nameof(HouseholdMemberRole.Admin))
+            if (_userSessionService.CurrentHouseholdMember!.Role != nameof(HouseholdMemberRole.Admin))
                 throw new InvalidOperationException("Only household admins can register new users.");
 
             if (await _userRepository.GetByEmailAsync(email) != null)
                 throw new InvalidOperationException("Email is already registered.");
 
-            if (passwordHash != null && role == HouseholdMemberRole.Child)
+            if (role == HouseholdMemberRole.Child && string.IsNullOrWhiteSpace(passwordHash))
+                throw new InvalidOperationException("Admin must set the initial password for child accounts.");
+
+            string? passwordToEmail = null;
+            var householdId = _userSessionService.CurrentHouseholdMember.HouseholdId;
+
+            using var connection = new SQLiteConnection(_userRepository.ConnectionString);
+            await connection.OpenAsync();
+            using var transaction = connection.BeginTransaction();
+
+            try
             {
-                await _userRepository.AddAsync(new User { DisplayName = username, Email = email, PasswordHash = passwordHash, IsActive = 1 });
+                int userId;
+
+                if (passwordHash != null && role == HouseholdMemberRole.Child)
+                {
+                    userId = await _userRepository.AddAsync(
+                        new User
+                        {
+                            DisplayName = username,
+                            Email = email,
+                            PasswordHash = passwordHash,
+                            IsActive = 1
+                        },
+                        connection,
+                        transaction);
+                }
+                else
+                {
+                    passwordToEmail = PasswordGenerator.Generate();
+                    userId = await _userRepository.AddAsync(
+                        new User
+                        {
+                            DisplayName = username,
+                            Email = email,
+                            PasswordHash = PasswordHasher.HashPassword(passwordToEmail),
+                            IsActive = 0
+                        },
+                        connection,
+                        transaction);
+                }
+
+                await _userFinanceRepository.AddAsync(new UserFinance { UserId = userId }, connection, transaction);
+
+                await _householdMemberRepository.AddAsync(
+                    new HouseholdMember
+                    {
+                        HouseholdId = householdId,
+                        UserId = userId,
+                        Role = nameof(role),
+                        CanManageBudget = role == HouseholdMemberRole.Child ? 0 : 1,
+                        CanManageMembers = role == HouseholdMemberRole.Admin ? 1 : 0
+                    },
+                    connection,
+                    transaction);
+
+                transaction.Commit();
             }
-            else
+            catch
             {
-                var password = PasswordGenerator.Generate();
-                await _userRepository.AddAsync(new User { DisplayName = username, Email = email, PasswordHash = PasswordHasher.HashPassword(password), IsActive = 0 });
-                await EmailService.SendAsync(email, "Password Reset", EmailTemplates.NewUser(password));
+                transaction.Rollback();
+                throw;
             }
 
-            var user = await _userRepository.GetByEmailAsync(email);
-            await _userFinanceRepository.AddAsync(new UserFinance { UserId = (user!).Id });
-
-            switch (role)
+            if (passwordToEmail is not null)
             {
-                case HouseholdMemberRole.Admin:
-                    await _householdMemberRepository.AddAsync(new HouseholdMember
-                    {
-                        HouseholdId = _userSessionService.CurrentHouseholdMember!.HouseholdId,
-                        UserId = (user!).Id,
-                        Role = nameof(role),
-                        CanManageBudget = 1,
-                        CanManageMembers = 1
-                    });
-                    break;
-
-                case HouseholdMemberRole.Partner:
-                    await _householdMemberRepository.AddAsync(new HouseholdMember
-                    {
-                        HouseholdId = _userSessionService.CurrentHouseholdMember!.HouseholdId,
-                        UserId = (user!).Id,
-                        Role = nameof(role),
-                        CanManageBudget = 1,
-                        CanManageMembers = 0
-                    });
-                    break;
-
-                case HouseholdMemberRole.Child:
-                    await _householdMemberRepository.AddAsync(new HouseholdMember
-                    {
-                        HouseholdId = _userSessionService.CurrentHouseholdMember!.HouseholdId,
-                        UserId = (user!).Id,
-                        Role = nameof(role),
-                        CanManageBudget = 0,
-                        CanManageMembers = 0
-                    });
-                    break;
+                await EmailService.SendAsync(email, "Password Reset", EmailTemplates.NewUser(passwordToEmail));
             }
         }
     }

@@ -10,6 +10,7 @@ namespace My_money.Data.Repositories.IRepositories
         Task<HouseholdFinance?> GetByHouseholdIdAsync(int householdId);
         Task<HouseholdFinance?> GetByHouseholdIdAsync(int householdId, SQLiteConnection connection, SQLiteTransaction transaction);
         Task<int> AddAsync(HouseholdFinance finance);
+        Task<int> AddAsync(HouseholdFinance finance, SQLiteConnection connection, SQLiteTransaction transaction);
         Task UpdateAsync(HouseholdFinance finance);
         Task UpdateAsync(HouseholdFinance finance, SQLiteConnection connection, SQLiteTransaction transaction);
         Task DeleteAsync(int id);

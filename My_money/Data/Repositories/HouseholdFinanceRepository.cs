@@ -21,15 +21,25 @@ namespace My_money.Data.Repositories
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new SQLiteCommand(
-                    "INSERT INTO HouseholdFinances (HouseholdId, Savings, Balance) " +
-                    "VALUES (@householdId, @savings, @balance); SELECT last_insert_rowid();", connection);
-                command.Parameters.AddWithValue("@householdId", finance.HouseholdId);
-                command.Parameters.AddWithValue("@savings", finance.Savings);
-                command.Parameters.AddWithValue("@balance", finance.Balance);
-                var result = await command.ExecuteScalarAsync();
-                return Convert.ToInt32(result);
+                return await AddAsync(finance, connection, null!);
             }
+        }
+
+        public async Task<int> AddAsync(HouseholdFinance finance, SQLiteConnection connection, SQLiteTransaction transaction)
+        {
+            var command = new SQLiteCommand(
+                "INSERT INTO HouseholdFinances (HouseholdId, Savings, Balance) " +
+                "VALUES (@householdId, @savings, @balance); SELECT last_insert_rowid();", connection);
+            if (transaction is not null)
+            {
+                command.Transaction = transaction;
+            }
+
+            command.Parameters.AddWithValue("@householdId", finance.HouseholdId);
+            command.Parameters.AddWithValue("@savings", finance.Savings);
+            command.Parameters.AddWithValue("@balance", finance.Balance);
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
         }
 
         public async Task DeleteAsync(int id)
