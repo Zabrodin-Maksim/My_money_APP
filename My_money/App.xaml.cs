@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using My_money.Data.Repositories;
 using My_money.Data.Repositories.IRepositories;
 using My_money.Services;
@@ -19,8 +19,6 @@ namespace My_money
         {
             base.OnStartup(e);
 
-            #region DB directory
-
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             string appDir = Path.Combine(appData, "My_money");
             Directory.CreateDirectory(appDir);
@@ -30,95 +28,164 @@ namespace My_money
 
             if (!File.Exists(dbPath))
             {
-                InitializeDatabase(connectionString); 
+                InitializeDatabase(connectionString);
             }
-
-            #endregion
 
             var services = new ServiceCollection();
 
-            #region Repositories
+            services.AddSingleton<IUserRepository>(new UserRepository(connectionString));
+            services.AddSingleton<IHouseholdRepository>(new HouseholdRepository(connectionString));
+            services.AddSingleton<IHouseholdMemberRepository>(new HouseholdMemberRepository(connectionString));
+            services.AddSingleton<IHouseholdFinanceRepository>(new HouseholdFinanceRepository(connectionString));
             services.AddSingleton<IBudgetCategoryRepository>(new BudgetCategoryRepository(connectionString));
             services.AddSingleton<IRecordRepository>(new RecordRepository(connectionString));
             services.AddSingleton<ISavingsGoalRepository>(new SavingsGoalRepository(connectionString));
             services.AddSingleton<IUserFinanceRepository>(new UserFinanceRepository(connectionString));
-            #endregion
 
-            #region Services
+            services.AddSingleton<IUserSessionService, UserSessionService>();
+            services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<IHouseholdService, HouseholdService>();
+            services.AddSingleton<IHouseholdMemberService, HouseholdMemberService>();
+            services.AddSingleton<IHouseholdFinanceService, HouseholdFinanceService>();
+            services.AddSingleton<IUserFinanceService, UserFinanceService>();
             services.AddSingleton<IBudgetCategoryService, BudgetCategoryService>();
             services.AddSingleton<IRecordService, RecordService>();
             services.AddSingleton<ISavingsGoalService, SavingsGoalService>();
-            services.AddSingleton<IUserFinanceService, UserFinanceService>();
+            services.AddSingleton<IAuthService, AuthService>();
+            services.AddSingleton<IRegistrationService, RegistrationService>();
+            services.AddSingleton<IPasswordResetService, PasswordResetService>();
             services.AddSingleton<NavigationService>();
-            #endregion
 
-            #region ViewModels
             services.AddSingleton<MainViewModel>();
+            services.AddTransient<LoginViewModel>();
+            services.AddTransient<RegistrationViewModel>();
             services.AddTransient<DashboardViewModel>();
             services.AddTransient<AddViewModel>();
             services.AddTransient<HistoryViewModel>();
             services.AddTransient<MoneyBoxViewModel>();
             services.AddTransient<PlanViewModel>();
-            #endregion
+            services.AddTransient<HouseholdMembersViewModel>();
+            services.AddTransient<SettingsViewModel>();
 
             services.AddSingleton<MainWindow>();
 
             _serviceProvider = services.BuildServiceProvider();
 
             var window = _serviceProvider.GetRequiredService<MainWindow>();
+            var navigation = _serviceProvider.GetRequiredService<NavigationService>();
+            var userService = _serviceProvider.GetRequiredService<IUserService>();
 
-            // Start with DashboardView
-            _serviceProvider.GetRequiredService<NavigationService>().Navigate(ViewID.DashboardView);
+            var hasUsers = userService.GetAllUsersAsync().GetAwaiter().GetResult().Count > 0;
+            navigation.Navigate(hasUsers ? ViewID.LoginView : ViewID.RegistrationView);
 
             window.Show();
         }
 
-        // TODO: ПРИ ПЕРВОЙ ИНИЦИАЛИЗАЦИИ ДОБАВИТЬ В BudgetCategories "Other" для Scope = "Personal" И "Shared"
         private void InitializeDatabase(string connectionString)
         {
-            using (var connection = new System.Data.SQLite.SQLiteConnection(connectionString))
-            {
-                connection.Open();
+            using var connection = new System.Data.SQLite.SQLiteConnection(connectionString);
+            connection.Open();
 
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = @"
-                    CREATE TABLE ""BudgetCategories"" (
-	                    ""ID""	INTEGER,
-	                    ""Name""	TEXT NOT NULL,
-	                    ""Plan""	NUMERIC(10, 3),
-	                    ""Spend""	NUMERIC(10, 3),
-	                    PRIMARY KEY(""ID"" AUTOINCREMENT)
-                    );
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                PRAGMA foreign_keys = ON;
 
-                    CREATE TABLE ""Records"" (
-	                    ""ID""	INTEGER,
-	                    ""Cost""	NUMERIC(10, 3) NOT NULL,
-	                    ""CategoryId""	INTEGER,
-	                    ""DateTimeOccured""	TEXT,
-	                    ""Description""	TEXT,
-	                    PRIMARY KEY(""ID"" AUTOINCREMENT),
-	                    FOREIGN KEY(""CategoryId"") REFERENCES ""BudgetCategories""(""ID"")
-                    );
+                CREATE TABLE IF NOT EXISTS ""Users"" (
+                    ""ID"" INTEGER NOT NULL UNIQUE,
+                    ""Email"" TEXT NOT NULL UNIQUE,
+                    ""PasswordHash"" TEXT NOT NULL,
+                    ""DisplayName"" TEXT NOT NULL,
+                    ""IsActive"" INTEGER NOT NULL DEFAULT 1,
+                    PRIMARY KEY(""ID"" AUTOINCREMENT)
+                );
 
-                    CREATE TABLE ""SavingsGoals"" (
-	                    ""ID""	INTEGER,
-	                    ""GoalName""	TEXT NOT NULL,
-	                    ""Have""	NUMERIC(10, 3),
-	                    ""Need""	NUMERIC(10, 3),
-	                    PRIMARY KEY(""ID"" AUTOINCREMENT)
-                    );
+                CREATE TABLE IF NOT EXISTS ""Households"" (
+                    ""ID"" INTEGER NOT NULL UNIQUE,
+                    ""Name"" TEXT NOT NULL,
+                    ""CreatedByUserId"" INTEGER NOT NULL,
+                    PRIMARY KEY(""ID"" AUTOINCREMENT),
+                    FOREIGN KEY(""CreatedByUserId"") REFERENCES ""Users""(""ID"")
+                );
 
-                    CREATE TABLE ""UserFinances"" (
-	                    ""ID""	INTEGER,
-	                    ""Savings""	NUMERIC(10, 3),
-	                    ""Balance""	NUMERIC(10, 3),
-	                    PRIMARY KEY(""ID"" AUTOINCREMENT)
-                    );
-                    ";
-                    command.ExecuteNonQuery();
-                }
-            }
+                CREATE TABLE IF NOT EXISTS ""HouseholdMembers"" (
+                    ""ID"" INTEGER NOT NULL,
+                    ""HouseholdId"" INTEGER NOT NULL,
+                    ""UserId"" INTEGER NOT NULL UNIQUE,
+                    ""Role"" TEXT NOT NULL CHECK(""Role"" IN ('Admin', 'Partner', 'Child')),
+                    ""CanManageBudget"" INTEGER NOT NULL DEFAULT 0 CHECK(""CanManageBudget"" IN (0, 1)),
+                    ""CanManageMembers"" INTEGER NOT NULL DEFAULT 0 CHECK(""CanManageMembers"" IN (0, 1)),
+                    PRIMARY KEY(""ID"" AUTOINCREMENT),
+                    FOREIGN KEY(""HouseholdId"") REFERENCES ""Households""(""ID""),
+                    FOREIGN KEY(""UserId"") REFERENCES ""Users""(""ID"")
+                );
+
+                CREATE TABLE IF NOT EXISTS ""HouseholdFinances"" (
+                    ""ID"" INTEGER NOT NULL,
+                    ""HouseholdId"" INTEGER NOT NULL UNIQUE,
+                    ""Savings"" NUMERIC NOT NULL DEFAULT 0,
+                    ""Balance"" NUMERIC NOT NULL DEFAULT 0,
+                    PRIMARY KEY(""ID"" AUTOINCREMENT),
+                    FOREIGN KEY(""HouseholdId"") REFERENCES ""Households""(""ID"")
+                );
+
+                CREATE TABLE IF NOT EXISTS ""UserFinances"" (
+                    ""ID"" INTEGER NOT NULL,
+                    ""Savings"" NUMERIC NOT NULL DEFAULT 0,
+                    ""Balance"" NUMERIC NOT NULL DEFAULT 0,
+                    ""UserId"" INTEGER NOT NULL UNIQUE,
+                    PRIMARY KEY(""ID"" AUTOINCREMENT),
+                    FOREIGN KEY(""UserId"") REFERENCES ""Users""(""ID"")
+                );
+
+                CREATE TABLE IF NOT EXISTS ""BudgetCategories"" (
+                    ""ID"" INTEGER NOT NULL,
+                    ""Name"" TEXT NOT NULL,
+                    ""Plan"" NUMERIC NOT NULL DEFAULT 0,
+                    ""HouseholdId"" INTEGER NOT NULL,
+                    ""OwnerUserId"" INTEGER,
+                    ""Scope"" TEXT NOT NULL CHECK(( ""Scope"" = 'Personal' AND ""OwnerUserId"" IS NOT NULL) OR (""Scope"" = 'Shared' AND ""OwnerUserId"" IS NULL)),
+                    ""CreatedByUserId"" INTEGER NOT NULL,
+                    PRIMARY KEY(""ID"" AUTOINCREMENT),
+                    FOREIGN KEY(""CreatedByUserId"") REFERENCES ""Users""(""ID""),
+                    FOREIGN KEY(""HouseholdId"") REFERENCES ""Households""(""ID""),
+                    FOREIGN KEY(""OwnerUserId"") REFERENCES ""Users""(""ID"")
+                );
+
+                CREATE TABLE IF NOT EXISTS ""Records"" (
+                    ""ID"" INTEGER NOT NULL,
+                    ""Amount"" NUMERIC NOT NULL,
+                    ""CategoryId"" INTEGER,
+                    ""DateTimeOccured"" TEXT,
+                    ""Description"" TEXT,
+                    ""HouseholdId"" INTEGER NOT NULL,
+                    ""OwnerUserId"" INTEGER,
+                    ""CreatedByUserId"" INTEGER NOT NULL,
+                    ""Scope"" TEXT NOT NULL CHECK(( ""Scope"" = 'Personal' AND ""OwnerUserId"" IS NOT NULL) OR (""Scope"" = 'Shared' AND ""OwnerUserId"" IS NULL)),
+                    ""Type"" TEXT NOT NULL CHECK(""Type"" IN ('Expense', 'Income')),
+                    ""IncomeTarget"" TEXT CHECK(( ""Type"" = 'Income' AND ""IncomeTarget"" IN ('Balance', 'Savings')) OR (""Type"" = 'Expense' AND ""IncomeTarget"" IS NULL)),
+                    PRIMARY KEY(""ID"" AUTOINCREMENT),
+                    FOREIGN KEY(""CategoryId"") REFERENCES ""BudgetCategories""(""ID""),
+                    FOREIGN KEY(""CreatedByUserId"") REFERENCES ""Users""(""ID""),
+                    FOREIGN KEY(""HouseholdId"") REFERENCES ""Households""(""ID""),
+                    FOREIGN KEY(""OwnerUserId"") REFERENCES ""Users""(""ID"")
+                );
+
+                CREATE TABLE IF NOT EXISTS ""SavingsGoals"" (
+                    ""ID"" INTEGER NOT NULL,
+                    ""GoalName"" TEXT NOT NULL,
+                    ""Have"" NUMERIC NOT NULL DEFAULT 0,
+                    ""Need"" NUMERIC NOT NULL DEFAULT 0,
+                    ""HouseholdId"" INTEGER NOT NULL,
+                    ""OwnerUserId"" INTEGER,
+                    ""CreatedByUserId"" INTEGER NOT NULL,
+                    ""Scope"" TEXT NOT NULL CHECK(( ""Scope"" = 'Personal' AND ""OwnerUserId"" IS NOT NULL) OR (""Scope"" = 'Shared' AND ""OwnerUserId"" IS NULL)),
+                    PRIMARY KEY(""ID"" AUTOINCREMENT),
+                    FOREIGN KEY(""CreatedByUserId"") REFERENCES ""Users""(""ID""),
+                    FOREIGN KEY(""HouseholdId"") REFERENCES ""Households""(""ID""),
+                    FOREIGN KEY(""OwnerUserId"") REFERENCES ""Users""(""ID"")
+                );
+            ";
+            command.ExecuteNonQuery();
         }
 
         protected override void OnExit(ExitEventArgs e)

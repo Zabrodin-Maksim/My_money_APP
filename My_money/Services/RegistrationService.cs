@@ -49,6 +49,8 @@ namespace My_money.Services
 
             try
             {
+                await EmailService.SendAsync(email, "Password Reset", EmailTemplates.NewUser(password));
+
                 var userId = await _userRepository.AddAsync(
                     new User
                     {
@@ -86,8 +88,6 @@ namespace My_money.Services
                 transaction.Rollback();
                 throw;
             }
-
-            await EmailService.SendAsync(email, "Password Reset", EmailTemplates.NewUser(password));
         }
 
         public async Task RegisterUserAsync(string? passwordHash, string username, string email, HouseholdMemberRole role)

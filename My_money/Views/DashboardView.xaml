@@ -39,13 +39,19 @@
 
                     <StackPanel Margin="14,0,0,0">
                         <TextBlock Text="Dashboard" Style="{StaticResource PageTitleTextStyle}" />
-                        <TextBlock Text="Overview of spending, balance, and savings for the selected period."
+                        <TextBlock Text="Overview of spending, balance, and savings across household and personal contexts."
                                    Style="{StaticResource PageSubtitleTextStyle}" />
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <ComboBox ItemsSource="{Binding AvailableContexts}"
+                          SelectedItem="{Binding SelectedContext, Mode=TwoWay}"
+                          DisplayMemberPath="Title"
+                          Style="{StaticResource AppComboBoxStyle}"
+                          Width="180"
+                          Margin="0,0,12,0" />
                 <Border Style="{StaticResource PageBadgeBorderStyle}" Margin="12,0,0,0" Background="#1B2745">
                     <TextBlock Text="{Binding SelectedPeriodLabel}" Style="{StaticResource BadgeTextStyle}" />
                 </Border>
@@ -103,7 +109,7 @@
                         <TextBlock Text="{Binding Balance, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}"
                                    Style="{StaticResource MetricValueTextStyle}"
                                    Foreground="White" />
-                        <TextBlock Text="Cash currently available in balance"
+                        <TextBlock Text="{Binding BalanceCaption}"
                                    Style="{StaticResource MetricCaptionTextStyle}"
                                    Foreground="#E3FFFB"
                                    Margin="0,6,0,0" />
@@ -129,7 +135,7 @@
                         <TextBlock Text="{Binding Savings, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}"
                                    Style="{StaticResource MetricValueTextStyle}"
                                    Foreground="White" />
-                        <TextBlock Text="Money already moved into savings"
+                        <TextBlock Text="{Binding SavingsCaption}"
                                    Style="{StaticResource MetricCaptionTextStyle}"
                                    Foreground="#FFF0D9"
                                    Margin="0,6,0,0" />
@@ -159,7 +165,7 @@
 
                         <StackPanel>
                             <TextBlock Text="Budget categories" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Text="Planned amount, spent amount, and remaining balance for the selected period."
+                            <TextBlock Text="{Binding ContextDescription}"
                                        Style="{StaticResource PageSubtitleTextStyle}"
                                        Margin="0,6,0,0" />
                         </StackPanel>
@@ -198,9 +204,9 @@
 
                         <StackPanel>
                             <TextBlock Text="{Binding BudgetStatusText}" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Text=" "
+                            <TextBlock Text="{Binding ContextBadgeText}"
                                        Style="{StaticResource PageSubtitleTextStyle}"
-                                       Margin="0,0,0,0" />
+                                       Margin="0,6,0,0" />
                         </StackPanel>
                     </Grid>
                 </Border>

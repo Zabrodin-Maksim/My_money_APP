@@ -1,9 +1,7 @@
-﻿using My_money.Model;
+using My_money.Enums;
+using My_money.Model;
 using My_money.Services.IServices;
 using My_money.Views;
-using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -13,96 +11,187 @@ namespace My_money.ViewModel
     {
         #region Dependency Injection Services
         private readonly Services.NavigationService _navigationService;
+        private readonly IUserSessionService _userSessionService;
+        private readonly IHouseholdService _householdService;
         #endregion
 
-        public MainViewModel(Services.NavigationService navigationService)
+        public MainViewModel(
+            Services.NavigationService navigationService,
+            IUserSessionService userSessionService,
+            IHouseholdService householdService)
         {
+            #region Dependency Injection
             _navigationService = navigationService;
+            _userSessionService = userSessionService;
+            _householdService = householdService;
+            #endregion
 
             #region Commands
             NavigateToDashboard = new MyICommand<object>(NavigateToDashboardView);
             NavigateToHistory = new MyICommand<object>(NavigateToHistoryView);
             NavigateToPlan = new MyICommand<object>(NavigateToPlanView);
-            NavigateToMoneyBox = new MyICommand<object>(NavigateToBoxView);
-
+            NavigateToMoneyBox = new MyICommand<object>(NavigateToMoneyBoxView);
+            NavigateToMembers = new MyICommand<object>(NavigateToMembersView);
+            NavigateToSettings = new MyICommand<object>(NavigateToSettingsView);
+            LogoutCommand = new MyICommand<object>(OnLogout);
             ExitCommand = new MyICommand<object>(OnExit);
             MinimizeWindowCommand = new MyICommand<object>(MinimizeWindow);
-            //MaximizeWindowCommand = new MyICommand<object>(MaximizeWindow);
             #endregion
+
+            _ = RefreshSessionContextAsync();
         }
 
         #region Commands
-
-        #region Navigation Commands
-        public MyICommand<object> NavigateToDashboard { get; private set; }
-        public MyICommand<object> NavigateToHistory { get; private set; }
-        public MyICommand<object> NavigateToPlan { get; private set; }
-        public MyICommand<object> NavigateToMoneyBox { get; private set; }
-
+        public MyICommand<object> NavigateToDashboard { get; }
+        public MyICommand<object> NavigateToHistory { get; }
+        public MyICommand<object> NavigateToPlan { get; }
+        public MyICommand<object> NavigateToMoneyBox { get; }
+        public MyICommand<object> NavigateToMembers { get; }
+        public MyICommand<object> NavigateToSettings { get; }
+        public MyICommand<object> LogoutCommand { get; }
+        public MyICommand<object> ExitCommand { get; }
+        public MyICommand<object> MinimizeWindowCommand { get; }
         #endregion
 
-        public MyICommand<object> ExitCommand { get; private set; }
-
-        public MyICommand<object> MinimizeWindowCommand { get; private set; }
-
-        //public MyICommand<object> MaximizeWindowCommand { get; private set; }
-        #endregion
-
-        // Узел DI, внутри NavigationService происходит инъекция нужной VM в зависимости от переданного ViewID
-        #region NAVIGATION
-
+        #region Properties
         private ViewModelBase currentView;
         public ViewModelBase CurrentView
         {
-            get { return currentView; }
-            set { SetProperty(ref currentView, value); }
+            get => currentView;
+            set => SetProperty(ref currentView, value);
         }
 
-        private async Task NavigateToDashboardView(object o)
+        private string currentUserName = "Guest";
+        public string CurrentUserName
         {
-            _navigationService.Navigate(ViewID.DashboardView);
+            get => currentUserName;
+            set => SetProperty(ref currentUserName, value);
         }
 
-        private async Task NavigateToHistoryView(object o)
+        private string currentRole = "Not signed in";
+        public string CurrentRole
         {
-            _navigationService.Navigate(ViewID.HistoryView);
+            get => currentRole;
+            set => SetProperty(ref currentRole, value);
         }
 
-        private async Task NavigateToPlanView(object o)
+        private string currentHouseholdName = "No household";
+        public string CurrentHouseholdName
         {
-            _navigationService.Navigate(ViewID.PlanView);
+            get => currentHouseholdName;
+            set => SetProperty(ref currentHouseholdName, value);
         }
 
-        private async Task NavigateToBoxView(object o)
+        private string sessionSummary = "Sign in to access your household workspace.";
+        public string SessionSummary
         {
-            _navigationService.Navigate(ViewID.MoneyBoxView);
+            get => sessionSummary;
+            set => SetProperty(ref sessionSummary, value);
         }
         #endregion
 
+        #region Computed Properties
+        public bool IsAuthenticated => _userSessionService.IsAuthenticated;
+        public bool IsAdmin => _userSessionService.CurrentHouseholdMember?.Role == nameof(HouseholdMemberRole.Admin);
+        public bool IsChild => _userSessionService.CurrentHouseholdMember?.Role == nameof(HouseholdMemberRole.Child);
+        public bool MustChangePassword => _userSessionService.CurrentUser?.IsActive == 0;
+        public bool CanUseFinanceWorkspace => IsAuthenticated && !MustChangePassword;
+        public Visibility AuthenticatedVisibility => IsAuthenticated ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility MembersVisibility => IsAdmin && !MustChangePassword ? Visibility.Visible : Visibility.Collapsed;
+        #endregion
 
-        #region Exit
-        private Task OnExit(object param)
+        public async Task RefreshSessionContextAsync()
+        {
+            if (!_userSessionService.IsAuthenticated || _userSessionService.CurrentUser is null)
+            {
+                CurrentUserName = "Guest";
+                CurrentRole = "Not signed in";
+                CurrentHouseholdName = "No household";
+                SessionSummary = "Sign in or register the first household admin account to begin.";
+            }
+            else
+            {
+                CurrentUserName = _userSessionService.CurrentUser.DisplayName;
+                CurrentRole = _userSessionService.CurrentHouseholdMember?.Role ?? nameof(HouseholdMemberRole.Partner);
+
+                Household? household = await _householdService.GetHouseholdByAuthenticatedUserAsync();
+                CurrentHouseholdName = household?.Name ?? "No household";
+
+                SessionSummary = MustChangePassword
+                    ? "Password reset is required before the rest of the workspace becomes available."
+                    : CurrentRole switch
+                    {
+                        nameof(HouseholdMemberRole.Admin) => "Admin access to shared finances, members, and household management.",
+                        nameof(HouseholdMemberRole.Partner) => "Partner access to shared finances and private records.",
+                        nameof(HouseholdMemberRole.Child) => "Child access focused on shared contributions and read-only planning.",
+                        _ => "Authenticated household session."
+                    };
+            }
+
+            OnPropertyChanged(nameof(IsAuthenticated));
+            OnPropertyChanged(nameof(IsAdmin));
+            OnPropertyChanged(nameof(IsChild));
+            OnPropertyChanged(nameof(MustChangePassword));
+            OnPropertyChanged(nameof(CanUseFinanceWorkspace));
+            OnPropertyChanged(nameof(AuthenticatedVisibility));
+            OnPropertyChanged(nameof(MembersVisibility));
+        }
+
+        #region Navigation Methods
+        private Task NavigateToDashboardView(object _)
+        {
+            _navigationService.Navigate(ViewID.DashboardView);
+            return Task.CompletedTask;
+        }
+
+        private Task NavigateToHistoryView(object _)
+        {
+            _navigationService.Navigate(ViewID.HistoryView);
+            return Task.CompletedTask;
+        }
+
+        private Task NavigateToPlanView(object _)
+        {
+            _navigationService.Navigate(ViewID.PlanView);
+            return Task.CompletedTask;
+        }
+
+        private Task NavigateToMoneyBoxView(object _)
+        {
+            _navigationService.Navigate(ViewID.MoneyBoxView);
+            return Task.CompletedTask;
+        }
+
+        private Task NavigateToMembersView(object _)
+        {
+            _navigationService.Navigate(ViewID.HouseholdMembersView);
+            return Task.CompletedTask;
+        }
+
+        private Task NavigateToSettingsView(object _)
+        {
+            _navigationService.Navigate(ViewID.SettingsView);
+            return Task.CompletedTask;
+        }
+        #endregion
+
+        private async Task OnLogout(object _)
+        {
+            _userSessionService.EndSession();
+            await RefreshSessionContextAsync();
+            _navigationService.Navigate(ViewID.LoginView);
+        }
+
+        private Task OnExit(object _)
         {
             Application.Current.Shutdown();
             return Task.CompletedTask;
         }
-        #endregion
 
-
-        #region Minimize Window
-        private Task MinimizeWindow(object par)
+        private Task MinimizeWindow(object _)
         {
             SystemCommands.MinimizeWindow(Application.Current.MainWindow);
             return Task.CompletedTask;
         }
-        #endregion
-
-
-        //#region Maximize Window()
-        //private void MaximizeWindow(object par)
-        //{
-        //    SystemCommands.MaximizeWindow(Application.Current.MainWindow);
-        //}
-        //#endregion
     }
 }

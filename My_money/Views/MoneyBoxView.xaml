@@ -34,7 +34,7 @@
 
                 <StackPanel Margin="14,0,0,0">
                     <TextBlock Text="Moneybox" Style="{StaticResource PageTitleTextStyle}" />
-                    <TextBlock Text="Track savings goals, edit targets inline, and see how much money is still unassigned."
+                    <TextBlock Text="Track shared or private savings goals and see how much savings is still free to assign."
                                Style="{StaticResource PageSubtitleTextStyle}" />
                 </StackPanel>
             </StackPanel>
@@ -52,7 +52,7 @@
             <Border Grid.Column="0" Style="{StaticResource MetricCardStyle}" Background="{StaticResource MetricTealBrush}">
                 <StackPanel>
                     <DockPanel>
-                        <TextBlock Text="Total savings" Style="{StaticResource MetricCaptionTextStyle}" Foreground="#F2FFFC" />
+                        <TextBlock Text="{Binding SavingsCaption}" Style="{StaticResource MetricCaptionTextStyle}" Foreground="#F2FFFC" />
                     </DockPanel>
 
                     <TextBlock Text="{Binding TotalSavings, StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}"
@@ -68,7 +68,7 @@
             <Border Grid.Column="1" Style="{StaticResource MetricCardStyle}" Background="{StaticResource MetricBlueBrush}" Margin="18,0,0,0">
                 <StackPanel>
                     <DockPanel>
-                        <TextBlock Text="Available for new goals" Style="{StaticResource MetricCaptionTextStyle}" Foreground="#EEF2FF" />
+                        <TextBlock Text="{Binding AvailableCaption}" Style="{StaticResource MetricCaptionTextStyle}" Foreground="#EEF2FF" />
                     </DockPanel>
 
                     <TextBlock Text="{Binding NotUsedMoney, StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}"
@@ -100,16 +100,17 @@
 
                         <StackPanel>
                             <TextBlock Text="Savings goals" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Text="Edit goal names and amounts directly in the table. Changes are saved after row editing finishes."
+                            <TextBlock Text="{Binding ContextDescription}"
                                        Style="{StaticResource PageSubtitleTextStyle}"
                                        Margin="0,6,0,0" />
                         </StackPanel>
                     </Grid>
 
                     <DataGrid Grid.Row="1"
-                              SelectedItem="{Binding selectedItem}"
+                              SelectedItem="{Binding SelectedItem}"
                               ItemsSource="{Binding SavingsGoals}"
                               AutoGenerateColumns="False"
+                              IsReadOnly="{Binding IsReadOnlyGoals}"
                               Style="{StaticResource AppDataGridStyle}"
                               ColumnHeaderStyle="{StaticResource AppDataGridColumnHeaderStyle}"
                               RowStyle="{StaticResource AppDataGridRowStyle}"
@@ -156,19 +157,29 @@
 
                 <Border Style="{StaticResource ContentCardStyle}">
                     <StackPanel>
+                        <TextBlock Text="Context" Style="{StaticResource SectionTitleTextStyle}" />
+                        <TextBlock Text="Choose whether you want to inspect household, personal, or your own shared goals."
+                                   Style="{StaticResource PageSubtitleTextStyle}"
+                                   Margin="0,6,0,14" />
+                        <ComboBox ItemsSource="{Binding AvailableContexts}"
+                                  SelectedItem="{Binding SelectedContext, Mode=TwoWay}"
+                                  DisplayMemberPath="Title"
+                                  Style="{StaticResource AppComboBoxStyle}"
+                                  Margin="0,0,0,16" />
+
                         <TextBlock Text="Manage goals" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="Add a new goal or delete the currently selected one from the table."
+                        <TextBlock Text="Adults can create, update, and delete goals. Child accounts stay view-only."
                                    Style="{StaticResource PageSubtitleTextStyle}"
                                    Margin="0,6,0,16" />
 
-                        <Button Command="{Binding AddCommand}" Style="{StaticResource PrimaryButtonStyle}">
+                        <Button Command="{Binding AddCommand}" Style="{StaticResource PrimaryButtonStyle}" IsEnabled="{Binding CanManageGoals}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <fa:IconImage Icon="Plus" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
                                 <TextBlock Text="Add goal" Margin="10,0,0,0" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <Button Command="{Binding DeleteCommand}" Style="{StaticResource DangerButtonStyle}" Margin="0,12,0,0">
+                        <Button Command="{Binding DeleteCommand}" Style="{StaticResource DangerButtonStyle}" Margin="0,12,0,0" IsEnabled="{Binding CanManageGoals}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <fa:IconImage Icon="TrashCan" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
                                 <TextBlock Text="Delete goal" Margin="10,0,0,0" VerticalAlignment="Center" />
@@ -180,16 +191,7 @@
                 <Border Grid.Row="1" Style="{StaticResource MutedCardStyle}" Margin="0,18,0,0">
                     <StackPanel>
                         <TextBlock Text="How this works" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="Completed goals remove their reserved money from savings. Incomplete goals return the saved amount back into available savings on deletion."
-                                   Style="{StaticResource PageSubtitleTextStyle}"
-                                   Margin="0,8,0,0" />
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Row="2" Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0">
-                    <StackPanel>
-                        <TextBlock Text="Editing hint" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="Click a cell to edit the value directly."
+                        <TextBlock Text="Available savings is calculated as total savings minus the money already allocated across visible goals.&#x0a;Click a cell to edit the value directly."
                                    Style="{StaticResource PageSubtitleTextStyle}"
                                    Margin="0,8,0,0" />
                     </StackPanel>

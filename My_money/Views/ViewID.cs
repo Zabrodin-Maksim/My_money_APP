@@ -1,12 +1,15 @@
-﻿
 namespace My_money.Views
 {
     public enum ViewID
     {
-        AddView,
+        LoginView,
+        RegistrationView,
         DashboardView,
+        AddView,
         HistoryView,
         PlanView,
-        MoneyBoxView
+        MoneyBoxView,
+        HouseholdMembersView,
+        SettingsView
     }
 }

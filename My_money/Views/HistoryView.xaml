@@ -32,7 +32,7 @@
 
                 <StackPanel Margin="14,0,0,0">
                     <TextBlock Text="History" Style="{StaticResource PageTitleTextStyle}" />
-                    <TextBlock Text="Browse past records, change the sort order, and remove entries you no longer need."
+                    <TextBlock Text="Browse shared or private records, switch context, and review the timeline."
                                Style="{StaticResource PageSubtitleTextStyle}" />
                 </StackPanel>
             </StackPanel>
@@ -59,7 +59,7 @@
 
                         <StackPanel>
                             <TextBlock Text="Record timeline" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Text="Select an item to delete it, or simply scan recent activity by date or amount."
+                            <TextBlock Text="{Binding ContextDescription}"
                                        Style="{StaticResource PageSubtitleTextStyle}"
                                        Margin="0,6,0,0" />
                         </StackPanel>
@@ -74,9 +74,11 @@
                         <ListView.View>
                             <GridView ColumnHeaderContainerStyle="{StaticResource AppGridViewHeaderStyle}">
                                 <GridViewColumn Header="Date" DisplayMemberBinding="{Binding DateTimeOccurred, StringFormat={}{0:dd.MM.yyyy}}" Width="150" />
+                                <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}" Width="110" />
+                                <GridViewColumn Header="Scope" DisplayMemberBinding="{Binding Scope}" Width="110" />
                                 <GridViewColumn Header="Category" DisplayMemberBinding="{Binding CategoryName}" Width="180" />
-                                <GridViewColumn Header="Amount" DisplayMemberBinding="{Binding Cost, StringFormat={}{0:c1}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
-                                <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="420" />
+                                <GridViewColumn Header="Amount" DisplayMemberBinding="{Binding Amount, StringFormat={}{0:c1}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
+                                <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="300" />
                             </GridView>
                         </ListView.View>
                     </ListView>
@@ -87,10 +89,24 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
                 <Border Style="{StaticResource ContentCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Context" Style="{StaticResource SectionTitleTextStyle}" />
+                        <TextBlock Text="Choose which record stream should be displayed in the timeline."
+                                   Style="{StaticResource PageSubtitleTextStyle}"
+                                   Margin="0,6,0,14" />
+                        <ComboBox ItemsSource="{Binding AvailableContexts}"
+                                  SelectedItem="{Binding SelectedContext, Mode=TwoWay}"
+                                  DisplayMemberPath="Title"
+                                  Style="{StaticResource AppComboBoxStyle}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" Style="{StaticResource ContentCardStyle}" Margin="0,10,0,0">
                     <StackPanel>
                         <TextBlock Text="Sort mode" Style="{StaticResource SectionTitleTextStyle}" />
                         <TextBlock Text="Switch between a date-first and amount-first view."
@@ -113,13 +129,15 @@
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Row="1" Style="{StaticResource MutedCardStyle}" Margin="0,18,0,0">
+                <Border Grid.Row="2" Style="{StaticResource MutedCardStyle}" Margin="0,10,0,0">
                     <StackPanel>
                         <TextBlock Text="Delete selection" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="Choose an entry from the table and then remove it from history."
+                        <TextBlock Text="Adults can remove entries. Child accounts stay read-only in history."
                                    Style="{StaticResource PageSubtitleTextStyle}"
                                    Margin="0,6,0,16" />
-                        <Button Command="{Binding DeleteCommand}" Style="{StaticResource DangerButtonStyle}">
+                        <Button Command="{Binding DeleteCommand}"
+                                Style="{StaticResource DangerButtonStyle}"
+                                IsEnabled="{Binding CanDeleteRecords}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <fa:IconImage Icon="TrashCan" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
                                 <TextBlock Text="Delete record" Margin="10,0,0,0" VerticalAlignment="Center" />
@@ -128,12 +146,12 @@
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Row="2" Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0">
+                <Border Grid.Row="3" Style="{StaticResource ContentCardStyle}" Margin="0,10,0,0">
                     <StackPanel>
                         <TextBlock Text="Tip" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="When you sort by amount, the most expensive records rise to the top, which makes anomalies easier to spot."
+                        <TextBlock
                                    Style="{StaticResource PageSubtitleTextStyle}"
-                                   Margin="0,8,0,0" />
+                                   Margin="0,8,0,0" Text="When you sort by amount, the most expensive records rise to the top" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
             </Grid>

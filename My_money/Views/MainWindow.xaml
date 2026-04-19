@@ -19,6 +19,14 @@
         AllowsTransparency="True">
 
     <Window.Resources>
+        <DataTemplate DataType="{x:Type vm:LoginViewModel}">
+            <views:LoginView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:RegistrationViewModel}">
+            <views:RegistrationView />
+        </DataTemplate>
+
         <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
             <views:DashboardView />
         </DataTemplate>
@@ -37,6 +45,14 @@
 
         <DataTemplate DataType="{x:Type vm:PlanViewModel}">
             <views:PlanView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:HouseholdMembersViewModel}">
+            <views:HouseholdMembersView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <views:SettingsView />
         </DataTemplate>
     </Window.Resources>
 
@@ -77,37 +93,80 @@
                             <TextBlock Text="My Money"
                                        Style="{StaticResource PageTitleTextStyle}"
                                        Margin="0,18,0,0" />
-                            <TextBlock Text="Cleaner tracking, smarter planning, and a dashboard that finally feels modern."
-                                       Style="{StaticResource PageSubtitleTextStyle}"
-                                       Margin="0,8,0,0" />
+
+                            <Border Style="{StaticResource MutedCardStyle}"
+                                    Padding="14"
+                                    Margin="0,18,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding CurrentUserName}"
+                                               Style="{StaticResource SectionTitleTextStyle}" />
+                                    <TextBlock Text="{Binding CurrentRole, StringFormat=Role: {0}}"
+                                               Style="{StaticResource PageSubtitleTextStyle}"
+                                               Margin="0,6,0,0" />
+                                    <TextBlock Text="{Binding CurrentHouseholdName, StringFormat=Household: {0}}"
+                                               Style="{StaticResource PageSubtitleTextStyle}"
+                                               Margin="0,4,0,0" />
+                                    <TextBlock Text="{Binding SessionSummary}"
+                                               Style="{StaticResource PageSubtitleTextStyle}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,10,0,0" />
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="1" Margin="0,28,0,0">
-                            <Button Command="{Binding NavigateToDashboard}" Style="{StaticResource NavButtonStyle}">
+                        <StackPanel Grid.Row="1"
+                                    Margin="0,28,0,0"
+                                    Visibility="{Binding AuthenticatedVisibility}">
+                            <Button Command="{Binding NavigateToDashboard}"
+                                    Style="{StaticResource NavButtonStyle}"
+                                    IsEnabled="{Binding CanUseFinanceWorkspace}">
                                 <StackPanel Orientation="Horizontal">
                                     <fa:IconImage Icon="ChartPie" Width="18" Height="18" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                     <TextBlock Text="Dashboard" Margin="14,0,0,0" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
 
-                            <Button Command="{Binding NavigateToMoneyBox}" Style="{StaticResource NavButtonStyle}">
+                            <Button Command="{Binding NavigateToMoneyBox}"
+                                    Style="{StaticResource NavButtonStyle}"
+                                    IsEnabled="{Binding CanUseFinanceWorkspace}">
                                 <StackPanel Orientation="Horizontal">
                                     <fa:IconImage Icon="PiggyBank" Width="18" Height="18" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
-                                    <TextBlock Text="Moneybox" Margin="14,0,0,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="Savings Goals" Margin="14,0,0,0" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
 
-                            <Button Command="{Binding NavigateToPlan}" Style="{StaticResource NavButtonStyle}">
+                            <Button Command="{Binding NavigateToPlan}"
+                                    Style="{StaticResource NavButtonStyle}"
+                                    IsEnabled="{Binding CanUseFinanceWorkspace}">
                                 <StackPanel Orientation="Horizontal">
                                     <fa:IconImage Icon="ListCheck" Width="18" Height="18" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
-                                    <TextBlock Text="Plan" Margin="14,0,0,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="Budget Categories" Margin="14,0,0,0" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
 
-                            <Button Command="{Binding NavigateToHistory}" Style="{StaticResource NavButtonStyle}">
+                            <Button Command="{Binding NavigateToHistory}"
+                                    Style="{StaticResource NavButtonStyle}"
+                                    IsEnabled="{Binding CanUseFinanceWorkspace}">
                                 <StackPanel Orientation="Horizontal">
                                     <fa:IconImage Icon="ClockRotateLeft" Width="18" Height="18" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                     <TextBlock Text="History" Margin="14,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding NavigateToMembers}"
+                                    Style="{StaticResource NavButtonStyle}"
+                                    Visibility="{Binding MembersVisibility}">
+                                <StackPanel Orientation="Horizontal">
+                                    <fa:IconImage Icon="Users" Width="18" Height="18" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                    <TextBlock Text="Members" Margin="14,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Command="{Binding NavigateToSettings}"
+                                    Style="{StaticResource NavButtonStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <fa:IconImage Icon="Gear" Width="18" Height="18" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                    <TextBlock Text="Settings" Margin="14,0,0,0" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -123,16 +182,19 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Text="By Maksim Zabrodin"
+                                <TextBlock Text="Workspace controls" Margin="0,0,0,10"
                                            Style="{StaticResource SectionTitleTextStyle}" />
-                                <TextBlock Grid.Row="1"
-                                           Text="Quick access to your monthly budget, savings goals, and record history."
-                                           Style="{StaticResource PageSubtitleTextStyle}"
-                                           Margin="0,8,0,14" />
 
                                 <StackPanel Grid.Row="2" Orientation="Horizontal">
                                     <Button Command="{Binding MinimizeWindowCommand}" Style="{StaticResource IconButtonStyle}">
                                         <fa:IconImage Icon="WindowMinimize" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
+                                    </Button>
+
+                                    <Button Command="{Binding LogoutCommand}"
+                                            Style="{StaticResource IconButtonStyle}"
+                                            Margin="10,0,0,0"
+                                            Visibility="{Binding AuthenticatedVisibility}">
+                                        <fa:IconImage Icon="ArrowRightFromBracket" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
                                     </Button>
 
                                     <Button Command="{Binding ExitCommand}" Style="{StaticResource IconButtonStyle}" Margin="10,0,0,0">
@@ -152,9 +214,9 @@
 
                     <DockPanel Margin="4,0,4,18">
                         <StackPanel DockPanel.Dock="Left">
-                            <TextBlock Text="Personal finance workspace"
+                            <TextBlock Text="Multi-user finance workspace"
                                        Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Text="Overview, planning, savings, and history in one continuous flow."
+                            <TextBlock Text="Authentication, household management, private finances, and shared planning in one application shell."
                                        Style="{StaticResource PageSubtitleTextStyle}"
                                        Margin="0,4,0,0" />
                         </StackPanel>

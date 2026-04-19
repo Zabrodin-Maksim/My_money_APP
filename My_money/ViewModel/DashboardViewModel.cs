@@ -1,3 +1,4 @@
+using My_money.Enums;
 using My_money.Model;
 using My_money.Services.IServices;
 using My_money.Views;
@@ -13,10 +14,62 @@ namespace My_money.ViewModel
         #region Dependency Injection Services
         private readonly IBudgetCategoryService _budgetCategoryService;
         private readonly IUserFinanceService _userFinanceService;
+        private readonly IHouseholdFinanceService _householdFinanceService;
+        private readonly IUserSessionService _userSessionService;
         private readonly Services.NavigationService _navigationService;
         #endregion
 
+        public DashboardViewModel(
+            IBudgetCategoryService budgetCategoryService,
+            IUserFinanceService userFinanceService,
+            IHouseholdFinanceService householdFinanceService,
+            IUserSessionService userSessionService,
+            Services.NavigationService navigationService)
+        {
+            #region Dependency Injection
+            _budgetCategoryService = budgetCategoryService;
+            _userFinanceService = userFinanceService;
+            _householdFinanceService = householdFinanceService;
+            _userSessionService = userSessionService;
+            _navigationService = navigationService;
+            #endregion
+
+            NavigateToAdd = new MyICommand<object>(NavigateToAddView);
+
+            InitializeContexts();
+            _ = RefreshDashboardAsync();
+        }
+
+        public MyICommand<object> NavigateToAdd { get; }
+
         #region Properties
+        private ObservableCollection<ContextOption> availableContexts = new();
+        public ObservableCollection<ContextOption> AvailableContexts
+        {
+            get => availableContexts;
+            set => SetProperty(ref availableContexts, value);
+        }
+
+        private ContextOption selectedContext;
+        public ContextOption SelectedContext
+        {
+            get => selectedContext;
+            set
+            {
+                if (selectedContext == value || value is null)
+                {
+                    return;
+                }
+
+                SetProperty(ref selectedContext, value);
+                OnPropertyChanged(nameof(ContextBadgeText));
+                OnPropertyChanged(nameof(BalanceCaption));
+                OnPropertyChanged(nameof(SavingsCaption));
+                _ = RefreshDashboardAsync();
+            }
+        }
+
+
         private decimal totalSpend;
         public decimal TotalSpend
         {
@@ -24,8 +77,8 @@ namespace My_money.ViewModel
             set => SetProperty(ref totalSpend, value);
         }
 
-        private decimal? balance;
-        public decimal? Balance
+        private decimal balance;
+        public decimal Balance
         {
             get => balance;
             set => SetProperty(ref balance, value);
@@ -59,7 +112,14 @@ namespace My_money.ViewModel
             set => SetProperty(ref budgetStatusText, value);
         }
 
-        private int selectedSortPeriod = 1; // 0 - day, 1 - month, 2 - year
+        private string contextDescription = string.Empty;
+        public string ContextDescription
+        {
+            get => contextDescription;
+            set => SetProperty(ref contextDescription, value);
+        }
+
+        private int selectedSortPeriod = 1;
         public int SelectedSortPeriod
         {
             get => selectedSortPeriod;
@@ -94,56 +154,81 @@ namespace My_money.ViewModel
         }
         #endregion
 
-        #region Commands
-        public MyICommand<object> NavigateToAdd { get; }
+        #region Computed Properties
+        public string ContextBadgeText => SelectedContext?.Title ?? "Context";
+        public string BalanceCaption => SelectedContext?.UsesHouseholdFinance == true ? "Household balance" : "Personal balance";
+        public string SavingsCaption => SelectedContext?.UsesHouseholdFinance == true ? "Household savings" : "Personal savings";
+
+        private int AuthenticatedUserId => _userSessionService.CurrentUser?.Id ?? 0;
+        private int? HouseholdId => _userSessionService.CurrentHouseholdMember?.HouseholdId;
+        private bool IsChild => _userSessionService.CurrentHouseholdMember?.Role == nameof(HouseholdMemberRole.Child);
         #endregion
 
-        public DashboardViewModel(
-            IBudgetCategoryService budgetCategoryService,
-            IUserFinanceService userFinanceService,
-            Services.NavigationService navigationService)
+        private void InitializeContexts()
         {
-            _budgetCategoryService = budgetCategoryService;
-            _userFinanceService = userFinanceService;
-            _navigationService = navigationService;
+            AvailableContexts.Clear();
+            AvailableContexts.Add(new ContextOption
+            {
+                Title = "Household",
+                FilterType = CategoryFilterType.Household,
+                UsesHouseholdFinance = true
+            });
 
-            NavigateToAdd = new MyICommand<object>(NavigateToAddView);
+            if (!IsChild)
+            {
+                AvailableContexts.Add(new ContextOption
+                {
+                    Title = "Personal",
+                    FilterType = CategoryFilterType.Personal,
+                    UsesHouseholdFinance = false
+                });
+            }
+            else
+            {
+                AvailableContexts.Add(new ContextOption
+                {
+                    Title = "My shared activity",
+                    FilterType = CategoryFilterType.Child,
+                    UsesHouseholdFinance = true
+                });
+            }
 
-            _ = LoadDataAsync();
-        }
-
-        #region Data Service Methods
-        private async Task GetAllBudgetCategoriesByPeriodAsync(DateTime from, DateTime to)
-        {
-            BudgetCategories = new ObservableCollection<BudgetCategory>(
-                await _budgetCategoryService.GetAllBudgetCategoriesByPeriodAsync(from, to));
-        }
-
-        private Task<UserFinance> GetUserFinanceAsync()
-        {
-            return _userFinanceService.GetUserFinanceAsync();
-        }
-        #endregion
-
-        private async Task LoadDataAsync()
-        {
-            await RefreshDashboardAsync();
+            SelectedContext = AvailableContexts.First();
         }
 
         private async Task RefreshDashboardAsync()
         {
+            if (SelectedContext is null)
+            {
+                return;
+            }
+
             var (from, to) = GetPeriodRange(SelectedDate, SelectedSortPeriod);
             SelectedPeriodLabel = BuildPeriodLabel(from, to, SelectedSortPeriod);
 
-            await GetAllBudgetCategoriesByPeriodAsync(from, to);
+            BudgetCategories = new ObservableCollection<BudgetCategory>(
+                await _budgetCategoryService.GetAllBudgetCategoriesByPeriodAsync(from, to, SelectedContext.FilterType, HouseholdId));
 
             TotalSpend = BudgetCategories.Sum(cat => cat.SpendByPeriod ?? 0m);
 
-            var userFinance = await GetUserFinanceAsync();
-            Balance = userFinance.Balance;
-            Savings = userFinance.Savings;
+            if (SelectedContext.UsesHouseholdFinance)
+            {
+                var householdFinance = HouseholdId.HasValue
+                    ? await _householdFinanceService.GetHouseholdFinanceByHouseholdIdAsync(HouseholdId.Value)
+                    : null;
+
+                Balance = householdFinance?.Balance ?? 0m;
+                Savings = householdFinance?.Savings ?? 0m;
+            }
+            else
+            {
+                var userFinance = await _userFinanceService.GetByUserIdAsync(AuthenticatedUserId);
+                Balance = userFinance?.Balance ?? 0m;
+                Savings = userFinance?.Savings ?? 0m;
+            }
 
             UpdateBudgetStatus();
+            UpdateContextDescription();
         }
 
         private void UpdateBudgetStatus()
@@ -170,6 +255,17 @@ namespace My_money.ViewModel
             {
                 BudgetStatusText = "Over plan";
             }
+        }
+
+        private void UpdateContextDescription()
+        {
+            ContextDescription = SelectedContext.FilterType switch
+            {
+                CategoryFilterType.Household => "Shared household categories and spending for the selected period.",
+                CategoryFilterType.Personal => "Private categories and spending that belong only to the signed-in user.",
+                CategoryFilterType.Child when IsChild => "Your own shared contributions inside the household budget.",
+                _ => "Finance context overview."
+            };
         }
 
         private static string BuildPeriodLabel(DateTime from, DateTime to, int selectedSortPeriod)

@@ -1,0 +1,160 @@
+<UserControl x:Class="My_money.Views.HouseholdMembersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="760"
+             d:DesignWidth="1024">
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Border Width="44"
+                        Height="44"
+                        Background="{StaticResource AccentButtonBrush}"
+                        CornerRadius="14"
+                        VerticalAlignment="Center">
+                    <fa:IconImage Icon="Users"
+                                  Width="18"
+                                  Height="18"
+                                  Foreground="{StaticResource TextPrimaryBrush}"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center" />
+                </Border>
+
+                <StackPanel Margin="14,0,0,0">
+                    <TextBlock Text="Household Members" Style="{StaticResource PageTitleTextStyle}" />
+                    <TextBlock Text="Invite new members, issue temporary passwords, and manage child passwords from one place." Style="{StaticResource PageSubtitleTextStyle}" />
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="0,22,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.35*" />
+                <ColumnDefinition Width="0.85*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Style="{StaticResource ContentCardStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Margin="22,22,22,14">
+                        <StackPanel>
+                            <TextBlock Text="Current members" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Select a member to issue a temporary password or set a new child password." Style="{StaticResource PageSubtitleTextStyle}" Margin="0,6,0,0" />
+                        </StackPanel>
+                    </Grid>
+
+                    <ListView Grid.Row="1"
+                              ItemsSource="{Binding Members}"
+                              SelectedItem="{Binding SelectedMember, Mode=TwoWay}"
+                              Style="{StaticResource AppListViewStyle}"
+                              ItemContainerStyle="{StaticResource AppListViewItemStyle}"
+                              Margin="0,0,6,6">
+                        <ListView.View>
+                            <GridView ColumnHeaderContainerStyle="{StaticResource AppGridViewHeaderStyle}">
+                                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding DisplayName}" Width="160" />
+                                <GridViewColumn Header="Email" DisplayMemberBinding="{Binding Email}" Width="160" />
+                                <GridViewColumn Header="Role" DisplayMemberBinding="{Binding Role}" Width="100" />
+                                <GridViewColumn Header="Budget" DisplayMemberBinding="{Binding CanManageBudget}" Width="90" />
+                                <GridViewColumn Header="Members" DisplayMemberBinding="{Binding CanManageMembers}" Width="90" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Column="1" Margin="20,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Style="{StaticResource ContentCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Invite member" Style="{StaticResource SectionTitleTextStyle}" />
+                        <TextBlock Text="Admins can add partners, other admins, or child accounts." Style="{StaticResource PageSubtitleTextStyle}" Margin="0,6,0,0" />
+
+                        <TextBlock Text="Display name" Style="{StaticResource FieldLabelTextStyle}" Margin="0,18,0,0" />
+                        <TextBox Text="{Binding NewMemberName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBoxStyle}" />
+
+                        <TextBlock Text="Email" Style="{StaticResource FieldLabelTextStyle}" Margin="0,18,0,0" />
+                        <TextBox Text="{Binding NewMemberEmail, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBoxStyle}" />
+
+                        <TextBlock Text="Role" Style="{StaticResource FieldLabelTextStyle}" Margin="0,18,0,0" />
+                        <ComboBox ItemsSource="{Binding RoleOptions}"
+                                  SelectedItem="{Binding SelectedRole, Mode=TwoWay}"
+                                  Style="{StaticResource AppComboBoxStyle}" />
+
+                        <StackPanel Margin="0,18,0,0">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding NewMemberNeedsPassword}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+
+                            <TextBlock Text="Initial child password" Style="{StaticResource FieldLabelTextStyle}" />
+                            <PasswordBox PasswordChanged="ChildInitialPasswordBox_OnPasswordChanged"
+                                         Style="{StaticResource AppPasswordBoxStyle}" />
+                        </StackPanel>
+
+                        <Button Command="{Binding AddMemberCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,22,0,0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <fa:IconImage Icon="UserPlus" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
+                                <TextBlock Text="Add member" Margin="10,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" Style="{StaticResource MutedCardStyle}" Margin="0,18,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Adult account reset" Style="{StaticResource SectionTitleTextStyle}" />
+                        <TextBlock Text="Select an adult member and send a new temporary password to their email." Style="{StaticResource PageSubtitleTextStyle}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                        <Button Command="{Binding SendTemporaryPasswordCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="0,18,0,0"
+                                IsEnabled="{Binding SelectedMemberIsAdult}">
+                            <TextBlock Text="Send temporary password" />
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="2" Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Child password" Style="{StaticResource SectionTitleTextStyle}" />
+                        <TextBlock Text="Only admins can change the password for child accounts." Style="{StaticResource PageSubtitleTextStyle}" TextWrapping="Wrap" Margin="0,8,0,0" />
+
+                        <TextBlock Text="New password for selected child" Style="{StaticResource FieldLabelTextStyle}" Margin="0,18,0,0" />
+                        <PasswordBox PasswordChanged="NewChildPasswordBox_OnPasswordChanged"
+                                     Style="{StaticResource AppPasswordBoxStyle}" />
+
+                        <Button Command="{Binding UpdateChildPasswordCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Margin="0,22,0,0"
+                                IsEnabled="{Binding SelectedMemberIsChild}">
+                            <TextBlock Text="Update child password" />
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

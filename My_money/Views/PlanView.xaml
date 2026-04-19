@@ -34,15 +34,12 @@
 
                 <StackPanel Margin="14,0,0,0">
                     <TextBlock Text="Plan" Style="{StaticResource PageTitleTextStyle}" />
-                    <TextBlock Text="Define category budgets, adjust them inline, and keep the monthly structure clean."
+                    <TextBlock Text="Define category budgets for household or personal flows and adjust them inline."
                                Style="{StaticResource PageSubtitleTextStyle}" />
                 </StackPanel>
             </StackPanel>
         </StackPanel>
-
-        <Border Grid.Row="1" DockPanel.Dock="Right" Width="80" Height="80" Background="#22FFFFFF" CornerRadius="14" Panel.ZIndex="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="855,0,0,0">
-            <fa:IconImage Icon="ScaleBalanced" Width="50" Height="50" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
-        </Border>
+        
         <Border Grid.Row="1"
                 Style="{StaticResource MetricCardStyle}"
                 Background="{StaticResource MetricBlueBrush}"
@@ -80,16 +77,17 @@
 
                         <StackPanel>
                             <TextBlock Text="Budget plan" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Text="Edit category names and target amounts. The table saves changes when row editing ends."
+                            <TextBlock Text="{Binding ContextDescription}"
                                        Style="{StaticResource PageSubtitleTextStyle}"
                                        Margin="0,6,0,0" />
                         </StackPanel>
                     </Grid>
 
                     <DataGrid Grid.Row="1"
-                              SelectedItem="{Binding selectedItem}"
+                              SelectedItem="{Binding SelectedItem}"
                               ItemsSource="{Binding BudgetCategories}"
                               AutoGenerateColumns="False"
+                              IsReadOnly="{Binding IsReadOnlyCategories}"
                               Style="{StaticResource AppDataGridStyle}"
                               ColumnHeaderStyle="{StaticResource AppDataGridColumnHeaderStyle}"
                               RowStyle="{StaticResource AppDataGridRowStyle}"
@@ -126,19 +124,29 @@
 
                 <Border Style="{StaticResource ContentCardStyle}">
                     <StackPanel>
+                        <TextBlock Text="Context" Style="{StaticResource SectionTitleTextStyle}" />
+                        <TextBlock Text="Choose whether you want to inspect household, personal, or your own shared goals."
+                                   Style="{StaticResource PageSubtitleTextStyle}"
+                                   Margin="0,6,0,14" />
+                        <ComboBox ItemsSource="{Binding AvailableContexts}"
+                                  SelectedItem="{Binding SelectedContext, Mode=TwoWay}"
+                                  DisplayMemberPath="Title"
+                                  Style="{StaticResource AppComboBoxStyle}"
+                                  Margin="0,0,0,16" />
+
                         <TextBlock Text="Manage categories" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="Create a new category or remove the selected one from the budget plan."
+                        <TextBlock Text="Adults can create and manage categories. Child accounts stay read-only here."
                                    Style="{StaticResource PageSubtitleTextStyle}"
                                    Margin="0,6,0,16" />
 
-                        <Button Command="{Binding AddCommand}" Style="{StaticResource PrimaryButtonStyle}" Cursor="Hand">
+                        <Button Command="{Binding AddCommand}" Style="{StaticResource PrimaryButtonStyle}" Cursor="Hand" IsEnabled="{Binding CanManageCategories}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <fa:IconImage Icon="Plus" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
                                 <TextBlock Text="Add category" Margin="10,0,0,0" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <Button Command="{Binding DeleteCommand}" Style="{StaticResource DangerButtonStyle}" Margin="0,12,0,0">
+                        <Button Command="{Binding DeleteCommand}" Style="{StaticResource DangerButtonStyle}" Margin="0,12,0,0" IsEnabled="{Binding CanManageCategories}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <fa:IconImage Icon="TrashCan" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
                                 <TextBlock Text="Delete category" Margin="10,0,0,0" VerticalAlignment="Center" />
@@ -150,16 +158,7 @@
                 <Border Grid.Row="1" Style="{StaticResource MutedCardStyle}" Margin="0,18,0,0">
                     <StackPanel>
                         <TextBlock Text="Planning tip" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="Categories with realistic caps make the dashboard status and the pie breakdown much more useful."
-                                   Style="{StaticResource PageSubtitleTextStyle}"
-                                   Margin="0,8,0,0" />
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Row="2" Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0">
-                    <StackPanel>
-                        <TextBlock Text="Inline editing" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="Edit the cells directly, then click outside the row to persist the update."
+                        <TextBlock Text="Categories with realistic caps make the dashboard status and the pie breakdown much more useful.&#x0a;Click a cell to edit the value directly."
                                    Style="{StaticResource PageSubtitleTextStyle}"
                                    Margin="0,8,0,0" />
                     </StackPanel>
