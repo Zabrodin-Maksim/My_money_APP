@@ -156,7 +156,7 @@ namespace My_money.Services
                     {
                         HouseholdId = householdId,
                         UserId = userId,
-                        Role = nameof(role),
+                        Role = role.ToString(),
                         CanManageBudget = role == HouseholdMemberRole.Child ? 0 : 1,
                         CanManageMembers = role == HouseholdMemberRole.Admin ? 1 : 0
                     },

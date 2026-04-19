@@ -44,7 +44,7 @@
                                  Style="{StaticResource AppPasswordBoxStyle}" />
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
+                <StackPanel Orientation="Horizontal" Margin="0,24,0,24" HorizontalAlignment="Center">
                     <Button Command="{Binding LoginCommand}" Style="{StaticResource PrimaryButtonStyle}" Width="170">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <fa:IconImage Icon="RightToBracket" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
@@ -56,6 +56,11 @@
                         <TextBlock Text="Create first household" />
                     </Button>
                 </StackPanel>
+
+                <Button Command="{Binding ForgotPasswordCommand}" Style="{StaticResource SecondaryButtonStyle}" Width="180" HorizontalAlignment="Center">
+                    <TextBlock Text="Forgot password" />
+                </Button>
+                
             </StackPanel>
         </Border>
 
@@ -71,6 +76,16 @@
                     <StackPanel>
                         <TextBlock Text="First login" Style="{StaticResource SectionTitleTextStyle}" />
                         <TextBlock Text="Accounts created by an admin arrive with a temporary password and are redirected to settings for a required password change."
+                                   Style="{StaticResource PageSubtitleTextStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Forgot password?" Style="{StaticResource SectionTitleTextStyle}" />
+                        <TextBlock Text="Enter your email on the left and request a temporary password. After sign-in, the app will force you to set a new one."
                                    Style="{StaticResource PageSubtitleTextStyle}"
                                    TextWrapping="Wrap"
                                    Margin="0,8,0,0" />

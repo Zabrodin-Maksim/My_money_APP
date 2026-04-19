@@ -11,6 +11,7 @@ namespace My_money.ViewModel
         #region Dependency Injection Services
         private readonly IAuthService _authService;
         private readonly IHouseholdMemberService _householdMemberService;
+        private readonly IPasswordResetService _passwordResetService;
         private readonly IUserSessionService _userSessionService;
         private readonly Services.NavigationService _navigationService;
         #endregion
@@ -18,24 +19,28 @@ namespace My_money.ViewModel
         public LoginViewModel(
             IAuthService authService,
             IHouseholdMemberService householdMemberService,
+            IPasswordResetService passwordResetService,
             IUserSessionService userSessionService,
             Services.NavigationService navigationService)
         {
             #region Dependency Injection
             _authService = authService;
             _householdMemberService = householdMemberService;
+            _passwordResetService = passwordResetService;
             _userSessionService = userSessionService;
             _navigationService = navigationService;
             #endregion
 
             #region Commands
             LoginCommand = new MyICommand<object>(OnLogin);
+            ForgotPasswordCommand = new MyICommand<object>(OnForgotPassword);
             OpenRegistrationCommand = new MyICommand<object>(OpenRegistration);
             #endregion
         }
 
         #region Commands
         public MyICommand<object> LoginCommand { get; }
+        public MyICommand<object> ForgotPasswordCommand { get; }
         public MyICommand<object> OpenRegistrationCommand { get; }
         #endregion
 
@@ -93,6 +98,31 @@ namespace My_money.ViewModel
         {
             _navigationService.Navigate(ViewID.RegistrationView);
             return Task.CompletedTask;
+        }
+
+        private async Task OnForgotPassword(object _)
+        {
+            try
+            {
+                var normalizedEmail = Email.Trim();
+
+                if (string.IsNullOrWhiteSpace(normalizedEmail))
+                {
+                    throw new InvalidOperationException("Enter your email first so we know where to send the temporary password.");
+                }
+
+                await _passwordResetService.ResetPasswordWithTemporary(normalizedEmail);
+                StatusMessage = "If the account exists, a temporary password has been sent to the email address and must be changed after login.";
+                MessageBox.Show(
+                    "If the account exists, a temporary password has been sent to the email address. Use it to sign in, then change your password in settings.",
+                    "Password reset",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Password reset failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
     }
 }
