@@ -87,7 +87,10 @@ namespace My_money.ViewModel
 
         public bool SelectedMemberIsChild => SelectedMember?.Role == nameof(HouseholdMemberRole.Child);
         public bool SelectedMemberIsAdult => SelectedMember is not null && SelectedMember.Role != nameof(HouseholdMemberRole.Child);
-        public bool CanEditSelectedMember => CanManageMembers && SelectedMember is not null;
+        public bool CanEditSelectedMember => IsAdmin && SelectedMember is not null;
+        public bool IsAdmin => _userSessionService.CurrentHouseholdMember?.Role == nameof(HouseholdMemberRole.Admin);
+        public Visibility AdminVisibility => IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+        public bool CanEditMembersTable => IsAdmin;
 
         private string newMemberName = string.Empty;
         public string NewMemberName
@@ -136,7 +139,8 @@ namespace My_money.ViewModel
 
         public bool NewMemberNeedsPassword => SelectedRole == HouseholdMemberRole.Child;
         public bool NewMemberUsesEmail => SelectedRole != HouseholdMemberRole.Child;
-        public bool CanManageMembers => _userSessionService.CurrentHouseholdMember?.Role == nameof(HouseholdMemberRole.Admin);
+        public bool CanManageMembers => _userSessionService.CurrentHouseholdMember?.Role != nameof(HouseholdMemberRole.Child)
+            && _userSessionService.CurrentHouseholdMember?.CanManageMembers == 1;
 
         private async Task LoadMembersAsync()
         {
@@ -179,9 +183,9 @@ namespace My_money.ViewModel
         {
             try
             {
-                if (!CanManageMembers)
+                if (!IsAdmin)
                 {
-                    throw new InvalidOperationException("Only admins can manage household members.");
+                    throw new InvalidOperationException("Only admins can add household members.");
                 }
 
                 if (string.IsNullOrWhiteSpace(NewMemberName))
@@ -231,9 +235,9 @@ namespace My_money.ViewModel
         {
             try
             {
-                if (!CanManageMembers)
+                if (!IsAdmin)
                 {
-                    throw new InvalidOperationException("Only admins can manage household members.");
+                    throw new InvalidOperationException("Only admins can edit member roles, rights, and names.");
                 }
 
                 if (SelectedMember is null)
@@ -284,9 +288,9 @@ namespace My_money.ViewModel
         {
             try
             {
-                if (!CanManageMembers)
+                if (!IsAdmin)
                 {
-                    throw new InvalidOperationException("Only admins can manage household members.");
+                    throw new InvalidOperationException("Only admins can reset passwords for other members.");
                 }
 
                 if (SelectedMember is null || !SelectedMemberIsAdult)
@@ -307,9 +311,9 @@ namespace My_money.ViewModel
         {
             try
             {
-                if (!CanManageMembers)
+                if (!IsAdmin)
                 {
-                    throw new InvalidOperationException("Only admins can manage household members.");
+                    throw new InvalidOperationException("Only admins can delete household members.");
                 }
 
                 if (SelectedMember is null)
@@ -356,9 +360,9 @@ namespace My_money.ViewModel
         {
             try
             {
-                if (!CanManageMembers)
+                if (!IsAdmin)
                 {
-                    throw new InvalidOperationException("Only admins can manage household members.");
+                    throw new InvalidOperationException("Only admins can change child passwords.");
                 }
 
                 if (SelectedMember is null || !SelectedMemberIsChild)

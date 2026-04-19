@@ -92,12 +92,13 @@ namespace My_money.ViewModel
 
         #region Computed Properties
         public bool IsAuthenticated => _userSessionService.IsAuthenticated;
-        public bool IsAdmin => _userSessionService.CurrentHouseholdMember?.Role == nameof(HouseholdMemberRole.Admin);
         public bool IsChild => _userSessionService.CurrentHouseholdMember?.Role == nameof(HouseholdMemberRole.Child);
+        public bool CanManageBudget => !IsChild && _userSessionService.CurrentHouseholdMember?.CanManageBudget == 1;
+        public bool CanManageMembers => !IsChild && _userSessionService.CurrentHouseholdMember?.CanManageMembers == 1;
         public bool MustChangePassword => _userSessionService.CurrentUser?.IsActive == 0;
         public bool CanUseFinanceWorkspace => IsAuthenticated && !MustChangePassword;
         public Visibility AuthenticatedVisibility => IsAuthenticated ? Visibility.Visible : Visibility.Collapsed;
-        public Visibility MembersVisibility => IsAdmin && !MustChangePassword ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility MembersVisibility => CanManageMembers && !MustChangePassword ? Visibility.Visible : Visibility.Collapsed;
         #endregion
 
         public async Task RefreshSessionContextAsync()
@@ -129,8 +130,9 @@ namespace My_money.ViewModel
             }
 
             OnPropertyChanged(nameof(IsAuthenticated));
-            OnPropertyChanged(nameof(IsAdmin));
             OnPropertyChanged(nameof(IsChild));
+            OnPropertyChanged(nameof(CanManageBudget));
+            OnPropertyChanged(nameof(CanManageMembers));
             OnPropertyChanged(nameof(MustChangePassword));
             OnPropertyChanged(nameof(CanUseFinanceWorkspace));
             OnPropertyChanged(nameof(AuthenticatedVisibility));

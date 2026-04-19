@@ -69,6 +69,8 @@ namespace My_money.ViewModel
 
                 SetProperty(ref selectedContext, value);
                 OnPropertyChanged(nameof(ContextDescription));
+                OnPropertyChanged(nameof(CanManageGoals));
+                OnPropertyChanged(nameof(IsReadOnlyGoals));
                 _ = LoadDataAsync();
             }
         }
@@ -111,8 +113,9 @@ namespace My_money.ViewModel
             CategoryFilterType.Child => "Shared goals created by the signed-in user.",
             _ => "Savings goals overview"
         };
-        public bool CanManageGoals => !IsChild;
-        public bool IsReadOnlyGoals => IsChild;
+        public bool CanManageBudget => !IsChild && _userSessionService.CurrentHouseholdMember?.CanManageBudget == 1;
+        public bool CanManageGoals => CanManageBudget && SelectedContext?.FilterType != CategoryFilterType.Child;
+        public bool IsReadOnlyGoals => !CanManageGoals;
         public string SavingsCaption => SelectedContext?.UsesHouseholdFinance == true ? "Household savings" : "Personal savings";
         public string AvailableCaption => SelectedContext?.UsesHouseholdFinance == true ? "Available for shared goals" : "Available for private goals";
 
@@ -151,6 +154,7 @@ namespace My_money.ViewModel
             }
 
             SelectedContext = AvailableContexts.First();
+            OnPropertyChanged(nameof(CanManageBudget));
             OnPropertyChanged(nameof(CanManageGoals));
             OnPropertyChanged(nameof(IsReadOnlyGoals));
         }
@@ -185,9 +189,9 @@ namespace My_money.ViewModel
         #region Commands Implementation
         private async Task OnAdd(object _)
         {
-            if (IsChild)
+            if (!CanManageGoals)
             {
-                MessageBox.Show("Child accounts can review savings goals, but they cannot create them.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("You do not have permission to manage savings goals in this context.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -215,9 +219,9 @@ namespace My_money.ViewModel
 
         private async Task OnDelete(object _)
         {
-            if (IsChild)
+            if (!CanManageGoals)
             {
-                MessageBox.Show("Child accounts cannot delete savings goals.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("You do not have permission to manage savings goals in this context.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -240,9 +244,9 @@ namespace My_money.ViewModel
 
         private async Task OnUpdate(object _)
         {
-            if (IsChild)
+            if (!CanManageGoals)
             {
-                MessageBox.Show("Child accounts cannot edit savings goals.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("You do not have permission to manage savings goals in this context.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 

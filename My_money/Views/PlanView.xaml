@@ -135,7 +135,7 @@
                                   Margin="0,0,0,16" />
 
                         <TextBlock Text="Manage categories" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="Adults can create and manage categories. Child accounts stay read-only here."
+                        <TextBlock Text="Members with budget permission can create and manage categories. Child accounts stay read-only here."
                                    Style="{StaticResource PageSubtitleTextStyle}"
                                    Margin="0,6,0,16" />
 

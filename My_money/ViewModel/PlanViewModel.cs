@@ -61,6 +61,8 @@ namespace My_money.ViewModel
 
                 SetProperty(ref selectedContext, value);
                 OnPropertyChanged(nameof(ContextDescription));
+                OnPropertyChanged(nameof(CanManageCategories));
+                OnPropertyChanged(nameof(IsReadOnlyCategories));
                 _ = LoadDataAsync();
             }
         }
@@ -96,8 +98,9 @@ namespace My_money.ViewModel
             CategoryFilterType.Child => "Shared categories created by the signed-in user.",
             _ => "Budget plan overview"
         };
-        public bool CanManageCategories => !IsChild;
-        public bool IsReadOnlyCategories => IsChild;
+        public bool CanManageBudget => !IsChild && _userSessionService.CurrentHouseholdMember?.CanManageBudget == 1;
+        public bool CanManageCategories => CanManageBudget && SelectedContext?.FilterType != CategoryFilterType.Child;
+        public bool IsReadOnlyCategories => !CanManageCategories;
 
         private int HouseholdId => _userSessionService.CurrentHouseholdMember?.HouseholdId ?? 0;
         private int UserId => _userSessionService.CurrentUser?.Id ?? 0;
@@ -134,6 +137,7 @@ namespace My_money.ViewModel
             }
 
             SelectedContext = AvailableContexts.First();
+            OnPropertyChanged(nameof(CanManageBudget));
             OnPropertyChanged(nameof(CanManageCategories));
             OnPropertyChanged(nameof(IsReadOnlyCategories));
         }
@@ -154,9 +158,9 @@ namespace My_money.ViewModel
         #region Command Implementations
         private async Task OnDelete(object _)
         {
-            if (IsChild)
+            if (!CanManageCategories)
             {
-                MessageBox.Show("Child accounts cannot delete budget categories.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("You do not have permission to manage budget categories in this context.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -180,9 +184,9 @@ namespace My_money.ViewModel
 
         private async Task OnAdd(object _)
         {
-            if (IsChild)
+            if (!CanManageCategories)
             {
-                MessageBox.Show("Child accounts cannot create budget categories.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("You do not have permission to manage budget categories in this context.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -209,9 +213,9 @@ namespace My_money.ViewModel
 
         private async Task OnUpdate(object _)
         {
-            if (IsChild)
+            if (!CanManageCategories)
             {
-                MessageBox.Show("Child accounts cannot edit budget categories.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("You do not have permission to manage budget categories in this context.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 

@@ -55,7 +55,7 @@
                         <Grid Margin="22,22,22,14">
                             <StackPanel>
                                 <TextBlock Text="Current members" Style="{StaticResource SectionTitleTextStyle}" />
-                                <TextBlock Text="Admins can edit display names, roles, and rights directly in the table, then save the selected member."
+                                <TextBlock Text="Only admins can edit display names, roles, and rights directly in the table, then save the selected member."
                                            Style="{StaticResource PageSubtitleTextStyle}"
                                            Margin="0,6,0,0" />
                             </StackPanel>
@@ -68,7 +68,6 @@
                                   CanUserAddRows="False"
                                   CanUserDeleteRows="False"
                                   CanUserSortColumns="False"
-                                  IsEnabled="{Binding CanManageMembers}"
                                   ColumnHeaderStyle="{StaticResource AppDataGridColumnHeaderStyle}"
                                   RowStyle="{StaticResource AppDataGridRowStyle}"
                                   CellStyle="{StaticResource AppDataGridCellStyle}"
@@ -99,7 +98,7 @@
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellEditingTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridCheckBoxColumn Header="Budget Manage"
+                                <DataGridCheckBoxColumn Header="Budget Manage" Visibility="{Binding AdminVisibility}"
                                                         Binding="{Binding CanManageBudgetEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                         Width="95">
                                     <DataGridCheckBoxColumn.ElementStyle>
@@ -115,7 +114,7 @@
                                         </Style>
                                     </DataGridCheckBoxColumn.EditingElementStyle>
                                 </DataGridCheckBoxColumn>
-                                <DataGridCheckBoxColumn Header="Members Manage"
+                                <DataGridCheckBoxColumn Header="Members Manage" Visibility="{Binding AdminVisibility}"
                                                         Binding="{Binding CanManageMembersEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                         Width="95">
                                     <DataGridCheckBoxColumn.ElementStyle>
@@ -144,10 +143,10 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <Border Style="{StaticResource ContentCardStyle}">
+                    <Border Style="{StaticResource ContentCardStyle}" Visibility="{Binding AdminVisibility}">
                         <StackPanel>
                             <TextBlock Text="Invite member" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Text="Admins can add partners, other admins, or child accounts." Style="{StaticResource PageSubtitleTextStyle}" Margin="0,6,0,0" />
+                            <TextBlock Text="Only admins can add partners, other admins, or child accounts." Style="{StaticResource PageSubtitleTextStyle}" Margin="0,6,0,0" />
 
                             <TextBlock Text="Display name" Style="{StaticResource FieldLabelTextStyle}" Margin="0,18,0,0" />
                             <TextBox Text="{Binding NewMemberName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBoxStyle}" />
@@ -199,39 +198,36 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Row="1" Style="{StaticResource MutedCardStyle}" Margin="0,18,0,0">
+                    <Border Grid.Row="1" Style="{StaticResource MutedCardStyle}" Margin="0,18,0,0" Visibility="{Binding AdminVisibility}">
                         <StackPanel>
                             <TextBlock Text="Edit selected member" Style="{StaticResource SectionTitleTextStyle}" />
                             <TextBlock Text="Choose a row on the left, make changes in the table, then save them here." Style="{StaticResource PageSubtitleTextStyle}" TextWrapping="Wrap" Margin="0,8,0,0" />
                             <Button Command="{Binding SaveSelectedMemberCommand}"
                                     Style="{StaticResource PrimaryButtonStyle}"
-                                    Margin="0,18,0,0"
-                                    IsEnabled="{Binding CanEditSelectedMember}">
+                                    Margin="0,18,0,0">
                                 <TextBlock Text="Save selected member" />
                             </Button>
                             <Button Command="{Binding DeleteSelectedMemberCommand}"
                                     Style="{StaticResource DangerButtonStyle}"
-                                    Margin="0,12,0,0"
-                                    IsEnabled="{Binding CanEditSelectedMember}">
+                                    Margin="0,12,0,0">
                                 <TextBlock Text="Delete selected member" />
                             </Button>
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Row="2" Style="{StaticResource MutedCardStyle}" Margin="0,18,0,0">
+                    <Border Grid.Row="2" Style="{StaticResource MutedCardStyle}" Margin="0,18,0,0" Visibility="{Binding AdminVisibility}">
                         <StackPanel>
                             <TextBlock Text="Adult account reset" Style="{StaticResource SectionTitleTextStyle}" />
                             <TextBlock Text="Select an adult member and send a new temporary password to their email." Style="{StaticResource PageSubtitleTextStyle}" TextWrapping="Wrap" Margin="0,8,0,0" />
                             <Button Command="{Binding SendTemporaryPasswordCommand}"
                                     Style="{StaticResource SecondaryButtonStyle}"
-                                    Margin="0,18,0,0"
-                                    IsEnabled="{Binding SelectedMemberIsAdult}">
+                                    Margin="0,18,0,0">
                                 <TextBlock Text="Send temporary password" />
                             </Button>
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Row="3" Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0">
+                    <Border Grid.Row="3" Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0" Visibility="{Binding AdminVisibility}">
                         <StackPanel>
                             <TextBlock Text="Child password" Style="{StaticResource SectionTitleTextStyle}" />
                             <TextBlock Text="Select child and set password." Style="{StaticResource PageSubtitleTextStyle}" TextWrapping="Wrap" Margin="0,8,0,0" />
@@ -242,8 +238,7 @@
 
                             <Button Command="{Binding UpdateChildPasswordCommand}"
                                     Style="{StaticResource PrimaryButtonStyle}"
-                                    Margin="0,22,0,0"
-                                    IsEnabled="{Binding SelectedMemberIsChild}">
+                                    Margin="0,22,0,0">
                                 <TextBlock Text="Update child password" />
                             </Button>
                         </StackPanel>
