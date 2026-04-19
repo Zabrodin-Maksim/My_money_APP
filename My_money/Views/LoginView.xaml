@@ -36,7 +36,7 @@
                 </StackPanel>
 
                 <StackPanel Margin="0,28,0,0">
-                    <TextBlock Text="Email" Style="{StaticResource FieldLabelTextStyle}" />
+                    <TextBlock Text="Email or child login" Style="{StaticResource FieldLabelTextStyle}" />
                     <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource AppTextBoxStyle}" />
 
                     <TextBlock Text="Password" Style="{StaticResource FieldLabelTextStyle}" Margin="0,18,0,0" />
@@ -85,7 +85,7 @@
                 <Border Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0">
                     <StackPanel>
                         <TextBlock Text="Forgot password?" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="Enter your email on the left and request a temporary password. After sign-in, the app will force you to set a new one."
+                        <TextBlock Text="Enter your email or child login on the left and request a temporary password. After sign-in, the app will force you to set a new one."
                                    Style="{StaticResource PageSubtitleTextStyle}"
                                    TextWrapping="Wrap"
                                    Margin="0,8,0,0" />

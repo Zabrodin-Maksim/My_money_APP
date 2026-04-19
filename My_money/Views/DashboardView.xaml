@@ -204,9 +204,6 @@
 
                         <StackPanel>
                             <TextBlock Text="{Binding BudgetStatusText}" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Text="{Binding ContextBadgeText}"
-                                       Style="{StaticResource PageSubtitleTextStyle}"
-                                       Margin="0,6,0,0" />
                         </StackPanel>
                     </Grid>
                 </Border>

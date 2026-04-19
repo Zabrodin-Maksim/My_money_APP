@@ -62,7 +62,6 @@ namespace My_money.ViewModel
                 }
 
                 SetProperty(ref selectedContext, value);
-                OnPropertyChanged(nameof(ContextBadgeText));
                 OnPropertyChanged(nameof(BalanceCaption));
                 OnPropertyChanged(nameof(SavingsCaption));
                 _ = RefreshDashboardAsync();
@@ -155,7 +154,6 @@ namespace My_money.ViewModel
         #endregion
 
         #region Computed Properties
-        public string ContextBadgeText => SelectedContext?.Title ?? "Context";
         public string BalanceCaption => SelectedContext?.UsesHouseholdFinance == true ? "Household balance" : "Personal balance";
         public string SavingsCaption => SelectedContext?.UsesHouseholdFinance == true ? "Household savings" : "Personal savings";
 

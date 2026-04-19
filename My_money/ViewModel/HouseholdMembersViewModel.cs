@@ -1,8 +1,10 @@
 using My_money.Enums;
+using My_money.Model;
 using My_money.Services.IServices;
 using My_money.Utilities;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,6 +17,7 @@ namespace My_money.ViewModel
         private readonly IUserService _userService;
         private readonly IRegistrationService _registrationService;
         private readonly IPasswordResetService _passwordResetService;
+        private readonly IUserFinanceService _userFinanceService;
         private readonly IUserSessionService _userSessionService;
 
         public HouseholdMembersViewModel(
@@ -22,21 +25,26 @@ namespace My_money.ViewModel
             IUserService userService,
             IRegistrationService registrationService,
             IPasswordResetService passwordResetService,
+            IUserFinanceService userFinanceService,
             IUserSessionService userSessionService)
         {
             _householdMemberService = householdMemberService;
             _userService = userService;
             _registrationService = registrationService;
             _passwordResetService = passwordResetService;
+            _userFinanceService = userFinanceService;
             _userSessionService = userSessionService;
 
             AddMemberCommand = new MyICommand<object>(OnAddMember);
+            SaveSelectedMemberCommand = new MyICommand<object>(OnSaveSelectedMember);
+            DeleteSelectedMemberCommand = new MyICommand<object>(OnDeleteSelectedMember);
             SendTemporaryPasswordCommand = new MyICommand<object>(OnSendTemporaryPassword);
             UpdateChildPasswordCommand = new MyICommand<object>(OnUpdateChildPassword);
 
             foreach (var role in Enum.GetValues(typeof(HouseholdMemberRole)).Cast<HouseholdMemberRole>())
             {
                 RoleOptions.Add(role);
+                MemberRoleNames.Add(role.ToString());
             }
 
             SelectedRole = HouseholdMemberRole.Partner;
@@ -44,11 +52,14 @@ namespace My_money.ViewModel
         }
 
         public MyICommand<object> AddMemberCommand { get; }
+        public MyICommand<object> SaveSelectedMemberCommand { get; }
+        public MyICommand<object> DeleteSelectedMemberCommand { get; }
         public MyICommand<object> SendTemporaryPasswordCommand { get; }
         public MyICommand<object> UpdateChildPasswordCommand { get; }
 
         public ObservableCollection<HouseholdMemberListItem> Members { get; } = new();
         public ObservableCollection<HouseholdMemberRole> RoleOptions { get; } = new();
+        public ObservableCollection<string> MemberRoleNames { get; } = new();
 
         private HouseholdMemberListItem selectedMember;
         public HouseholdMemberListItem SelectedMember
@@ -56,14 +67,27 @@ namespace My_money.ViewModel
             get => selectedMember;
             set
             {
+                if (selectedMember is not null)
+                {
+                    selectedMember.PropertyChanged -= OnSelectedMemberPropertyChanged;
+                }
+
                 SetProperty(ref selectedMember, value);
+
+                if (selectedMember is not null)
+                {
+                    selectedMember.PropertyChanged += OnSelectedMemberPropertyChanged;
+                }
+
                 OnPropertyChanged(nameof(SelectedMemberIsChild));
                 OnPropertyChanged(nameof(SelectedMemberIsAdult));
+                OnPropertyChanged(nameof(CanEditSelectedMember));
             }
         }
 
         public bool SelectedMemberIsChild => SelectedMember?.Role == nameof(HouseholdMemberRole.Child);
         public bool SelectedMemberIsAdult => SelectedMember is not null && SelectedMember.Role != nameof(HouseholdMemberRole.Child);
+        public bool CanEditSelectedMember => CanManageMembers && SelectedMember is not null;
 
         private string newMemberName = string.Empty;
         public string NewMemberName
@@ -87,6 +111,12 @@ namespace My_money.ViewModel
             {
                 SetProperty(ref selectedRole, value);
                 OnPropertyChanged(nameof(NewMemberNeedsPassword));
+                OnPropertyChanged(nameof(NewMemberUsesEmail));
+
+                if (selectedRole == HouseholdMemberRole.Child)
+                {
+                    NewMemberEmail = string.Empty;
+                }
             }
         }
 
@@ -105,6 +135,7 @@ namespace My_money.ViewModel
         }
 
         public bool NewMemberNeedsPassword => SelectedRole == HouseholdMemberRole.Child;
+        public bool NewMemberUsesEmail => SelectedRole != HouseholdMemberRole.Child;
         public bool CanManageMembers => _userSessionService.CurrentHouseholdMember?.Role == nameof(HouseholdMemberRole.Admin);
 
         private async Task LoadMembersAsync()
@@ -129,9 +160,18 @@ namespace My_money.ViewModel
                     DisplayName = user.DisplayName,
                     Email = user.Email,
                     Role = member.Role,
-                    CanManageBudget = member.CanManageBudget,
-                    CanManageMembers = member.CanManageMembers
+                    CanManageBudgetEnabled = member.CanManageBudget == 1,
+                    CanManageMembersEnabled = member.CanManageMembers == 1
                 });
+            }
+        }
+
+        private void OnSelectedMemberPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName is nameof(HouseholdMemberListItem.Role) or nameof(HouseholdMemberListItem.CanManageBudgetEnabled) or nameof(HouseholdMemberListItem.CanManageMembersEnabled))
+            {
+                OnPropertyChanged(nameof(SelectedMemberIsChild));
+                OnPropertyChanged(nameof(SelectedMemberIsAdult));
             }
         }
 
@@ -144,12 +184,14 @@ namespace My_money.ViewModel
                     throw new InvalidOperationException("Only admins can manage household members.");
                 }
 
-                if (string.IsNullOrWhiteSpace(NewMemberName) || string.IsNullOrWhiteSpace(NewMemberEmail))
+                if (string.IsNullOrWhiteSpace(NewMemberName))
                 {
-                    throw new InvalidOperationException("Name and email are required.");
+                    throw new InvalidOperationException("Name is required.");
                 }
 
                 string? passwordHash = null;
+                var email = NewMemberEmail.Trim();
+
                 if (SelectedRole == HouseholdMemberRole.Child)
                 {
                     if (string.IsNullOrWhiteSpace(ChildInitialPassword))
@@ -158,9 +200,19 @@ namespace My_money.ViewModel
                     }
 
                     passwordHash = PasswordHasher.HashPassword(ChildInitialPassword);
+                    email = NewMemberName.Trim();
+
+                    if (await _userService.GetUserByEmailAsync(email) is not null)
+                    {
+                        throw new InvalidOperationException("A child login with this name already exists. Choose a different name.");
+                    }
+                }
+                else if (string.IsNullOrWhiteSpace(email))
+                {
+                    throw new InvalidOperationException("Email is required for adult accounts.");
                 }
 
-                await _registrationService.RegisterUserAsync(passwordHash, NewMemberName.Trim(), NewMemberEmail.Trim(), SelectedRole);
+                await _registrationService.RegisterUserAsync(passwordHash, NewMemberName.Trim(), email, SelectedRole);
 
                 NewMemberName = string.Empty;
                 NewMemberEmail = string.Empty;
@@ -172,6 +224,59 @@ namespace My_money.ViewModel
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Unable to add member", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private async Task OnSaveSelectedMember(object _)
+        {
+            try
+            {
+                if (!CanManageMembers)
+                {
+                    throw new InvalidOperationException("Only admins can manage household members.");
+                }
+
+                if (SelectedMember is null)
+                {
+                    throw new InvalidOperationException("Select a member first.");
+                }
+
+                if (string.IsNullOrWhiteSpace(SelectedMember.DisplayName))
+                {
+                    throw new InvalidOperationException("Display name cannot be empty.");
+                }
+
+                var user = await _userService.GetUserByIdAsync(SelectedMember.UserId)
+                    ?? throw new InvalidOperationException("The selected user was not found.");
+                var member = await _householdMemberService.GetHouseholdMemberByIdAsync(SelectedMember.MemberId)
+                    ?? throw new InvalidOperationException("The selected household membership was not found.");
+
+                user.DisplayName = SelectedMember.DisplayName.Trim();
+                member.Role = SelectedMember.Role;
+                member.CanManageBudget = SelectedMember.CanManageBudgetEnabled ? 1 : 0;
+                member.CanManageMembers = SelectedMember.CanManageMembersEnabled ? 1 : 0;
+
+                if (member.Role == nameof(HouseholdMemberRole.Child))
+                {
+                    member.CanManageBudget = 0;
+                    member.CanManageMembers = 0;
+                }
+                else if (member.Role == nameof(HouseholdMemberRole.Admin))
+                {
+                    member.CanManageBudget = 1;
+                    member.CanManageMembers = 1;
+                }
+
+                await _userService.UpdateUserAsync(user);
+                await _householdMemberService.UpdateHouseholdMemberAsync(member);
+                await LoadMembersAsync();
+
+                SelectedMember = Members.FirstOrDefault(x => x.MemberId == member.Id);
+                MessageBox.Show("Member details updated successfully.", "Member updated", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Unable to update member", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -195,6 +300,55 @@ namespace My_money.ViewModel
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Password reset failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private async Task OnDeleteSelectedMember(object _)
+        {
+            try
+            {
+                if (!CanManageMembers)
+                {
+                    throw new InvalidOperationException("Only admins can manage household members.");
+                }
+
+                if (SelectedMember is null)
+                {
+                    throw new InvalidOperationException("Select a member first.");
+                }
+
+                if (SelectedMember.UserId == _userSessionService.CurrentUser?.Id)
+                {
+                    throw new InvalidOperationException("Admin cannot delete their own household membership.");
+                }
+
+                var result = MessageBox.Show(
+                    $"Delete member '{SelectedMember.DisplayName}' from the household?",
+                    "Delete member",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+
+                var userFinance = await _userFinanceService.GetByUserIdAsync(SelectedMember.UserId);
+                if (userFinance is not null)
+                {
+                    await _userFinanceService.DeleteUserFinance(userFinance.Id);
+                }
+
+                await _householdMemberService.DeleteHouseholdMemberAsync(SelectedMember.MemberId);
+                await _userService.DeleteUserAsync(SelectedMember.UserId);
+
+                SelectedMember = null;
+                await LoadMembersAsync();
+                MessageBox.Show("Member deleted successfully.", "Member deleted", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Unable to delete member", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -229,5 +383,6 @@ namespace My_money.ViewModel
                 MessageBox.Show(ex.Message, "Child password update failed", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+
     }
 }
