@@ -7,6 +7,7 @@ using My_money.ViewModel;
 using My_money.Views;
 using System;
 using System.IO;
+using System.Data.SQLite;
 using System.Windows;
 
 namespace My_money
@@ -83,7 +84,7 @@ namespace My_money
 
         private void InitializeDatabase(string connectionString)
         {
-            using var connection = new System.Data.SQLite.SQLiteConnection(connectionString);
+            using var connection = new SQLiteConnection(connectionString);
             connection.Open();
 
             using var command = connection.CreateCommand();
@@ -183,6 +184,41 @@ namespace My_money
                     FOREIGN KEY(""CreatedByUserId"") REFERENCES ""Users""(""ID""),
                     FOREIGN KEY(""HouseholdId"") REFERENCES ""Households""(""ID""),
                     FOREIGN KEY(""OwnerUserId"") REFERENCES ""Users""(""ID"")
+                );
+            ";
+            command.ExecuteNonQuery();
+
+            EnsureOtherCategories(connection);
+        }
+
+        private static void EnsureOtherCategories(SQLiteConnection connection)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                INSERT INTO ""BudgetCategories"" (""Name"", ""Plan"", ""HouseholdId"", ""OwnerUserId"", ""Scope"", ""CreatedByUserId"")
+                SELECT 'Other', 0, h.""ID"", NULL, 'Shared', h.""CreatedByUserId""
+                FROM ""Households"" h
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM ""BudgetCategories"" bc
+                    WHERE bc.""HouseholdId"" = h.""ID""
+                      AND bc.""Scope"" = 'Shared'
+                      AND bc.""OwnerUserId"" IS NULL
+                      AND bc.""Name"" = 'Other'
+                );
+
+                INSERT INTO ""BudgetCategories"" (""Name"", ""Plan"", ""HouseholdId"", ""OwnerUserId"", ""Scope"", ""CreatedByUserId"")
+                SELECT 'Other', 0, hm.""HouseholdId"", u.""ID"", 'Personal', u.""ID""
+                FROM ""Users"" u
+                INNER JOIN ""HouseholdMembers"" hm ON hm.""UserId"" = u.""ID""
+                WHERE hm.""Role"" <> 'Child'
+                  AND NOT EXISTS (
+                    SELECT 1
+                    FROM ""BudgetCategories"" bc
+                    WHERE bc.""HouseholdId"" = hm.""HouseholdId""
+                      AND bc.""Scope"" = 'Personal'
+                      AND bc.""OwnerUserId"" = u.""ID""
+                      AND bc.""Name"" = 'Other'
                 );
             ";
             command.ExecuteNonQuery();

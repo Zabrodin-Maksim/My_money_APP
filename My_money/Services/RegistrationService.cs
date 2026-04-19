@@ -2,6 +2,7 @@ using My_money.Data.Repositories.IRepositories;
 using My_money.Enums;
 using My_money.Model;
 using My_money.Services.IServices;
+using My_money.Constants;
 using My_money.Templates;
 using My_money.Utilities;
 using System;
@@ -18,6 +19,7 @@ namespace My_money.Services
         private readonly IHouseholdFinanceRepository _householdFinanceRepository;
         private readonly IUserFinanceRepository _userFinanceRepository;
         private readonly IUserSessionService _userSessionService;
+        private readonly IBudgetCategoryRepository _budgetCategoryRepository;
 
         public RegistrationService(
             IHouseholdRepository householdRepository,
@@ -25,7 +27,8 @@ namespace My_money.Services
             IHouseholdMemberRepository householdMemberRepository,
             IHouseholdFinanceRepository householdFinanceRepository,
             IUserFinanceRepository userFinanceRepository,
-            IUserSessionService userSessionService)
+            IUserSessionService userSessionService,
+            IBudgetCategoryRepository budgetCategoryRepository)
         {
             _householdRepository = householdRepository;
             _userRepository = userRepository;
@@ -33,6 +36,7 @@ namespace My_money.Services
             _householdFinanceRepository = householdFinanceRepository;
             _userFinanceRepository = userFinanceRepository;
             _userSessionService = userSessionService;
+            _budgetCategoryRepository = budgetCategoryRepository;
         }
 
         public async Task RegisterAdminAndHouseholdAsync(string username, string email, Household household)
@@ -80,6 +84,8 @@ namespace My_money.Services
                     transaction);
 
                 await _householdFinanceRepository.AddAsync(new HouseholdFinance { HouseholdId = householdId }, connection, transaction);
+                await CreateDefaultHouseholdOtherCategoryAsync(householdId, userId, connection, transaction);
+                await CreateDefaultPersonalOtherCategoryAsync(householdId, userId, connection, transaction);
 
                 transaction.Commit();
             }
@@ -157,6 +163,11 @@ namespace My_money.Services
                     connection,
                     transaction);
 
+                if (role != HouseholdMemberRole.Child)
+                {
+                    await CreateDefaultPersonalOtherCategoryAsync(householdId, userId, connection, transaction);
+                }
+
                 transaction.Commit();
             }
             catch
@@ -169,6 +180,48 @@ namespace My_money.Services
             {
                 await EmailService.SendAsync(email, "Password Reset", EmailTemplates.NewUser(passwordToEmail));
             }
+        }
+
+        private async Task CreateDefaultHouseholdOtherCategoryAsync(int householdId, int createdByUserId, SQLiteConnection connection, SQLiteTransaction transaction)
+        {
+            if (await _budgetCategoryRepository.GetByNameAsync("Other", householdId, null, RecordConstants.Scopes.Shared) is not null)
+            {
+                return;
+            }
+
+            await _budgetCategoryRepository.AddAsync(
+                new BudgetCategory
+                {
+                    Name = "Other",
+                    Plan = 0m,
+                    HouseholdId = householdId,
+                    OwnerUserId = null,
+                    Scope = RecordConstants.Scopes.Shared,
+                    CreatedByUserId = createdByUserId
+                },
+                connection,
+                transaction);
+        }
+
+        private async Task CreateDefaultPersonalOtherCategoryAsync(int householdId, int userId, SQLiteConnection connection, SQLiteTransaction transaction)
+        {
+            if (await _budgetCategoryRepository.GetByNameAsync("Other", householdId, userId, RecordConstants.Scopes.Personal) is not null)
+            {
+                return;
+            }
+
+            await _budgetCategoryRepository.AddAsync(
+                new BudgetCategory
+                {
+                    Name = "Other",
+                    Plan = 0m,
+                    HouseholdId = householdId,
+                    OwnerUserId = userId,
+                    Scope = RecordConstants.Scopes.Personal,
+                    CreatedByUserId = userId
+                },
+                connection,
+                transaction);
         }
     }
 }

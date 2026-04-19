@@ -1,5 +1,6 @@
 ﻿using My_money.Model;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Threading.Tasks;
 
 namespace My_money.Data.Repositories.IRepositories
@@ -15,6 +16,7 @@ namespace My_money.Data.Repositories.IRepositories
 
         Task<BudgetCategory?> GetByIdAsync(int id);
         Task<int> AddAsync(BudgetCategory category);
+        Task<int> AddAsync(BudgetCategory category, SQLiteConnection connection, SQLiteTransaction transaction);
         Task UpdateAsync(BudgetCategory category);
         Task DeleteAsync(int id);
 

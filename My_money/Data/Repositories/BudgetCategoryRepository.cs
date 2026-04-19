@@ -119,17 +119,28 @@ namespace My_money.Data.Repositories
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new SQLiteCommand(
-                    "INSERT INTO BudgetCategories (Name, Plan, HouseholdId, OwnerUserId, Scope, CreatedByUserId) " +
-                    "VALUES (@name, @plan, @householdId, @ownerUserId, @scope, @createdByUserId); SELECT last_insert_rowid();", connection);
-                command.Parameters.AddWithValue("@name", category.Name);
-                command.Parameters.AddWithValue("@plan", category.Plan);
-                command.Parameters.AddWithValue("@householdId", category.HouseholdId);
-                command.Parameters.AddWithValue("@ownerUserId", category.OwnerUserId);
-                command.Parameters.AddWithValue("@scope", category.Scope);
-                command.Parameters.AddWithValue("@createdByUserId", category.CreatedByUserId);
-                return Convert.ToInt32(await command.ExecuteScalarAsync());
+                return await AddAsync(category, connection, null);
             }
+        }
+
+        public async Task<int> AddAsync(BudgetCategory category, SQLiteConnection connection, SQLiteTransaction transaction)
+        {
+            var command = new SQLiteCommand(
+                "INSERT INTO BudgetCategories (Name, Plan, HouseholdId, OwnerUserId, Scope, CreatedByUserId) " +
+                "VALUES (@name, @plan, @householdId, @ownerUserId, @scope, @createdByUserId); SELECT last_insert_rowid();", connection);
+
+            if (transaction is not null)
+            {
+                command.Transaction = transaction;
+            }
+
+            command.Parameters.AddWithValue("@name", category.Name);
+            command.Parameters.AddWithValue("@plan", category.Plan);
+            command.Parameters.AddWithValue("@householdId", category.HouseholdId);
+            command.Parameters.AddWithValue("@ownerUserId", category.OwnerUserId.HasValue ? category.OwnerUserId.Value : DBNull.Value);
+            command.Parameters.AddWithValue("@scope", category.Scope);
+            command.Parameters.AddWithValue("@createdByUserId", category.CreatedByUserId);
+            return Convert.ToInt32(await command.ExecuteScalarAsync());
         }
 
         public async Task UpdateAsync(BudgetCategory category)
