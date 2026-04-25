@@ -4,254 +4,288 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
              xmlns:glob="clr-namespace:System.Globalization;assembly=mscorlib"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              d:DesignHeight="760"
              d:DesignWidth="1024">
 
-    <Grid Margin="12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-            <StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Border Width="44"
-                            Height="44"
-                            Background="{StaticResource AccentButtonBrush}"
-                            CornerRadius="14"
-                            VerticalAlignment="Center">
-                        <fa:IconImage Icon="ChartPie"
-                                      Width="18"
-                                      Height="18"
-                                      Foreground="{StaticResource TextPrimaryBrush}"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center" />
-                    </Border>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="44"
+                                Height="44"
+                                Background="{StaticResource AccentButtonBrush}"
+                                CornerRadius="14"
+                                VerticalAlignment="Center">
+                            <fa:IconImage Icon="ChartPie"
+                                          Width="18"
+                                          Height="18"
+                                          Foreground="{StaticResource TextPrimaryBrush}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                        </Border>
 
-                    <StackPanel Margin="14,0,0,0">
-                        <TextBlock Text="Dashboard" Style="{StaticResource PageTitleTextStyle}" />
-                        <TextBlock Text="Overview of spending, balance, and savings across household and personal contexts."
-                                   Style="{StaticResource PageSubtitleTextStyle}" />
+                        <StackPanel Margin="14,0,0,0">
+                            <TextBlock Text="Dashboard" Style="{StaticResource PageTitleTextStyle}" />
+                            <TextBlock Text="Overview of spending, balance, savings, and the category mix across household and personal contexts."
+                                       Style="{StaticResource PageSubtitleTextStyle}" />
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
-            </StackPanel>
 
-            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                <ComboBox ItemsSource="{Binding AvailableContexts}"
-                          SelectedItem="{Binding SelectedContext, Mode=TwoWay}"
-                          DisplayMemberPath="Title"
-                          Style="{StaticResource AppComboBoxStyle}"
-                          Width="180"
-                          Margin="0,0,12,0" />
-                <Border Style="{StaticResource PageBadgeBorderStyle}" Margin="12,0,0,0" Background="#1B2745">
-                    <TextBlock Text="{Binding SelectedPeriodLabel}" Style="{StaticResource BadgeTextStyle}" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <ComboBox ItemsSource="{Binding AvailableContexts}"
+                              SelectedItem="{Binding SelectedContext, Mode=TwoWay}"
+                              DisplayMemberPath="Title"
+                              Style="{StaticResource AppComboBoxStyle}"
+                              Width="180"
+                              Margin="0,0,12,0" />
+                    <Border Style="{StaticResource PageBadgeBorderStyle}" Margin="12,0,0,0" Background="#1B2745">
+                        <TextBlock Text="{Binding SelectedPeriodLabel}" Style="{StaticResource BadgeTextStyle}" />
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="0,22,0,22">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Width="60" Height="60" Background="#22FFFFFF" CornerRadius="14" Panel.ZIndex="1" Margin="243,10,10,30" >
+                    <fa:IconImage Icon="Receipt" Width="40" Height="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
-            </StackPanel>
-        </Grid>
-
-        <Grid Grid.Row="1" Margin="0,22,0,22">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <Border Grid.Column="0" Width="60" Height="60" Background="#22FFFFFF" CornerRadius="14" Panel.ZIndex="1" Margin="243,10,10,30" >
-                <fa:IconImage Icon="Receipt" Width="40" Height="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            </Border>
-            <Border Grid.Column="0" Style="{StaticResource MetricCardStyle}" Background="{StaticResource MetricBlueBrush}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <DockPanel>
-                        <TextBlock Text="Total spend" Style="{StaticResource MetricCaptionTextStyle}" Foreground="#EEF2FF" />
-                    </DockPanel>
-
-                    <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
-                        <TextBlock Text="{Binding TotalSpend, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}"
-                                   Style="{StaticResource MetricValueTextStyle}"
-                                   Foreground="White" />
-                        <TextBlock Text="Tracked expenses in the active range"
-                                   Style="{StaticResource MetricCaptionTextStyle}"
-                                   Foreground="#DDE5FF"
-                                   Margin="0,6,0,0" />
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <Border Grid.Column="1" DockPanel.Dock="Right" Width="60" Height="60" Background="#22FFFFFF" CornerRadius="14" Panel.ZIndex="1" Margin="226,10,25,30">
-                <fa:IconImage Icon="Wallet" Width="40" Height="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            </Border>
-            <Border Grid.Column="1" Style="{StaticResource MetricCardStyle}" Background="{StaticResource MetricTealBrush}" Margin="18,0">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <DockPanel>
-                        <TextBlock Text="Balance" Style="{StaticResource MetricCaptionTextStyle}" Foreground="#F2FFFC" />
-                    </DockPanel>
-
-                    <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
-                        <TextBlock Text="{Binding Balance, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}"
-                                   Style="{StaticResource MetricValueTextStyle}"
-                                   Foreground="White" />
-                        <TextBlock Text="{Binding BalanceCaption}"
-                                   Style="{StaticResource MetricCaptionTextStyle}"
-                                   Foreground="#E3FFFB"
-                                   Margin="0,6,0,0" />
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <Border Grid.Column="2" DockPanel.Dock="Right" Width="60" Height="60" Background="#22FFFFFF" CornerRadius="14" Panel.ZIndex="1" Margin="248,10,15,30">
-                <fa:IconImage Icon="PiggyBank" Width="40" Height="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            </Border>
-            <Border Grid.Column="2" Style="{StaticResource MetricCardStyle}" Background="{StaticResource MetricGoldBrush}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <DockPanel>
-                        <TextBlock Text="Savings" Style="{StaticResource MetricCaptionTextStyle}" Foreground="#FFF7ED" />
-                    </DockPanel>
-
-                    <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
-                        <TextBlock Text="{Binding Savings, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}"
-                                   Style="{StaticResource MetricValueTextStyle}"
-                                   Foreground="White" />
-                        <TextBlock Text="{Binding SavingsCaption}"
-                                   Style="{StaticResource MetricCaptionTextStyle}"
-                                   Foreground="#FFF0D9"
-                                   Margin="0,6,0,0" />
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </Grid>
-
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.35*" />
-                <ColumnDefinition Width="0.95*" />
-            </Grid.ColumnDefinitions>
-
-            <Border Grid.Column="0" Style="{StaticResource ContentCardStyle}" Padding="0">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <Grid Margin="22,22,22,14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel>
-                            <TextBlock Text="Budget categories" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Text="{Binding ContextDescription}"
-                                       Style="{StaticResource PageSubtitleTextStyle}"
-                                       Margin="0,6,0,0" />
-                        </StackPanel>
-                    </Grid>
-
-                    <ListView Grid.Row="1"
-                              ItemsSource="{Binding BudgetCategories}"
-                              Style="{StaticResource AppListViewStyle}"
-                              ItemContainerStyle="{StaticResource AppListViewItemStyle}"
-                              Margin="0,0,6,6">
-                        <ListView.View>
-                            <GridView ColumnHeaderContainerStyle="{StaticResource AppGridViewHeaderStyle}">
-                                <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Name}" Width="170" />
-                                <GridViewColumn Header="Plan" DisplayMemberBinding="{Binding PlanByPeriod, StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
-                                <GridViewColumn Header="Spent" DisplayMemberBinding="{Binding SpendByPeriod, StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
-                                <GridViewColumn Header="Remaining" DisplayMemberBinding="{Binding RemainingByPeriod, StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </Grid>
-            </Border>
-
-            <Grid Grid.Column="1" Margin="20,0,0,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <Border Style="{StaticResource ContentCardStyle}">
+                <Border Grid.Column="0" Style="{StaticResource MetricCardStyle}" Background="{StaticResource MetricBlueBrush}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <StackPanel>
-                            <TextBlock Text="{Binding BudgetStatusText}" Style="{StaticResource SectionTitleTextStyle}" />
+                        <DockPanel>
+                            <TextBlock Text="Total spend" Style="{StaticResource MetricCaptionTextStyle}" Foreground="#EEF2FF" />
+                        </DockPanel>
+
+                        <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                            <TextBlock Text="{Binding TotalSpend, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}"
+                                       Style="{StaticResource MetricValueTextStyle}"
+                                       Foreground="White" />
+                            <TextBlock Text="Tracked expenses in the active range"
+                                       Style="{StaticResource MetricCaptionTextStyle}"
+                                       Foreground="#DDE5FF"
+                                       Margin="0,6,0,0" />
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <Border Grid.Row="1" Style="{StaticResource MutedCardStyle}" Margin="0,18,0,0">
-                    <StackPanel>
-                        <TextBlock Text="Time filter" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="Switch between day, month, and year, then pick the anchor date for the dashboard."
-                                   Style="{StaticResource PageSubtitleTextStyle}"
-                                   Margin="0,6,0,14" />
+                <Border Grid.Column="1" DockPanel.Dock="Right" Width="60" Height="60" Background="#22FFFFFF" CornerRadius="14" Panel.ZIndex="1" Margin="226,10,25,30">
+                    <fa:IconImage Icon="Wallet" Width="40" Height="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource MetricCardStyle}" Background="{StaticResource MetricTealBrush}" Margin="18,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-                        <Slider Style="{StaticResource AppSliderStyle}"
-                                Value="{Binding SelectedSortPeriod, Mode=TwoWay}" />
+                        <DockPanel>
+                            <TextBlock Text="Balance" Style="{StaticResource MetricCaptionTextStyle}" Foreground="#F2FFFC" />
+                        </DockPanel>
 
-                        <Grid Margin="2,8,2,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock Text="Day" Style="{StaticResource PageSubtitleTextStyle}" HorizontalAlignment="Left" />
-                            <TextBlock Grid.Column="1" Text="Month" Style="{StaticResource PageSubtitleTextStyle}" HorizontalAlignment="Center" />
-                            <TextBlock Grid.Column="2" Text="Year" Style="{StaticResource PageSubtitleTextStyle}" HorizontalAlignment="Right" />
-                        </Grid>
-
-                        <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
-                                    Style="{StaticResource AppDatePickerStyle}"
-                                    Margin="0,18,0,0" />
-                    </StackPanel>
+                        <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                            <TextBlock Text="{Binding Balance, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}"
+                                       Style="{StaticResource MetricValueTextStyle}"
+                                       Foreground="White" />
+                            <TextBlock Text="{Binding BalanceCaption}"
+                                       Style="{StaticResource MetricCaptionTextStyle}"
+                                       Foreground="#E3FFFB"
+                                       Margin="0,6,0,0" />
+                        </StackPanel>
+                    </Grid>
                 </Border>
 
-                <Border Grid.Row="2" Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0">
-                    <StackPanel>
-                        <TextBlock Text="Need to add something ?" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="Open the add form and register an expense, balance refill, or savings deposit."
-                                   Style="{StaticResource PageSubtitleTextStyle}"
-                                   Margin="0,6,0,16" TextWrapping="Wrap"/>
+                <Border Grid.Column="2" DockPanel.Dock="Right" Width="60" Height="60" Background="#22FFFFFF" CornerRadius="14" Panel.ZIndex="1" Margin="248,10,15,30">
+                    <fa:IconImage Icon="PiggyBank" Width="40" Height="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource MetricCardStyle}" Background="{StaticResource MetricGoldBrush}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-                        <Button Command="{Binding NavigateToAdd}" Style="{StaticResource PrimaryButtonStyle}" Width="250">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <fa:IconImage Icon="Plus" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
-                                <TextBlock Text="Add transaction" Margin="10,0,0,0" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
+                        <DockPanel>
+                            <TextBlock Text="Savings" Style="{StaticResource MetricCaptionTextStyle}" Foreground="#FFF7ED" />
+                        </DockPanel>
+
+                        <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                            <TextBlock Text="{Binding Savings, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}, StringFormat=\{0:c0\}}"
+                                       Style="{StaticResource MetricValueTextStyle}"
+                                       Foreground="White" />
+                            <TextBlock Text="{Binding SavingsCaption}"
+                                       Style="{StaticResource MetricCaptionTextStyle}"
+                                       Foreground="#FFF0D9"
+                                       Margin="0,6,0,0" />
+                        </StackPanel>
+                    </Grid>
                 </Border>
             </Grid>
+
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.35*" />
+                    <ColumnDefinition Width="0.95*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <Border Style="{StaticResource ContentCardStyle}" Padding="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Grid Margin="22,22,22,14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel>
+                                    <TextBlock Text="Budget categories" Style="{StaticResource SectionTitleTextStyle}" />
+                                    <TextBlock Text="{Binding ContextDescription}"
+                                               Style="{StaticResource PageSubtitleTextStyle}"
+                                               Margin="0,6,0,0" />
+                                </StackPanel>
+                            </Grid>
+
+                            <ListView Grid.Row="1"
+                                      ItemsSource="{Binding BudgetCategories}"
+                                      Style="{StaticResource AppListViewStyle}"
+                                      ItemContainerStyle="{StaticResource AppListViewItemStyle}"
+                                      Height="320"
+                                      Margin="0,0,6,6">
+                                <ListView.View>
+                                    <GridView ColumnHeaderContainerStyle="{StaticResource AppGridViewHeaderStyle}">
+                                        <GridViewColumn Header="Category" DisplayMemberBinding="{Binding Name}" Width="170" />
+                                        <GridViewColumn Header="Plan" DisplayMemberBinding="{Binding PlanByPeriod, StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
+                                        <GridViewColumn Header="Spent" DisplayMemberBinding="{Binding SpendByPeriod, StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
+                                        <GridViewColumn Header="Remaining" DisplayMemberBinding="{Binding RemainingByPeriod, StringFormat={}{0:c0}, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" Width="150" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Spending mix" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="A quick share view of the biggest categories in the selected period."
+                                       Style="{StaticResource PageSubtitleTextStyle}"
+                                       Margin="0,6,0,16" />
+
+                            <lvc:PieChart Series="{Binding SpendDistributionSeries}"
+                                          LegendPosition="Right"
+                                          Height="320" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Margin="20,0,0,0">
+                    <Border Style="{StaticResource ContentCardStyle}">
+                        <StackPanel>
+                                <TextBlock Text="Budget pulse" Style="{StaticResource SectionTitleTextStyle}" />
+                                <TextBlock Text="{Binding BudgetStatusText}"
+                                           Style="{StaticResource PageSubtitleTextStyle}"
+                                           Margin="0,6,0,0" />
+                                <TextBlock Text="{Binding BudgetProgressLabel}"
+                                           FontSize="22"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,16,0,0" />
+                                <TextBlock Text="{Binding ChartInsight}"
+                                           Style="{StaticResource PageSubtitleTextStyle}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,12,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Need to add something ?" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Open the add form and register an expense, balance refill, or savings deposit."
+                   Style="{StaticResource PageSubtitleTextStyle}"
+                   Margin="0,6,0,16"
+                   TextWrapping="Wrap" />
+
+                            <Button Command="{Binding NavigateToAdd}" Style="{StaticResource PrimaryButtonStyle}" Width="250">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <fa:IconImage Icon="Plus" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
+                                    <TextBlock Text="Add transaction" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Plan vs spent" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="The largest categories in the current range, compared against their active plan."
+                                       Style="{StaticResource PageSubtitleTextStyle}"
+                                       Margin="0,6,0,16" />
+
+                            <lvc:CartesianChart Series="{Binding BudgetComparisonSeries}"
+                                                YAxes="{Binding CurrencyYAxes}"
+                                                LegendPosition="Top"
+                                                Height="320" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource MutedCardStyle}" Margin="0,18,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Time filter" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="Switch between day, month, and year, then pick the anchor date for the dashboard."
+                                       Style="{StaticResource PageSubtitleTextStyle}"
+                                       Margin="0,6,0,14" />
+
+                            <Slider Style="{StaticResource AppSliderStyle}"
+                                    Value="{Binding SelectedSortPeriod, Mode=TwoWay}" />
+
+                            <Grid Margin="2,8,2,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="Day" Style="{StaticResource PageSubtitleTextStyle}" HorizontalAlignment="Left" />
+                                <TextBlock Grid.Column="1" Text="Month" Style="{StaticResource PageSubtitleTextStyle}" HorizontalAlignment="Center" />
+                                <TextBlock Grid.Column="2" Text="Year" Style="{StaticResource PageSubtitleTextStyle}" HorizontalAlignment="Right" />
+                            </Grid>
+
+                            <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
+                                        Style="{StaticResource AppDatePickerStyle}"
+                                        Margin="0,18,0,0" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
         </Grid>
-    </Grid>
+    </ScrollViewer>
 </UserControl>

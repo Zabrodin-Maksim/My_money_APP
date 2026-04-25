@@ -1,7 +1,11 @@
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
 using My_money.Enums;
 using My_money.Model;
 using My_money.Services.IServices;
 using My_money.Views;
+using SkiaSharp;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -11,6 +15,16 @@ namespace My_money.ViewModel
 {
     public class DashboardViewModel : ViewModelBase
     {
+        private static readonly SKColor[] ChartPalette =
+        [
+            new(79, 140, 255),
+            new(52, 211, 196),
+            new(247, 178, 103),
+            new(248, 113, 113),
+            new(96, 165, 250),
+            new(45, 212, 191)
+        ];
+
         #region Dependency Injection Services
         private readonly IBudgetCategoryService _budgetCategoryService;
         private readonly IUserFinanceService _userFinanceService;
@@ -37,6 +51,7 @@ namespace My_money.ViewModel
             NavigateToAdd = new MyICommand<object>(NavigateToAddView);
 
             InitializeContexts();
+            InitializeCharts();
             _ = RefreshDashboardAsync();
         }
 
@@ -116,6 +131,41 @@ namespace My_money.ViewModel
         {
             get => contextDescription;
             set => SetProperty(ref contextDescription, value);
+        }
+
+        private ISeries[] spendDistributionSeries = [];
+        public ISeries[] SpendDistributionSeries
+        {
+            get => spendDistributionSeries;
+            set => SetProperty(ref spendDistributionSeries, value);
+        }
+
+        private ISeries[] budgetComparisonSeries = [];
+        public ISeries[] BudgetComparisonSeries
+        {
+            get => budgetComparisonSeries;
+            set => SetProperty(ref budgetComparisonSeries, value);
+        }
+
+        private Axis[] currencyYAxes = [];
+        public Axis[] CurrencyYAxes
+        {
+            get => currencyYAxes;
+            set => SetProperty(ref currencyYAxes, value);
+        }
+
+        private string chartInsight = "Add categories and transactions to unlock the chart layer.";
+        public string ChartInsight
+        {
+            get => chartInsight;
+            set => SetProperty(ref chartInsight, value);
+        }
+
+        private string budgetProgressLabel = "No active budget plan";
+        public string BudgetProgressLabel
+        {
+            get => budgetProgressLabel;
+            set => SetProperty(ref budgetProgressLabel, value);
         }
 
         private int selectedSortPeriod = 1;
@@ -225,14 +275,27 @@ namespace My_money.ViewModel
                 Savings = userFinance?.Savings ?? 0m;
             }
 
-            UpdateBudgetStatus();
+            decimal totalPlanned = BudgetCategories.Sum(cat => cat.PlanByPeriod ?? cat.Plan);
+
+            UpdateBudgetStatus(totalPlanned);
             UpdateContextDescription();
+            UpdateCharts(totalPlanned);
         }
 
-        private void UpdateBudgetStatus()
+        private void InitializeCharts()
         {
-            var totalPlanned = BudgetCategories.Sum(cat => cat.PlanByPeriod ?? cat.Plan);
+            CurrencyYAxes =
+            [
+                new Axis
+                {
+                    MinLimit = 0,
+                    Labeler = value => value.ToString("C0")
+                }
+            ];
+        }
 
+        private void UpdateBudgetStatus(decimal totalPlanned)
+        {
             if (totalPlanned <= 0m)
             {
                 BudgetStatusText = "No budget target";
@@ -264,6 +327,165 @@ namespace My_money.ViewModel
                 CategoryFilterType.Child when IsChild => "Your own shared contributions inside the household budget.",
                 _ => "Finance context overview."
             };
+        }
+
+        private void UpdateCharts(decimal totalPlanned)
+        {
+            var rankedCategories = BudgetCategories
+                .Where(cat => (cat.SpendByPeriod ?? 0m) > 0m || (cat.PlanByPeriod ?? cat.Plan) > 0m)
+                .OrderByDescending(cat => cat.SpendByPeriod ?? 0m)
+                .ToList();
+
+            UpdateSpendDistributionChart(rankedCategories);
+            UpdateBudgetComparisonChart(rankedCategories);
+            UpdateBudgetProgressSummary(totalPlanned);
+            UpdateChartInsight(rankedCategories, totalPlanned);
+        }
+
+        private void UpdateSpendDistributionChart(System.Collections.Generic.IReadOnlyList<BudgetCategory> rankedCategories)
+        {
+            var spendCategories = rankedCategories
+                .Where(cat => (cat.SpendByPeriod ?? 0m) > 0m)
+                .OrderByDescending(cat => cat.SpendByPeriod ?? 0m)
+                .ToList();
+
+            if (spendCategories.Count == 0)
+            {
+                SpendDistributionSeries =
+                [
+                    new PieSeries<double>
+                    {
+                        Name = "No spending yet",
+                        Values = [1],
+                        InnerRadius = 58,
+                        Fill = new SolidColorPaint(new SKColor(226, 232, 240)),
+                        Stroke = new SolidColorPaint(SKColors.White, 3)
+                    }
+                ];
+                return;
+            }
+
+            var topCategories = spendCategories.Take(5).ToList();
+            decimal otherSpend = spendCategories.Skip(5).Sum(cat => cat.SpendByPeriod ?? 0m);
+
+            var series = topCategories
+                .Select((cat, index) => (ISeries)new PieSeries<double>
+                {
+                    Name = cat.Name,
+                    Values = [Convert.ToDouble(cat.SpendByPeriod ?? 0m)],
+                    InnerRadius = 58,
+                    Fill = new SolidColorPaint(ChartPalette[index % ChartPalette.Length]),
+                    Stroke = new SolidColorPaint(SKColors.White, 3)
+                })
+                .ToList();
+
+            if (otherSpend > 0m)
+            {
+                series.Add(new PieSeries<double>
+                {
+                    Name = "Other",
+                    Values = [Convert.ToDouble(otherSpend)],
+                    InnerRadius = 58,
+                    Fill = new SolidColorPaint(new SKColor(148, 163, 184)),
+                    Stroke = new SolidColorPaint(SKColors.White, 3)
+                });
+            }
+
+            SpendDistributionSeries = [.. series];
+        }
+
+        private void UpdateBudgetComparisonChart(System.Collections.Generic.IReadOnlyList<BudgetCategory> rankedCategories)
+        {
+            var comparisonCategories = rankedCategories
+                .OrderByDescending(cat => Math.Max(cat.PlanByPeriod ?? cat.Plan, cat.SpendByPeriod ?? 0m))
+                .Take(6)
+                .ToList();
+
+            if (comparisonCategories.Count == 0)
+            {
+                BudgetComparisonSeries =
+                [
+                    new ColumnSeries<double>
+                    {
+                        Name = "Plan",
+                        Values = [0]
+                    },
+                    new ColumnSeries<double>
+                    {
+                        Name = "Spent",
+                        Values = [0]
+                    }
+                ];
+
+                return;
+            }
+
+            BudgetComparisonSeries =
+            [
+                new ColumnSeries<double>
+                {
+                    Name = "Plan",
+                    Values = [.. comparisonCategories.Select(cat => Convert.ToDouble(cat.PlanByPeriod ?? cat.Plan))],
+                    Fill = new SolidColorPaint(new SKColor(79, 140, 255))
+                },
+                new ColumnSeries<double>
+                {
+                    Name = "Spent",
+                    Values = [.. comparisonCategories.Select(cat => Convert.ToDouble(cat.SpendByPeriod ?? 0m))],
+                    Fill = new SolidColorPaint(new SKColor(247, 178, 103))
+                }
+            ];
+        }
+
+        private void UpdateBudgetProgressSummary(decimal totalPlanned)
+        {
+            if (totalPlanned <= 0m)
+            {
+                BudgetProgressLabel = "No active budget plan";
+                return;
+            }
+
+            if (TotalSpend <= totalPlanned)
+            {
+                decimal remaining = totalPlanned - TotalSpend;
+                decimal usage = totalPlanned == 0m ? 0m : Math.Round((TotalSpend / totalPlanned) * 100m, 0);
+
+                BudgetProgressLabel = $"{usage}% of plan used, {remaining:C0} left";
+
+                return;
+            }
+
+            decimal overrun = TotalSpend - totalPlanned;
+            decimal overrunPct = totalPlanned == 0m ? 0m : Math.Round((overrun / totalPlanned) * 100m, 0);
+
+            BudgetProgressLabel = $"{overrunPct}% over plan, {overrun:C0} above target";
+        }
+
+        private void UpdateChartInsight(System.Collections.Generic.IReadOnlyList<BudgetCategory> rankedCategories, decimal totalPlanned)
+        {
+            if (rankedCategories.Count == 0)
+            {
+                ChartInsight = "No budget categories matched the current filters yet. Once spending lands here, the dashboard will spotlight what drives the period.";
+                return;
+            }
+
+            var topSpendCategory = rankedCategories
+                .OrderByDescending(cat => cat.SpendByPeriod ?? 0m)
+                .FirstOrDefault();
+
+            if (topSpendCategory is null || (topSpendCategory.SpendByPeriod ?? 0m) <= 0m || TotalSpend <= 0m)
+            {
+                ChartInsight = "Categories are ready, but there is no spend in the selected range yet. Use the add form to start building trends.";
+                return;
+            }
+
+            decimal topSpend = topSpendCategory.SpendByPeriod ?? 0m;
+            decimal share = TotalSpend == 0m ? 0m : Math.Round((topSpend / TotalSpend) * 100m, 0);
+            decimal delta = totalPlanned - TotalSpend;
+
+            ChartInsight = delta >= 0m
+                ? $"{topSpendCategory.Name} drives {share}% of the current spend. The dashboard still has {delta:C0} of budget headroom in this period."
+                : $"{topSpendCategory.Name} drives {share}% of the current spend. The dashboard is currently {-delta:C0} over the planned budget.";
         }
 
         private static string BuildPeriodLabel(DateTime from, DateTime to, int selectedSortPeriod)

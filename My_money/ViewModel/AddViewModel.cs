@@ -99,6 +99,7 @@ namespace My_money.ViewModel
 
                 SetProperty(ref selectedRecordType, value);
                 OnPropertyChanged(nameof(IncomeTargetVisibility));
+                OnPropertyChanged(nameof(ExpenseTargetVisibility));
             }
         }
 
@@ -137,6 +138,9 @@ namespace My_money.ViewModel
         }
 
         public Visibility IncomeTargetVisibility => SelectedRecordType == RecordConstants.Types.Income
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+        public Visibility ExpenseTargetVisibility => SelectedRecordType == RecordConstants.Types.Expense
             ? Visibility.Visible
             : Visibility.Collapsed;
         #endregion

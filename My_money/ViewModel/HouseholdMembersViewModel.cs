@@ -13,12 +13,14 @@ namespace My_money.ViewModel
 {
     public class HouseholdMembersViewModel : ViewModelBase
     {
+        #region Dependency Injection Services
         private readonly IHouseholdMemberService _householdMemberService;
         private readonly IUserService _userService;
         private readonly IRegistrationService _registrationService;
         private readonly IPasswordResetService _passwordResetService;
         private readonly IUserFinanceService _userFinanceService;
         private readonly IUserSessionService _userSessionService;
+        #endregion
 
         public HouseholdMembersViewModel(
             IHouseholdMemberService householdMemberService,
@@ -28,18 +30,22 @@ namespace My_money.ViewModel
             IUserFinanceService userFinanceService,
             IUserSessionService userSessionService)
         {
+            #region Dependency Injection
             _householdMemberService = householdMemberService;
             _userService = userService;
             _registrationService = registrationService;
             _passwordResetService = passwordResetService;
             _userFinanceService = userFinanceService;
             _userSessionService = userSessionService;
+            #endregion
 
+            #region Commands
             AddMemberCommand = new MyICommand<object>(OnAddMember);
             SaveSelectedMemberCommand = new MyICommand<object>(OnSaveSelectedMember);
             DeleteSelectedMemberCommand = new MyICommand<object>(OnDeleteSelectedMember);
             SendTemporaryPasswordCommand = new MyICommand<object>(OnSendTemporaryPassword);
             UpdateChildPasswordCommand = new MyICommand<object>(OnUpdateChildPassword);
+            #endregion
 
             foreach (var role in Enum.GetValues(typeof(HouseholdMemberRole)).Cast<HouseholdMemberRole>())
             {
@@ -51,12 +57,15 @@ namespace My_money.ViewModel
             _ = LoadMembersAsync();
         }
 
+        #region Commands
         public MyICommand<object> AddMemberCommand { get; }
         public MyICommand<object> SaveSelectedMemberCommand { get; }
         public MyICommand<object> DeleteSelectedMemberCommand { get; }
         public MyICommand<object> SendTemporaryPasswordCommand { get; }
         public MyICommand<object> UpdateChildPasswordCommand { get; }
+        #endregion
 
+        #region Properties
         public ObservableCollection<HouseholdMemberListItem> Members { get; } = new();
         public ObservableCollection<HouseholdMemberRole> RoleOptions { get; } = new();
         public ObservableCollection<string> MemberRoleNames { get; } = new();
@@ -141,6 +150,7 @@ namespace My_money.ViewModel
         public bool NewMemberUsesEmail => SelectedRole != HouseholdMemberRole.Child;
         public bool CanManageMembers => _userSessionService.CurrentHouseholdMember?.Role != nameof(HouseholdMemberRole.Child)
             && _userSessionService.CurrentHouseholdMember?.CanManageMembers == 1;
+        #endregion
 
         private async Task LoadMembersAsync()
         {
@@ -170,6 +180,7 @@ namespace My_money.ViewModel
             }
         }
 
+        #region Property Changed Handlers
         private void OnSelectedMemberPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName is nameof(HouseholdMemberListItem.Role) or nameof(HouseholdMemberListItem.CanManageBudgetEnabled) or nameof(HouseholdMemberListItem.CanManageMembersEnabled))
@@ -387,6 +398,6 @@ namespace My_money.ViewModel
                 MessageBox.Show(ex.Message, "Child password update failed", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
-
+        #endregion
     }
 }

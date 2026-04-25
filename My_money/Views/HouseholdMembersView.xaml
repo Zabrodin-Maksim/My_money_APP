@@ -119,14 +119,12 @@
                                                         Width="95">
                                     <DataGridCheckBoxColumn.ElementStyle>
                                         <Style TargetType="CheckBox">
-                                            <Setter Property="Visibility" Value="{Binding AdminVisibility}"/>
                                             <Setter Property="VerticalAlignment" Value="Center"/>
                                             <Setter Property="HorizontalAlignment" Value="Center"/>
                                         </Style>
                                     </DataGridCheckBoxColumn.ElementStyle>
                                     <DataGridCheckBoxColumn.EditingElementStyle>
                                         <Style TargetType="CheckBox">
-                                            <Setter Property="Visibility" Value="{Binding AdminVisibility}"/>
                                             <Setter Property="VerticalAlignment" Value="Center"/>
                                             <Setter Property="HorizontalAlignment" Value="Center"/>
                                         </Style>
