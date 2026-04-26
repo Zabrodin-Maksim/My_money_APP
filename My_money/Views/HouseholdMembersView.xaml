@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              d:DesignHeight="760"
@@ -45,95 +46,121 @@
                     <ColumnDefinition Width="0.85*" />
                 </Grid.ColumnDefinitions>
 
-                <Border Style="{StaticResource ContentCardStyle}" Padding="0" Height="650" VerticalAlignment="Top">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
+                <StackPanel>
+                    <Border Style="{StaticResource ContentCardStyle}" Padding="0" VerticalAlignment="Top">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
 
-                        <Grid Margin="22,22,22,14">
-                            <StackPanel>
-                                <TextBlock Text="Current members" Style="{StaticResource SectionTitleTextStyle}" />
-                                <TextBlock Text="Only admins can edit display names, roles, and rights directly in the table, then save the selected member."
-                                           Style="{StaticResource PageSubtitleTextStyle}"
-                                           Margin="0,6,0,0" />
-                            </StackPanel>
+                            <Grid Margin="22,22,22,14">
+                                <StackPanel>
+                                    <TextBlock Text="Current members" Style="{StaticResource SectionTitleTextStyle}" />
+                                    <TextBlock Text="Only admins can edit display names, roles, and rights directly in the table, then save the selected member."
+                                               Style="{StaticResource PageSubtitleTextStyle}"
+                                               Margin="0,6,0,0" />
+                                </StackPanel>
+                            </Grid>
+
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding Members}"
+                                      SelectedItem="{Binding SelectedMember, Mode=TwoWay}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      CanUserSortColumns="False"
+                                      ColumnHeaderStyle="{StaticResource AppDataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource AppDataGridRowStyle}"
+                                      CellStyle="{StaticResource AppDataGridCellStyle}"
+                                      Style="{StaticResource AppDataGridStyle}"
+                                      Height="430"
+                                      Margin="0,0,6,6">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Name"
+                                                        Binding="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}"
+                                                        Width="180"
+                                                        EditingElementStyle="{StaticResource AppDataGridEditingTextStyle}"
+                                                        ElementStyle="{StaticResource AppDataGridTextStyle}" />
+                                    <DataGridTextColumn Header="Email"
+                                                        Binding="{Binding EmailDisplay}"
+                                                        IsReadOnly="True"
+                                                        Width="190"
+                                                        ElementStyle="{StaticResource AppDataGridTextStyle}" />
+                                    <DataGridTemplateColumn Header="Role" Width="120">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Role}" Style="{StaticResource AppDataGridTextStyle}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                        <DataGridTemplateColumn.CellEditingTemplate>
+                                            <DataTemplate>
+                                                <ComboBox ItemsSource="{Binding DataContext.MemberRoleNames, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                          SelectedItem="{Binding Role, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                          Style="{StaticResource AppComboBoxStyle}" />
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellEditingTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="Score"
+                                                        Binding="{Binding FinancialHealthScore}"
+                                                        IsReadOnly="True"
+                                                        Width="75"
+                                                        ElementStyle="{StaticResource AppDataGridTextStyle}" />
+                                    <DataGridCheckBoxColumn Header="Budget Manage"
+                                                            Binding="{Binding CanManageBudgetEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                            Width="95">
+                                        <DataGridCheckBoxColumn.ElementStyle>
+                                            <Style TargetType="CheckBox">
+                                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            </Style>
+                                        </DataGridCheckBoxColumn.ElementStyle>
+                                        <DataGridCheckBoxColumn.EditingElementStyle>
+                                            <Style TargetType="CheckBox">
+                                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            </Style>
+                                        </DataGridCheckBoxColumn.EditingElementStyle>
+                                    </DataGridCheckBoxColumn>
+                                    <DataGridCheckBoxColumn Header="Members Manage"
+                                                            Binding="{Binding CanManageMembersEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                            Width="95">
+                                        <DataGridCheckBoxColumn.ElementStyle>
+                                            <Style TargetType="CheckBox">
+                                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            </Style>
+                                        </DataGridCheckBoxColumn.ElementStyle>
+                                        <DataGridCheckBoxColumn.EditingElementStyle>
+                                            <Style TargetType="CheckBox">
+                                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                            </Style>
+                                        </DataGridCheckBoxColumn.EditingElementStyle>
+                                    </DataGridCheckBoxColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </Grid>
+                    </Border>
 
-                        <DataGrid Grid.Row="1"
-                                  ItemsSource="{Binding Members}"
-                                  SelectedItem="{Binding SelectedMember, Mode=TwoWay}"
-                                  AutoGenerateColumns="False"
-                                  CanUserAddRows="False"
-                                  CanUserDeleteRows="False"
-                                  CanUserSortColumns="False"
-                                  ColumnHeaderStyle="{StaticResource AppDataGridColumnHeaderStyle}"
-                                  RowStyle="{StaticResource AppDataGridRowStyle}"
-                                  CellStyle="{StaticResource AppDataGridCellStyle}"
-                                  Style="{StaticResource AppDataGridStyle}"
-                                  Margin="0,0,6,6">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Name"
-                                                    Binding="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}"
-                                                    Width="180"
-                                                    EditingElementStyle="{StaticResource AppDataGridEditingTextStyle}"
-                                                    ElementStyle="{StaticResource AppDataGridTextStyle}" />
-                                <DataGridTextColumn Header="Email"
-                                                    Binding="{Binding EmailDisplay}"
-                                                    IsReadOnly="True"
-                                                    Width="190"
-                                                    ElementStyle="{StaticResource AppDataGridTextStyle}" />
-                                <DataGridTemplateColumn Header="Role" Width="120">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Role}" Style="{StaticResource AppDataGridTextStyle}" />
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                    <DataGridTemplateColumn.CellEditingTemplate>
-                                        <DataTemplate>
-                                            <ComboBox ItemsSource="{Binding DataContext.MemberRoleNames, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                      SelectedItem="{Binding Role, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                      Style="{StaticResource AppComboBoxStyle}" />
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellEditingTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridCheckBoxColumn Header="Budget Manage"
-                                                        Binding="{Binding CanManageBudgetEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                        Width="95">
-                                    <DataGridCheckBoxColumn.ElementStyle>
-                                        <Style TargetType="CheckBox">
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                                        </Style>
-                                    </DataGridCheckBoxColumn.ElementStyle>
-                                    <DataGridCheckBoxColumn.EditingElementStyle>
-                                        <Style TargetType="CheckBox">
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                                        </Style>
-                                    </DataGridCheckBoxColumn.EditingElementStyle>
-                                </DataGridCheckBoxColumn>
-                                <DataGridCheckBoxColumn Header="Members Manage"
-                                                        Binding="{Binding CanManageMembersEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                        Width="95">
-                                    <DataGridCheckBoxColumn.ElementStyle>
-                                        <Style TargetType="CheckBox">
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                                        </Style>
-                                    </DataGridCheckBoxColumn.ElementStyle>
-                                    <DataGridCheckBoxColumn.EditingElementStyle>
-                                        <Style TargetType="CheckBox">
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                                        </Style>
-                                    </DataGridCheckBoxColumn.EditingElementStyle>
-                                </DataGridCheckBoxColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </Grid>
-                </Border>
+                    <Border Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Score race" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="{Binding MemberScoreInsight}"
+                                       Style="{StaticResource PageSubtitleTextStyle}"
+                                       Margin="0,6,0,16"
+                                       TextWrapping="Wrap" />
+
+                            <lvc:CartesianChart Series="{Binding MemberScoreSeries}"
+                                                XAxes="{Binding MemberScoreXAxes}"
+                                                YAxes="{Binding MemberScoreYAxes}"
+                                                Background="Transparent"
+                                                TooltipPosition="Hidden"
+                                                LegendPosition="Hidden"
+                                                Height="320" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
 
                 <Grid Grid.Column="1" Margin="20,0,0,0">
                     <Grid.RowDefinitions>

@@ -13,17 +13,20 @@ namespace My_money.ViewModel
         private readonly Services.NavigationService _navigationService;
         private readonly IUserSessionService _userSessionService;
         private readonly IHouseholdService _householdService;
+        private readonly IFinancialHealthScoreService _financialHealthScoreService;
         #endregion
 
         public MainViewModel(
             Services.NavigationService navigationService,
             IUserSessionService userSessionService,
-            IHouseholdService householdService)
+            IHouseholdService householdService,
+            IFinancialHealthScoreService financialHealthScoreService)
         {
             #region Dependency Injection
             _navigationService = navigationService;
             _userSessionService = userSessionService;
             _householdService = householdService;
+            _financialHealthScoreService = financialHealthScoreService;
             #endregion
 
             #region Commands
@@ -88,6 +91,13 @@ namespace My_money.ViewModel
             get => sessionSummary;
             set => SetProperty(ref sessionSummary, value);
         }
+
+        private int financialHealthScore;
+        public int FinancialHealthScore
+        {
+            get => financialHealthScore;
+            set => SetProperty(ref financialHealthScore, value);
+        }
         #endregion
 
         #region Computed Properties
@@ -108,6 +118,7 @@ namespace My_money.ViewModel
                 CurrentUserName = "Guest";
                 CurrentRole = "Not signed in";
                 CurrentHouseholdName = "No household";
+                FinancialHealthScore = 0;
                 SessionSummary = "Sign in or register the first household admin account to begin.";
             }
             else
@@ -117,6 +128,9 @@ namespace My_money.ViewModel
 
                 Household? household = await _householdService.GetHouseholdByAuthenticatedUserAsync();
                 CurrentHouseholdName = household?.Name ?? "No household";
+                FinancialHealthScore = _userSessionService.CurrentHouseholdMember is null
+                    ? 0
+                    : await _financialHealthScoreService.GetFinancialHealthScoreAsync(_userSessionService.CurrentHouseholdMember);
 
                 SessionSummary = MustChangePassword
                     ? "Password reset is required before the rest of the workspace becomes available."
@@ -177,6 +191,7 @@ namespace My_money.ViewModel
         }
         #endregion
 
+        #region Command Handlers
         private async Task OnLogout(object _)
         {
             _userSessionService.EndSession();
@@ -195,5 +210,6 @@ namespace My_money.ViewModel
             SystemCommands.MinimizeWindow(Application.Current.MainWindow);
             return Task.CompletedTask;
         }
+        #endregion
     }
 }

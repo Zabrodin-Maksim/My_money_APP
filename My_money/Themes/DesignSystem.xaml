@@ -30,6 +30,7 @@
     <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" />
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" />
     <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMutedColor}" />
+    <SolidColorBrush x:Key="ChartSurfaceBrush" Color="#EEF3FB" />
     <SolidColorBrush x:Key="AccentBlueBrush" Color="{StaticResource AccentBlueColor}" />
     <SolidColorBrush x:Key="AccentTealBrush" Color="{StaticResource AccentTealColor}" />
     <SolidColorBrush x:Key="AccentGoldBrush" Color="{StaticResource AccentGoldColor}" />

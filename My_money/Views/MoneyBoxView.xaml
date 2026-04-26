@@ -158,7 +158,7 @@
                 <Border Style="{StaticResource ContentCardStyle}">
                     <StackPanel>
                         <TextBlock Text="Context" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="Choose whether you want to inspect household, personal, or your own shared goals."
+                        <TextBlock Text="Choose whether you want to inspect household goals or your own private goals."
                                    Style="{StaticResource PageSubtitleTextStyle}"
                                    Margin="0,6,0,14" />
                         <ComboBox ItemsSource="{Binding AvailableContexts}"
@@ -168,18 +168,25 @@
                                   Margin="0,0,0,16" />
 
                         <TextBlock Text="Manage goals" Style="{StaticResource SectionTitleTextStyle}" />
-                        <TextBlock Text="Members with budget permission can create, update, and delete goals. Child accounts stay view-only."
+                        <TextBlock Text="Members with budget permission can create, update, and delete goals. Child accounts can contribute to household goals, but cannot create or delete them."
                                    Style="{StaticResource PageSubtitleTextStyle}"
                                    Margin="0,6,0,16" />
 
-                        <Button Command="{Binding AddCommand}" Style="{StaticResource PrimaryButtonStyle}" IsEnabled="{Binding CanManageGoals}">
+                        <Button Command="{Binding AddCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                IsEnabled="{Binding CanAddGoals}"
+                                Visibility="{Binding AddGoalVisibility}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <fa:IconImage Icon="Plus" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
                                 <TextBlock Text="Add goal" Margin="10,0,0,0" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <Button Command="{Binding DeleteCommand}" Style="{StaticResource DangerButtonStyle}" Margin="0,12,0,0" IsEnabled="{Binding CanManageGoals}">
+                        <Button Command="{Binding DeleteCommand}"
+                                Style="{StaticResource DangerButtonStyle}"
+                                Margin="0,12,0,0"
+                                IsEnabled="{Binding CanDeleteGoals}"
+                                Visibility="{Binding DeleteGoalVisibility}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <fa:IconImage Icon="TrashCan" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
                                 <TextBlock Text="Delete goal" Margin="10,0,0,0" VerticalAlignment="Center" />

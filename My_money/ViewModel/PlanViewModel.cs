@@ -63,6 +63,8 @@ namespace My_money.ViewModel
                 OnPropertyChanged(nameof(ContextDescription));
                 OnPropertyChanged(nameof(CanManageCategories));
                 OnPropertyChanged(nameof(IsReadOnlyCategories));
+                OnPropertyChanged(nameof(AddCategoryVisibility));
+                OnPropertyChanged(nameof(DeleteCategoryVisibility));
                 _ = LoadDataAsync();
             }
         }
@@ -101,6 +103,8 @@ namespace My_money.ViewModel
         public bool CanManageBudget => !IsChild && _userSessionService.CurrentHouseholdMember?.CanManageBudget == 1;
         public bool CanManageCategories => CanManageBudget && SelectedContext?.FilterType != CategoryFilterType.Child;
         public bool IsReadOnlyCategories => !CanManageCategories;
+        public Visibility AddCategoryVisibility => CanManageCategories ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility DeleteCategoryVisibility => CanManageCategories ? Visibility.Visible : Visibility.Collapsed;
 
         private int HouseholdId => _userSessionService.CurrentHouseholdMember?.HouseholdId ?? 0;
         private int UserId => _userSessionService.CurrentUser?.Id ?? 0;
@@ -140,6 +144,8 @@ namespace My_money.ViewModel
             OnPropertyChanged(nameof(CanManageBudget));
             OnPropertyChanged(nameof(CanManageCategories));
             OnPropertyChanged(nameof(IsReadOnlyCategories));
+            OnPropertyChanged(nameof(AddCategoryVisibility));
+            OnPropertyChanged(nameof(DeleteCategoryVisibility));
         }
 
         private async Task LoadDataAsync()

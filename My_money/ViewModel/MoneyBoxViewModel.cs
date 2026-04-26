@@ -70,7 +70,12 @@ namespace My_money.ViewModel
                 SetProperty(ref selectedContext, value);
                 OnPropertyChanged(nameof(ContextDescription));
                 OnPropertyChanged(nameof(CanManageGoals));
+                OnPropertyChanged(nameof(CanContributeToHouseholdGoals));
+                OnPropertyChanged(nameof(CanAddGoals));
+                OnPropertyChanged(nameof(CanDeleteGoals));
                 OnPropertyChanged(nameof(IsReadOnlyGoals));
+                OnPropertyChanged(nameof(AddGoalVisibility));
+                OnPropertyChanged(nameof(DeleteGoalVisibility));
                 _ = LoadDataAsync();
             }
         }
@@ -107,6 +112,7 @@ namespace My_money.ViewModel
         #region Computed Properties
         public string ContextDescription => SelectedContext?.FilterType switch
         {
+            CategoryFilterType.Household when IsChild => "Shared savings goals for the whole household. Child accounts can contribute savings to these goals.",
             CategoryFilterType.Household => "Shared savings goals for the whole household.",
             CategoryFilterType.Personal => "Private savings goals visible only to the signed-in user.",
             CategoryFilterType.Child when IsChild => "Shared goals created by this child account.",
@@ -115,9 +121,14 @@ namespace My_money.ViewModel
         };
         public bool CanManageBudget => !IsChild && _userSessionService.CurrentHouseholdMember?.CanManageBudget == 1;
         public bool CanManageGoals => CanManageBudget && SelectedContext?.FilterType != CategoryFilterType.Child;
-        public bool IsReadOnlyGoals => !CanManageGoals;
+        public bool CanContributeToHouseholdGoals => IsChild && SelectedContext?.FilterType == CategoryFilterType.Household;
+        public bool CanAddGoals => CanManageGoals || CanContributeToHouseholdGoals;
+        public bool CanDeleteGoals => CanManageGoals;
+        public bool IsReadOnlyGoals => !(CanManageGoals || CanContributeToHouseholdGoals);
         public string SavingsCaption => SelectedContext?.UsesHouseholdFinance == true ? "Household savings" : "Personal savings";
         public string AvailableCaption => SelectedContext?.UsesHouseholdFinance == true ? "Available for shared goals" : "Available for private goals";
+        public Visibility AddGoalVisibility => CanAddGoals ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility DeleteGoalVisibility => CanDeleteGoals ? Visibility.Visible : Visibility.Collapsed;
 
         private int HouseholdId => _userSessionService.CurrentHouseholdMember?.HouseholdId ?? 0;
         private int UserId => _userSessionService.CurrentUser?.Id ?? 0;
@@ -143,20 +154,16 @@ namespace My_money.ViewModel
                     UsesHouseholdFinance = false
                 });
             }
-            else
-            {
-                AvailableContexts.Add(new ContextOption
-                {
-                    Title = "My shared activity",
-                    FilterType = CategoryFilterType.Child,
-                    UsesHouseholdFinance = true
-                });
-            }
 
             SelectedContext = AvailableContexts.First();
             OnPropertyChanged(nameof(CanManageBudget));
             OnPropertyChanged(nameof(CanManageGoals));
+            OnPropertyChanged(nameof(CanContributeToHouseholdGoals));
+            OnPropertyChanged(nameof(CanAddGoals));
+            OnPropertyChanged(nameof(CanDeleteGoals));
             OnPropertyChanged(nameof(IsReadOnlyGoals));
+            OnPropertyChanged(nameof(AddGoalVisibility));
+            OnPropertyChanged(nameof(DeleteGoalVisibility));
         }
 
         private async Task LoadDataAsync()
@@ -189,7 +196,7 @@ namespace My_money.ViewModel
         #region Commands Implementation
         private async Task OnAdd(object _)
         {
-            if (!CanManageGoals)
+            if (!CanAddGoals)
             {
                 MessageBox.Show("You do not have permission to manage savings goals in this context.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
@@ -219,7 +226,7 @@ namespace My_money.ViewModel
 
         private async Task OnDelete(object _)
         {
-            if (!CanManageGoals)
+            if (!CanDeleteGoals)
             {
                 MessageBox.Show("You do not have permission to manage savings goals in this context.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
@@ -244,7 +251,7 @@ namespace My_money.ViewModel
 
         private async Task OnUpdate(object _)
         {
-            if (!CanManageGoals)
+            if (IsReadOnlyGoals)
             {
                 MessageBox.Show("You do not have permission to manage savings goals in this context.", "Action not allowed", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;

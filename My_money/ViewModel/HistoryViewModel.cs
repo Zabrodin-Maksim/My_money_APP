@@ -52,6 +52,7 @@ namespace My_money.ViewModel
 
                 SetProperty(ref selectedContext, value);
                 OnPropertyChanged(nameof(ContextDescription));
+                OnPropertyChanged(nameof(DeleteRecordVisibility));
                 _ = LoadDataAsync();
             }
         }
@@ -92,6 +93,7 @@ namespace My_money.ViewModel
         #endregion
 
         public bool CanDeleteRecords => !IsChild;
+        public Visibility DeleteRecordVisibility => CanDeleteRecords ? Visibility.Visible : Visibility.Collapsed;
 
         private int HouseholdId => _userSessionService.CurrentHouseholdMember?.HouseholdId ?? 0;
         private bool IsChild => _userSessionService.CurrentHouseholdMember?.Role == nameof(HouseholdMemberRole.Child);
@@ -127,6 +129,7 @@ namespace My_money.ViewModel
 
             SelectedContext = AvailableContexts.First();
             OnPropertyChanged(nameof(CanDeleteRecords));
+            OnPropertyChanged(nameof(DeleteRecordVisibility));
         }
 
         private async Task LoadDataAsync()

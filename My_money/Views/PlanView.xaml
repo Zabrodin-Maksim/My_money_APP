@@ -139,14 +139,22 @@
                                    Style="{StaticResource PageSubtitleTextStyle}"
                                    Margin="0,6,0,16" />
 
-                        <Button Command="{Binding AddCommand}" Style="{StaticResource PrimaryButtonStyle}" Cursor="Hand" IsEnabled="{Binding CanManageCategories}">
+                        <Button Command="{Binding AddCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Cursor="Hand"
+                                IsEnabled="{Binding CanManageCategories}"
+                                Visibility="{Binding AddCategoryVisibility}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <fa:IconImage Icon="Plus" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
                                 <TextBlock Text="Add category" Margin="10,0,0,0" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
 
-                        <Button Command="{Binding DeleteCommand}" Style="{StaticResource DangerButtonStyle}" Margin="0,12,0,0" IsEnabled="{Binding CanManageCategories}">
+                        <Button Command="{Binding DeleteCommand}"
+                                Style="{StaticResource DangerButtonStyle}"
+                                Margin="0,12,0,0"
+                                IsEnabled="{Binding CanManageCategories}"
+                                Visibility="{Binding DeleteCategoryVisibility}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <fa:IconImage Icon="TrashCan" Width="14" Height="14" Foreground="{StaticResource TextPrimaryBrush}" />
                                 <TextBlock Text="Delete category" Margin="10,0,0,0" VerticalAlignment="Center" />

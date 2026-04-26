@@ -2,6 +2,13 @@ using My_money.Enums;
 using My_money.Model;
 using My_money.Services.IServices;
 using My_money.Utilities;
+using LiveChartsCore;
+using LiveChartsCore.Defaults;
+using LiveChartsCore.Kernel.Events;
+using LiveChartsCore.Measure;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using SkiaSharp;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -13,6 +20,16 @@ namespace My_money.ViewModel
 {
     public class HouseholdMembersViewModel : ViewModelBase
     {
+        private static readonly SKColor[] ScorePalette =
+        [
+            new(79, 140, 255),
+            new(73, 197, 182),
+            new(240, 181, 106),
+            new(255, 143, 169),
+            new(96, 165, 250),
+            new(82, 199, 140)
+        ];
+
         #region Dependency Injection Services
         private readonly IHouseholdMemberService _householdMemberService;
         private readonly IUserService _userService;
@@ -20,6 +37,7 @@ namespace My_money.ViewModel
         private readonly IPasswordResetService _passwordResetService;
         private readonly IUserFinanceService _userFinanceService;
         private readonly IUserSessionService _userSessionService;
+        private readonly IFinancialHealthScoreService _financialHealthScoreService;
         #endregion
 
         public HouseholdMembersViewModel(
@@ -28,7 +46,8 @@ namespace My_money.ViewModel
             IRegistrationService registrationService,
             IPasswordResetService passwordResetService,
             IUserFinanceService userFinanceService,
-            IUserSessionService userSessionService)
+            IUserSessionService userSessionService,
+            IFinancialHealthScoreService financialHealthScoreService)
         {
             #region Dependency Injection
             _householdMemberService = householdMemberService;
@@ -37,6 +56,7 @@ namespace My_money.ViewModel
             _passwordResetService = passwordResetService;
             _userFinanceService = userFinanceService;
             _userSessionService = userSessionService;
+            _financialHealthScoreService = financialHealthScoreService;
             #endregion
 
             #region Commands
@@ -54,6 +74,7 @@ namespace My_money.ViewModel
             }
 
             SelectedRole = HouseholdMemberRole.Partner;
+            InitializeCharts();
             _ = LoadMembersAsync();
         }
 
@@ -150,24 +171,84 @@ namespace My_money.ViewModel
         public bool NewMemberUsesEmail => SelectedRole != HouseholdMemberRole.Child;
         public bool CanManageMembers => _userSessionService.CurrentHouseholdMember?.Role != nameof(HouseholdMemberRole.Child)
             && _userSessionService.CurrentHouseholdMember?.CanManageMembers == 1;
+
+        private ISeries[] memberScoreSeries = [];
+        public ISeries[] MemberScoreSeries
+        {
+            get => memberScoreSeries;
+            set => SetProperty(ref memberScoreSeries, value);
+        }
+
+        private Axis[] memberScoreXAxes = [];
+        public Axis[] MemberScoreXAxes
+        {
+            get => memberScoreXAxes;
+            set => SetProperty(ref memberScoreXAxes, value);
+        }
+
+        private Axis[] memberScoreYAxes = [];
+        public Axis[] MemberScoreYAxes
+        {
+            get => memberScoreYAxes;
+            set => SetProperty(ref memberScoreYAxes, value);
+        }
+
+        private string memberScoreInsight = "Scores will appear here once the household member list is loaded.";
+        public string MemberScoreInsight
+        {
+            get => memberScoreInsight;
+            set => SetProperty(ref memberScoreInsight, value);
+        }
         #endregion
 
+        #region Chart Configuration
+        private void InitializeCharts()
+        {
+            var axisTextPaint = new SolidColorPaint(new SKColor(243, 246, 255));
+            var separatorPaint = new SolidColorPaint(new SKColor(120, 132, 165, 90), 1);
+
+            MemberScoreXAxes =
+            [
+                new Axis
+                {
+                    MinLimit = 0,
+                    MaxLimit = 100,
+                    MinStep = 20,
+                    Labeler = value => value.ToString("0"),
+                    LabelsPaint = axisTextPaint,
+                    SeparatorsPaint = separatorPaint
+                }
+            ];
+
+            MemberScoreYAxes =
+            [
+                new Axis
+                {
+                    Labels = [],
+                    LabelsPaint = axisTextPaint,
+                    SeparatorsPaint = null
+                }
+            ];
+        }
+        #endregion
+
+        #region Data Loading
         private async Task LoadMembersAsync()
         {
+            int? previouslySelectedMemberId = SelectedMember?.MemberId;
             Members.Clear();
 
             var users = await _userService.GetAllUsersAsync();
             var members = await _householdMemberService.GetAllHouseholdMembersByHouseholdIdAsync();
-
-            foreach (var member in members)
+            var memberItems = await Task.WhenAll(members.Select(async member =>
             {
                 var user = users.FirstOrDefault(u => u.Id == member.UserId);
                 if (user is null)
                 {
-                    continue;
+                    return null;
                 }
 
-                Members.Add(new HouseholdMemberListItem
+                return new HouseholdMemberListItem
                 {
                     MemberId = member.Id,
                     UserId = member.UserId,
@@ -175,10 +256,144 @@ namespace My_money.ViewModel
                     Email = user.Email,
                     Role = member.Role,
                     CanManageBudgetEnabled = member.CanManageBudget == 1,
-                    CanManageMembersEnabled = member.CanManageMembers == 1
-                });
+                    CanManageMembersEnabled = member.CanManageMembers == 1,
+                    FinancialHealthScore = await _financialHealthScoreService.GetFinancialHealthScoreAsync(member)
+                };
+            }));
+
+            foreach (var memberItem in memberItems
+                .Where(item => item is not null)
+                .Cast<HouseholdMemberListItem>()
+                .OrderByDescending(item => item.FinancialHealthScore)
+                .ThenBy(item => item.DisplayName))
+            {
+                Members.Add(memberItem);
+            }
+
+            UpdateMemberScoreChart();
+
+            if (previouslySelectedMemberId.HasValue)
+            {
+                SelectedMember = Members.FirstOrDefault(member => member.MemberId == previouslySelectedMemberId.Value);
             }
         }
+        #endregion
+
+        #region Chart Updates
+        private void UpdateMemberScoreChart()
+        {
+            var rankedMembers = Members
+                .OrderByDescending(member => member.FinancialHealthScore)
+                .ThenBy(member => member.DisplayName)
+                .ToList();
+
+            if (rankedMembers.Count == 0)
+            {
+                MemberScoreSeries =
+                [
+                    new RowSeries<HouseholdMemberScorePoint>
+                    {
+                        Name = "Score",
+                        Values =
+                        [
+                            new HouseholdMemberScorePoint("No members", 0, new SolidColorPaint(ScorePalette[0]))
+                        ],
+                        DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
+                        DataLabelsPosition = DataLabelsPosition.End,
+                        DataLabelsTranslate = new(-1, 0),
+                        DataLabelsFormatter = point => "0",
+                        MaxBarWidth = 36,
+                        Padding = 8
+                    }
+                    .OnPointMeasured(point =>
+                    {
+                        if (point.Visual is null)
+                        {
+                            return;
+                        }
+
+                        point.Visual.Fill = ((HouseholdMemberScorePoint)point.Model!).Paint;
+                    })
+                ];
+
+                MemberScoreYAxes =
+                [
+                    new Axis
+                    {
+                        Labels = ["No members"],
+                        LabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
+                        SeparatorsPaint = null
+                    }
+                ];
+
+                MemberScoreInsight = "There are no household members to compare yet.";
+                return;
+            }
+
+            var scorePoints = rankedMembers
+                .Select((member, index) => new HouseholdMemberScorePoint(
+                    member.DisplayName,
+                    member.FinancialHealthScore,
+                    new SolidColorPaint(ScorePalette[index % ScorePalette.Length])))
+                .Reverse()
+                .ToArray();
+
+            MemberScoreSeries =
+            [
+                new RowSeries<HouseholdMemberScorePoint>
+                {
+                    Name = "Financial health score",
+                    Values = [.. scorePoints],
+                    DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
+                    DataLabelsPosition = DataLabelsPosition.End,
+                    DataLabelsFormatter = point => $"{((HouseholdMemberScorePoint)point.Model!).Value:0}",
+                    MaxBarWidth = 36,
+                    Padding = 8,
+                }
+                .OnPointMeasured(point =>
+                {
+                    if (point.Visual is null)
+                    {
+                        return;
+                    }
+
+                    point.Visual.Fill = ((HouseholdMemberScorePoint)point.Model!).Paint;
+                })
+            ];
+
+            MemberScoreYAxes =
+            [
+                new Axis
+                {
+                    Labels = [.. scorePoints.Select(point => point.Name)],
+                    LabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
+                    SeparatorsPaint = null
+                }
+            ];
+
+            var leader = rankedMembers.First();
+            var challenger = rankedMembers.Skip(1).FirstOrDefault();
+
+            MemberScoreInsight = challenger is null
+                ? $"{leader.DisplayName} currently sets the household benchmark with a score of {leader.FinancialHealthScore}."
+                : $"{leader.DisplayName} leads the household with {leader.FinancialHealthScore}, staying {leader.FinancialHealthScore - challenger.FinancialHealthScore} points ahead of {challenger.DisplayName}.";
+        }
+        #endregion
+
+        #region Chart Models
+        private sealed class HouseholdMemberScorePoint : ObservableValue
+        {
+            public HouseholdMemberScorePoint(string name, double value, SolidColorPaint paint)
+            {
+                Name = name;
+                Paint = paint;
+                Value = value;
+            }
+
+            public string Name { get; }
+            public SolidColorPaint Paint { get; }
+        }
+        #endregion
 
         #region Property Changed Handlers
         private void OnSelectedMemberPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -189,7 +404,9 @@ namespace My_money.ViewModel
                 OnPropertyChanged(nameof(SelectedMemberIsAdult));
             }
         }
+        #endregion
 
+        #region Command Handlers
         private async Task OnAddMember(object _)
         {
             try

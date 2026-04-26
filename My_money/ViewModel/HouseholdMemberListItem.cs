@@ -4,9 +4,12 @@ namespace My_money.ViewModel
 {
     public class HouseholdMemberListItem : ViewModelBase
     {
+        #region Identity
         public int MemberId { get; init; }
         public int UserId { get; init; }
+        #endregion
 
+        #region Properties
         private string displayName = string.Empty;
         public string DisplayName
         {
@@ -67,9 +70,19 @@ namespace My_money.ViewModel
             get => canManageMembersEnabled;
             set => SetProperty(ref canManageMembersEnabled, value);
         }
+        
+        private int financialHealthScore;
+        public int FinancialHealthScore
+        {
+            get => financialHealthScore;
+            set => SetProperty(ref financialHealthScore, value);
+        }
+        #endregion
 
+        #region Computed Properties
         public string EmailDisplay => Email;
         public bool IsChild => Role == nameof(HouseholdMemberRole.Child);
         public bool IsAdult => !IsChild;
+        #endregion
     }
 }
