@@ -18,6 +18,7 @@
     <Color x:Key="AccentRoseColor">#FF8FA9</Color>
     <Color x:Key="AccentSuccessColor">#52C78C</Color>
     <Color x:Key="AccentDangerColor">#FF7D7D</Color>
+    <Color x:Key="ChartSurfaceColor">#EEF3FB</Color>
 
     <SolidColorBrush x:Key="WindowBackgroundBrush" Color="{StaticResource WindowBackgroundColor}" />
     <SolidColorBrush x:Key="ChromeBrush" Color="{StaticResource ChromeColor}" />
@@ -30,7 +31,7 @@
     <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" />
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" />
     <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMutedColor}" />
-    <SolidColorBrush x:Key="ChartSurfaceBrush" Color="#EEF3FB" />
+    <SolidColorBrush x:Key="ChartSurfaceBrush" Color="{StaticResource ChartSurfaceColor}" />
     <SolidColorBrush x:Key="AccentBlueBrush" Color="{StaticResource AccentBlueColor}" />
     <SolidColorBrush x:Key="AccentTealBrush" Color="{StaticResource AccentTealColor}" />
     <SolidColorBrush x:Key="AccentGoldBrush" Color="{StaticResource AccentGoldColor}" />

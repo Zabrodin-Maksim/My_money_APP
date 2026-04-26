@@ -289,6 +289,7 @@ namespace My_money.ViewModel
                 new Axis
                 {
                     MinLimit = 0,
+                    LabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
                     Labeler = value => value.ToString("C0")
                 }
             ];
@@ -357,6 +358,7 @@ namespace My_money.ViewModel
                     {
                         Name = "No spending yet",
                         Values = [1],
+                        DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
                         InnerRadius = 58,
                         Fill = new SolidColorPaint(new SKColor(226, 232, 240)),
                         Stroke = new SolidColorPaint(SKColors.White, 3)
@@ -373,6 +375,7 @@ namespace My_money.ViewModel
                 {
                     Name = cat.Name,
                     Values = [Convert.ToDouble(cat.SpendByPeriod ?? 0m)],
+                    DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
                     InnerRadius = 58,
                     Fill = new SolidColorPaint(ChartPalette[index % ChartPalette.Length]),
                     Stroke = new SolidColorPaint(SKColors.White, 3)
@@ -385,6 +388,7 @@ namespace My_money.ViewModel
                 {
                     Name = "Other",
                     Values = [Convert.ToDouble(otherSpend)],
+                    DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
                     InnerRadius = 58,
                     Fill = new SolidColorPaint(new SKColor(148, 163, 184)),
                     Stroke = new SolidColorPaint(SKColors.White, 3)
@@ -408,12 +412,14 @@ namespace My_money.ViewModel
                     new ColumnSeries<double>
                     {
                         Name = "Plan",
-                        Values = [0]
+                        Values = [0],
+                        DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255))
                     },
                     new ColumnSeries<double>
                     {
                         Name = "Spent",
-                        Values = [0]
+                        Values = [0],
+                        DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255))
                     }
                 ];
 
@@ -426,12 +432,14 @@ namespace My_money.ViewModel
                 {
                     Name = "Plan",
                     Values = [.. comparisonCategories.Select(cat => Convert.ToDouble(cat.PlanByPeriod ?? cat.Plan))],
+                    DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
                     Fill = new SolidColorPaint(new SKColor(79, 140, 255))
                 },
                 new ColumnSeries<double>
                 {
                     Name = "Spent",
                     Values = [.. comparisonCategories.Select(cat => Convert.ToDouble(cat.SpendByPeriod ?? 0m))],
+                    DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
                     Fill = new SolidColorPaint(new SKColor(247, 178, 103))
                 }
             ];

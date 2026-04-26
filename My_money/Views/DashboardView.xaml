@@ -201,7 +201,8 @@
                                        Margin="0,6,0,16" />
 
                             <lvc:PieChart Series="{Binding SpendDistributionSeries}" 
-                                          Background="{StaticResource ChartSurfaceBrush}"
+                                          Background="Transparent"
+                                          LegendTextPaint="#EEF3FB"
                                           LegendPosition="Right"
                                           Height="320" />
                         </StackPanel>
@@ -253,7 +254,8 @@
 
                             <lvc:CartesianChart Series="{Binding BudgetComparisonSeries}"
                                                 YAxes="{Binding CurrencyYAxes}"
-                                                Background="{StaticResource ChartSurfaceBrush}"
+                                                Background="Transparent"
+                                                LegendTextPaint="#EEF3FB"
                                                 LegendPosition="Top"
                                                 Height="320" />
                         </StackPanel>
