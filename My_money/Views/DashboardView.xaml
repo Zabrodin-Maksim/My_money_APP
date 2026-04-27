@@ -248,16 +248,17 @@
 
                     <Border Style="{StaticResource ContentCardStyle}" Margin="0,18,0,0">
                         <StackPanel>
-                            <TextBlock Text="Plan vs spent" Style="{StaticResource SectionTitleTextStyle}" />
-                            <TextBlock Text="The largest categories in the current range, compared against their active plan."
+                            <TextBlock Text="Budget pressure" Style="{StaticResource SectionTitleTextStyle}" />
+                            <TextBlock Text="{Binding BudgetPressureInsight}"
                                        Style="{StaticResource PageSubtitleTextStyle}"
                                        Margin="0,6,0,16" />
 
-                            <lvc:CartesianChart Series="{Binding BudgetComparisonSeries}"
-                                                YAxes="{Binding CurrencyYAxes}"
+                            <lvc:CartesianChart Series="{Binding BudgetPressureSeries}"
+                                                XAxes="{Binding PressureXAxes}"
+                                                YAxes="{Binding PressureYAxes}"
                                                 Background="Transparent"
-                                                LegendTextPaint="#EEF3FB"
-                                                LegendPosition="Top"
+                                                TooltipPosition="Hidden"
+                                                LegendPosition="Hidden"
                                                 Height="320" />
                         </StackPanel>
                     </Border>

@@ -1,4 +1,7 @@
 using LiveChartsCore;
+using LiveChartsCore.Defaults;
+using LiveChartsCore.Kernel.Events;
+using LiveChartsCore.Measure;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using My_money.Enums;
@@ -24,6 +27,9 @@ namespace My_money.ViewModel
             new(96, 165, 250),
             new(45, 212, 191)
         ];
+        private static readonly SKColor PressureSafeColor = new(82, 199, 140);
+        private static readonly SKColor PressureWatchColor = new(240, 181, 106);
+        private static readonly SKColor PressureDangerColor = new(255, 125, 125);
 
         #region Dependency Injection Services
         private readonly IBudgetCategoryService _budgetCategoryService;
@@ -143,18 +149,25 @@ namespace My_money.ViewModel
             set => SetProperty(ref spendDistributionSeries, value);
         }
 
-        private ISeries[] budgetComparisonSeries = [];
-        public ISeries[] BudgetComparisonSeries
+        private ISeries[] budgetPressureSeries = [];
+        public ISeries[] BudgetPressureSeries
         {
-            get => budgetComparisonSeries;
-            set => SetProperty(ref budgetComparisonSeries, value);
+            get => budgetPressureSeries;
+            set => SetProperty(ref budgetPressureSeries, value);
         }
 
-        private Axis[] currencyYAxes = [];
-        public Axis[] CurrencyYAxes
+        private Axis[] pressureXAxes = [];
+        public Axis[] PressureXAxes
         {
-            get => currencyYAxes;
-            set => SetProperty(ref currencyYAxes, value);
+            get => pressureXAxes;
+            set => SetProperty(ref pressureXAxes, value);
+        }
+
+        private Axis[] pressureYAxes = [];
+        public Axis[] PressureYAxes
+        {
+            get => pressureYAxes;
+            set => SetProperty(ref pressureYAxes, value);
         }
 
         private string chartInsight = "Add categories and transactions to unlock the chart layer.";
@@ -169,6 +182,13 @@ namespace My_money.ViewModel
         {
             get => budgetProgressLabel;
             set => SetProperty(ref budgetProgressLabel, value);
+        }
+
+        private string budgetPressureInsight = "Planned categories will appear here once the dashboard has enough budget data to compare.";
+        public string BudgetPressureInsight
+        {
+            get => budgetPressureInsight;
+            set => SetProperty(ref budgetPressureInsight, value);
         }
 
         public ObservableCollection<AnalyticsMetric> AnalyticsMetrics { get; } = new();
@@ -331,14 +351,26 @@ namespace My_money.ViewModel
             var textPaint = new SolidColorPaint(new SKColor(243, 246, 255));
             var separatorPaint = new SolidColorPaint(new SKColor(120, 132, 165, 90), 1);
 
-            CurrencyYAxes =
+            PressureXAxes =
             [
                 new Axis
                 {
                     MinLimit = 0,
+                    MaxLimit = 140,
+                    MinStep = 20,
                     LabelsPaint = textPaint,
                     SeparatorsPaint = separatorPaint,
-                    Labeler = value => value.ToString("C0")
+                    Labeler = value => $"{value:0}%"
+                }
+            ];
+
+            PressureYAxes =
+            [
+                new Axis
+                {
+                    Labels = [],
+                    LabelsPaint = textPaint,
+                    SeparatorsPaint = null
                 }
             ];
 
@@ -409,7 +441,7 @@ namespace My_money.ViewModel
                 .ToList();
 
             UpdateSpendDistributionChart(rankedCategories);
-            UpdateBudgetComparisonChart(rankedCategories);
+            UpdateBudgetPressureChart(rankedCategories);
             UpdateBudgetProgressSummary(totalPlanned);
             UpdateChartInsight(rankedCategories, totalPlanned);
         }
@@ -469,51 +501,126 @@ namespace My_money.ViewModel
             SpendDistributionSeries = [.. series];
         }
 
-        private void UpdateBudgetComparisonChart(System.Collections.Generic.IReadOnlyList<BudgetCategory> rankedCategories)
+        private void UpdateBudgetPressureChart(System.Collections.Generic.IReadOnlyList<BudgetCategory> rankedCategories)
         {
-            var comparisonCategories = rankedCategories
-                .OrderByDescending(cat => Math.Max(cat.PlanByPeriod ?? cat.Plan, cat.SpendByPeriod ?? 0m))
+            var pressureCategories = rankedCategories
+                .Where(cat => (cat.PlanByPeriod ?? cat.Plan) > 0m)
+                .OrderByDescending(CalculateBudgetPressure)
                 .Take(6)
                 .ToList();
 
-            if (comparisonCategories.Count == 0)
+            if (pressureCategories.Count == 0)
             {
-                BudgetComparisonSeries =
+                BudgetPressureSeries =
                 [
-                    new ColumnSeries<double>
+                    new RowSeries<BudgetPressurePoint>
                     {
-                        Name = "Plan",
-                        Values = [0],
-                        DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255))
-                    },
-                    new ColumnSeries<double>
+                        Name = "Budget pressure",
+                        Values =
+                        [
+                            new BudgetPressurePoint("No planned categories", 0, "0%", new SolidColorPaint(ChartPalette[0]))
+                        ],
+                        DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
+                        DataLabelsPosition = DataLabelsPosition.End,
+                        DataLabelsFormatter = point => ((BudgetPressurePoint)point.Model!).Label,
+                        MaxBarWidth = 20,
+                        Padding = 8
+                    }
+                    .OnPointMeasured(point =>
                     {
-                        Name = "Spent",
-                        Values = [0],
-                        DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255))
+                        if (point.Visual is null)
+                        {
+                            return;
+                        }
+
+                        point.Visual.Fill = ((BudgetPressurePoint)point.Model!).Paint;
+                    })
+                ];
+
+                PressureYAxes =
+                [
+                    new Axis
+                    {
+                        Labels = ["No planned categories"],
+                        LabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
+                        SeparatorsPaint = null
                     }
                 ];
 
+                BudgetPressureInsight = "No categories with an active plan were found for the current range yet.";
                 return;
             }
 
-            BudgetComparisonSeries =
+            var pressurePoints = pressureCategories
+                .Select(category =>
+                {
+                    decimal pressure = CalculateBudgetPressure(category);
+                    return new BudgetPressurePoint(
+                        category.Name,
+                        Convert.ToDouble(pressure),
+                        $"{pressure:0}%",
+                        new SolidColorPaint(GetPressureColor(pressure)));
+                })
+                .Reverse()
+                .ToArray();
+
+            double maxPointValue = pressurePoints.Max(point => point.Value ?? 0d);
+            double maxPressure = Math.Max(120d, Math.Ceiling(maxPointValue / 20d) * 20d);
+
+            BudgetPressureSeries =
             [
-                new ColumnSeries<double>
+                new RowSeries<BudgetPressurePoint>
                 {
-                    Name = "Plan",
-                    Values = [.. comparisonCategories.Select(cat => Convert.ToDouble(cat.PlanByPeriod ?? cat.Plan))],
+                    Name = "Budget pressure",
+                    Values = [.. pressurePoints],
                     DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
-                    Fill = new SolidColorPaint(new SKColor(79, 140, 255))
-                },
-                new ColumnSeries<double>
+                    DataLabelsPosition = DataLabelsPosition.End,
+                    DataLabelsFormatter = point => ((BudgetPressurePoint)point.Model!).Label,
+                    MaxBarWidth = 20,
+                    Padding = 8
+                }
+                .OnPointMeasured(point =>
                 {
-                    Name = "Spent",
-                    Values = [.. comparisonCategories.Select(cat => Convert.ToDouble(cat.SpendByPeriod ?? 0m))],
-                    DataLabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
-                    Fill = new SolidColorPaint(new SKColor(247, 178, 103))
+                    if (point.Visual is null)
+                    {
+                        return;
+                    }
+
+                    point.Visual.Fill = ((BudgetPressurePoint)point.Model!).Paint;
+                })
+            ];
+
+            PressureXAxes =
+            [
+                new Axis
+                {
+                    MinLimit = 0,
+                    MaxLimit = maxPressure,
+                    MinStep = 20,
+                    LabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
+                    SeparatorsPaint = new SolidColorPaint(new SKColor(120, 132, 165, 90), 1),
+                    Labeler = value => $"{value:0}%"
                 }
             ];
+
+            PressureYAxes =
+            [
+                new Axis
+                {
+                    Labels = [.. pressurePoints.Select(point => point.Name)],
+                    LabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
+                    SeparatorsPaint = null
+                }
+            ];
+
+            var mostPressuredCategory = pressureCategories.First();
+            decimal mostPressuredValue = CalculateBudgetPressure(mostPressuredCategory);
+
+            BudgetPressureInsight = mostPressuredValue > 100m
+                ? $"{mostPressuredCategory.Name} is already above plan at {mostPressuredValue:0}% usage, so this category should be reviewed first."
+                : mostPressuredValue >= 85m
+                    ? $"{mostPressuredCategory.Name} is the closest category to its limit at {mostPressuredValue:0}% usage."
+                    : "All planned categories are still below 85% of their current budget pace.";
         }
 
         private void UpdateBudgetProgressSummary(decimal totalPlanned)
@@ -641,6 +748,34 @@ namespace My_money.ViewModel
         #endregion
 
         #region Helpers
+        private static decimal CalculateBudgetPressure(BudgetCategory category)
+        {
+            decimal planned = category.PlanByPeriod ?? category.Plan;
+            decimal spent = category.SpendByPeriod ?? 0m;
+
+            if (planned <= 0m)
+            {
+                return 0m;
+            }
+
+            return Math.Round((spent / planned) * 100m, 0);
+        }
+
+        private static SKColor GetPressureColor(decimal pressure)
+        {
+            if (pressure > 100m)
+            {
+                return PressureDangerColor;
+            }
+
+            if (pressure >= 70m)
+            {
+                return PressureWatchColor;
+            }
+
+            return PressureSafeColor;
+        }
+
         private static string BuildPeriodLabel(DateTime from, DateTime to, int selectedSortPeriod)
         {
             return selectedSortPeriod switch
@@ -667,6 +802,23 @@ namespace My_money.ViewModel
         {
             _navigationService.Navigate(ViewID.AddView);
             return Task.CompletedTask;
+        }
+        #endregion
+
+        #region Chart Models
+        private sealed class BudgetPressurePoint : ObservableValue
+        {
+            public BudgetPressurePoint(string name, double value, string label, SolidColorPaint paint)
+            {
+                Name = name;
+                Value = value;
+                Label = label;
+                Paint = paint;
+            }
+
+            public string Name { get; }
+            public string Label { get; }
+            public SolidColorPaint Paint { get; }
         }
         #endregion
     }
