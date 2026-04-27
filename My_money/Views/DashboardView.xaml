@@ -17,6 +17,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid>
@@ -289,6 +290,137 @@
                         </StackPanel>
                     </Border>
                 </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="3" Margin="0,22,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.95*" />
+                    <ColumnDefinition Width="1.35*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource ContentCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Monthly trend" Style="{StaticResource SectionTitleTextStyle}" />
+                        <TextBlock Text="{Binding AnalyticsOverview}"
+                                   Style="{StaticResource PageSubtitleTextStyle}"
+                                   Margin="0,6,0,16"
+                                   TextWrapping="Wrap" />
+
+                        <lvc:CartesianChart Series="{Binding MonthlySpendTrendSeries}"
+                                            XAxes="{Binding TrendXAxes}"
+                                            YAxes="{Binding TrendYAxes}"
+                                            Background="Transparent"
+                                            TooltipPosition="Hidden"
+                                            LegendPosition="Hidden"
+                                            Height="320" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource ContentCardStyle}" Margin="20,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Analysis engine" Style="{StaticResource SectionTitleTextStyle}" />
+                        <TextBlock Text="Explainable recommendations built from tracked budget pressure, trend signals, savings reserve, and goal progress."
+                                   Style="{StaticResource PageSubtitleTextStyle}"
+                                   Margin="0,6,0,16"
+                                   TextWrapping="Wrap" />
+
+                        <ItemsControl ItemsSource="{Binding AnalyticsMetrics}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="2" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#111A2F"
+                                            BorderBrush="{StaticResource BorderBrushStrong}"
+                                            BorderThickness="1"
+                                            CornerRadius="18"
+                                            Padding="16"
+                                            Margin="0,0,12,12">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Title}"
+                                                       Style="{StaticResource PageSubtitleTextStyle}" />
+                                            <TextBlock Text="{Binding Value}"
+                                                       Style="{StaticResource MetricValueTextStyle}"
+                                                       FontSize="24"
+                                                       Margin="0,10,0,0" />
+                                            <TextBlock Text="{Binding Caption}"
+                                                       Style="{StaticResource PageSubtitleTextStyle}"
+                                                       Margin="0,8,0,0"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <ItemsControl ItemsSource="{Binding AnalyticsInsights}" Margin="0,6,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderThickness="1"
+                                            CornerRadius="18"
+                                            Padding="18"
+                                            Margin="0,0,0,12">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#15223B" />
+                                                <Setter Property="BorderBrush" Value="#345089" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Kind}" Value="Warning">
+                                                        <Setter Property="Background" Value="#2B1720" />
+                                                        <Setter Property="BorderBrush" Value="#7F3344" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Kind}" Value="Advice">
+                                                        <Setter Property="Background" Value="#2A2116" />
+                                                        <Setter Property="BorderBrush" Value="#7A6038" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Kind}" Value="Praise">
+                                                        <Setter Property="Background" Value="#15251E" />
+                                                        <Setter Property="BorderBrush" Value="#2D6A4F" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Kind}"
+                                                       FontFamily="Bahnschrift"
+                                                       FontSize="12"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextSecondaryBrush}" />
+                                            <TextBlock Text="{Binding Title}"
+                                                       Style="{StaticResource SectionTitleTextStyle}"
+                                                       Margin="0,6,0,0"
+                                                       TextWrapping="Wrap" />
+
+                                            <TextBlock Text="Detected"
+                                                       Style="{StaticResource FieldLabelTextStyle}"
+                                                       Margin="0,14,0,0" />
+                                            <TextBlock Text="{Binding Detected}"
+                                                       Style="{StaticResource BodyTextStyle}"
+                                                       TextWrapping="Wrap" />
+
+                                            <TextBlock Text="Why it matters"
+                                                       Style="{StaticResource FieldLabelTextStyle}"
+                                                       Margin="0,14,0,0" />
+                                            <TextBlock Text="{Binding WhyItMatters}"
+                                                       Style="{StaticResource BodyTextStyle}"
+                                                       TextWrapping="Wrap" />
+
+                                            <TextBlock Text="What to do"
+                                                       Style="{StaticResource FieldLabelTextStyle}"
+                                                       Margin="0,14,0,0" />
+                                            <TextBlock Text="{Binding SuggestedAction}"
+                                                       Style="{StaticResource BodyTextStyle}"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
             </Grid>
         </Grid>
     </ScrollViewer>

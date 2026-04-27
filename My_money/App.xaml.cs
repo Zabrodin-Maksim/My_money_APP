@@ -53,6 +53,7 @@ namespace My_money
             services.AddSingleton<IRecordService, RecordService>();
             services.AddSingleton<ISavingsGoalService, SavingsGoalService>();
             services.AddSingleton<IFinancialHealthScoreService, FinancialHealthScoreService>();
+            services.AddSingleton<IExplainableAnalyticsService, ExplainableAnalyticsService>();
             services.AddSingleton<IAuthService, AuthService>();
             services.AddSingleton<IRegistrationService, RegistrationService>();
             services.AddSingleton<IPasswordResetService, PasswordResetService>();

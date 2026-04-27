@@ -29,6 +29,7 @@ namespace My_money.ViewModel
         private readonly IBudgetCategoryService _budgetCategoryService;
         private readonly IUserFinanceService _userFinanceService;
         private readonly IHouseholdFinanceService _householdFinanceService;
+        private readonly IExplainableAnalyticsService _explainableAnalyticsService;
         private readonly IUserSessionService _userSessionService;
         private readonly Services.NavigationService _navigationService;
         #endregion
@@ -37,6 +38,7 @@ namespace My_money.ViewModel
             IBudgetCategoryService budgetCategoryService,
             IUserFinanceService userFinanceService,
             IHouseholdFinanceService householdFinanceService,
+            IExplainableAnalyticsService explainableAnalyticsService,
             IUserSessionService userSessionService,
             Services.NavigationService navigationService)
         {
@@ -44,6 +46,7 @@ namespace My_money.ViewModel
             _budgetCategoryService = budgetCategoryService;
             _userFinanceService = userFinanceService;
             _householdFinanceService = householdFinanceService;
+            _explainableAnalyticsService = explainableAnalyticsService;
             _userSessionService = userSessionService;
             _navigationService = navigationService;
             #endregion
@@ -168,6 +171,37 @@ namespace My_money.ViewModel
             set => SetProperty(ref budgetProgressLabel, value);
         }
 
+        public ObservableCollection<AnalyticsMetric> AnalyticsMetrics { get; } = new();
+        public ObservableCollection<AnalyticsInsight> AnalyticsInsights { get; } = new();
+
+        private string analyticsOverview = "Explainable analytics turns tracked finance data into transparent observations and actions.";
+        public string AnalyticsOverview
+        {
+            get => analyticsOverview;
+            set => SetProperty(ref analyticsOverview, value);
+        }
+
+        private ISeries[] monthlySpendTrendSeries = [];
+        public ISeries[] MonthlySpendTrendSeries
+        {
+            get => monthlySpendTrendSeries;
+            set => SetProperty(ref monthlySpendTrendSeries, value);
+        }
+
+        private Axis[] trendXAxes = [];
+        public Axis[] TrendXAxes
+        {
+            get => trendXAxes;
+            set => SetProperty(ref trendXAxes, value);
+        }
+
+        private Axis[] trendYAxes = [];
+        public Axis[] TrendYAxes
+        {
+            get => trendYAxes;
+            set => SetProperty(ref trendYAxes, value);
+        }
+
         private int selectedSortPeriod = 1;
         public int SelectedSortPeriod
         {
@@ -252,6 +286,14 @@ namespace My_money.ViewModel
             }
 
             var (from, to) = GetPeriodRange(SelectedDate, SelectedSortPeriod);
+            var analyticsTask = _explainableAnalyticsService.BuildDashboardAnalyticsAsync(
+                from,
+                to,
+                SelectedDate,
+                SelectedContext.FilterType,
+                SelectedContext.UsesHouseholdFinance,
+                HouseholdId);
+
             SelectedPeriodLabel = BuildPeriodLabel(from, to, SelectedSortPeriod);
 
             BudgetCategories = new ObservableCollection<BudgetCategory>(
@@ -280,21 +322,50 @@ namespace My_money.ViewModel
             UpdateBudgetStatus(totalPlanned);
             UpdateContextDescription();
             UpdateCharts(totalPlanned);
+            ApplyAnalyticsSnapshot(await analyticsTask);
         }
 
+        #region Chart Initialization
         private void InitializeCharts()
         {
+            var textPaint = new SolidColorPaint(new SKColor(243, 246, 255));
+            var separatorPaint = new SolidColorPaint(new SKColor(120, 132, 165, 90), 1);
+
             CurrencyYAxes =
             [
                 new Axis
                 {
                     MinLimit = 0,
-                    LabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
+                    LabelsPaint = textPaint,
+                    SeparatorsPaint = separatorPaint,
                     Labeler = value => value.ToString("C0")
                 }
             ];
-        }
 
+            TrendYAxes =
+            [
+                new Axis
+                {
+                    MinLimit = 0,
+                    LabelsPaint = textPaint,
+                    SeparatorsPaint = separatorPaint,
+                    Labeler = value => value.ToString("C0")
+                }
+            ];
+
+            TrendXAxes =
+            [
+                new Axis
+                {
+                    Labels = [],
+                    LabelsPaint = textPaint,
+                    SeparatorsPaint = null
+                }
+            ];
+        }
+        #endregion
+
+        #region View State Updates
         private void UpdateBudgetStatus(decimal totalPlanned)
         {
             if (totalPlanned <= 0m)
@@ -496,6 +567,80 @@ namespace My_money.ViewModel
                 : $"{topSpendCategory.Name} drives {share}% of the current spend. The dashboard is currently {-delta:C0} over the planned budget.";
         }
 
+        private void ApplyAnalyticsSnapshot(DashboardAnalyticsSnapshot snapshot)
+        {
+            AnalyticsOverview = snapshot.OverviewText;
+
+            AnalyticsMetrics.Clear();
+            foreach (var metric in snapshot.Metrics)
+            {
+                AnalyticsMetrics.Add(metric);
+            }
+
+            AnalyticsInsights.Clear();
+            foreach (var insight in snapshot.Insights)
+            {
+                AnalyticsInsights.Add(insight);
+            }
+
+            UpdateMonthlyTrendChart(snapshot.MonthlyTrend);
+        }
+
+        private void UpdateMonthlyTrendChart(System.Collections.Generic.IReadOnlyList<MonthlySpendTrendPoint> monthlyTrend)
+        {
+            if (monthlyTrend.Count == 0)
+            {
+                MonthlySpendTrendSeries =
+                [
+                    new LineSeries<double>
+                    {
+                        Name = "Spend",
+                        Values = [0],
+                        Stroke = new SolidColorPaint(ChartPalette[0], 3),
+                        Fill = null
+                    }
+                ];
+
+                TrendXAxes =
+                [
+                    new Axis
+                    {
+                        Labels = ["No data"],
+                        LabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
+                        SeparatorsPaint = null
+                    }
+                ];
+
+                return;
+            }
+
+            MonthlySpendTrendSeries =
+            [
+                new LineSeries<double>
+                {
+                    Name = "Monthly spend",
+                    Values = [.. monthlyTrend.Select(point => Convert.ToDouble(point.Amount))],
+                    Stroke = new SolidColorPaint(ChartPalette[0], 3),
+                    Fill = new SolidColorPaint(new SKColor(124, 147, 255, 50)),
+                    GeometrySize = 10,
+                    GeometryFill = new SolidColorPaint(ChartPalette[1]),
+                    GeometryStroke = new SolidColorPaint(new SKColor(243, 246, 255), 2)
+                }
+            ];
+
+            TrendXAxes =
+            [
+                new Axis
+                {
+                    Labels = [.. monthlyTrend.Select(point => point.Label)],
+                    LabelsPaint = new SolidColorPaint(new SKColor(243, 246, 255)),
+                    SeparatorsPaint = null
+                }
+            ];
+        }
+        #endregion
+
+        #region Helpers
         private static string BuildPeriodLabel(DateTime from, DateTime to, int selectedSortPeriod)
         {
             return selectedSortPeriod switch
@@ -523,5 +668,6 @@ namespace My_money.ViewModel
             _navigationService.Navigate(ViewID.AddView);
             return Task.CompletedTask;
         }
+        #endregion
     }
 }
